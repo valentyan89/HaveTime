@@ -6,9 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.havetime"
-    compileSdk {
-        version = release(36)
-    }
+    // Устанавливаем 36, чтобы удовлетворить зависимости
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.havetime"
@@ -29,13 +28,18 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
+
     buildFeatures {
         compose = true
     }
@@ -50,6 +54,15 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // Используем стабильные версии для навигации и вьюмодели
+    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
+    implementation(libs.androidx.compose.runtime)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
