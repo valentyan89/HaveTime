@@ -16,12 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.havetime.domain.model.TimeInterval
 import java.util.Locale
 
 @Composable
 fun WeekScreen(
     currentDate: Calendar,
-    getBusyMinutes: (Calendar) -> Int,
+    getIntervals: (Calendar) -> List<TimeInterval>,
     onDayClick: (Calendar) -> Unit
 ) {
     val weekStart = currentDate.clone() as Calendar
@@ -32,49 +33,68 @@ fun WeekScreen(
             val day = weekStart.clone() as Calendar
             day.add(Calendar.DAY_OF_MONTH, index)
 
-            val busyMinutes = getBusyMinutes(day)
-            val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(day) // Полное название
-            val dayNumber = day.get(Calendar.DAY_OF_MONTH).toString()
+            val dayIntervals = getIntervals(day)
+            val dayOfMonth = day.get(Calendar.DAY_OF_MONTH).toString()
+            val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(day)
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp)
+                    .height(100.dp)
                     .clickable { onDayClick(day) }
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.Center
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Число и день недели
-                    Text(text = dayNumber, fontSize = 24.sp, modifier = Modifier.width(40.dp))
-                    Text(text = dayName, fontSize = 16.sp, color = Color.Gray, modifier = Modifier.weight(1f))
-
-                    // Краткое сведение (полоска занятости)
-                    Box(
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(12.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(Color.LightGray.copy(alpha = 0.3f))
-                    ) {
-                        val fillWidth = (busyMinutes.toFloat() / 1440f).coerceIn(0.05f, 1f)
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(fillWidth)
-                                .fillMaxHeight()
-                                .background(if (busyMinutes > 400) Color.Red else Color.Green)
-                        )
-                    }
-                    Text(
-                        text = " ${busyMinutes / 60}ч",
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = dayOfMonth, fontSize = 20.sp, modifier = Modifier.width(35.dp))
+                    Text(text = dayName, fontSize = 14.sp, color = Color.Gray)
                 }
-                HorizontalDivider(modifier = Modifier.padding(top = 12.dp), thickness = 0.5.dp)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(24.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.LightGray.copy(alpha = 0.2f))
+                ) {
+                    dayIntervals.forEach { interval ->
+                        val startHour = interval.start.get(Calendar.HOUR_OF_DAY)
+                        val startMin = interval.start.get(Calendar.MINUTE)
+                        val startTotalMin = startHour * 60 + startMin
+
+                        val diffMillis = interval.end.timeInMillis - interval.start.timeInMillis
+                        val durationMin = (diffMillis / 60000).toInt()
+
+                        val startBias = startTotalMin.toFloat() / 1440f
+                        val widthRatio = durationMin.toFloat() / 1440f
+
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            if (startBias > 0) {
+                                Spacer(modifier = Modifier.fillMaxWidth(startBias))
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(widthRatio / (1f - startBias))
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(interval.color))
+                                    .padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Text(
+                                    text = interval.title,
+                                    fontSize = 9.sp,
+                                    color = Color.White,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(thickness = 0.5.dp)
             }
         }
     }

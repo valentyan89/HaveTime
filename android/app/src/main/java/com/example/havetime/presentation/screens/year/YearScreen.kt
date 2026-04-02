@@ -5,8 +5,6 @@ import android.icu.util.Calendar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,7 +22,6 @@ fun YearScreen(
     val maxYear = 2077
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        // Проходим по годам от текущего до 2077
         items(maxYear - startYear + 1) { yearOffset ->
             val year = startYear + yearOffset
 
@@ -34,10 +31,6 @@ fun YearScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
-
-            // Сетка месяцев внутри года
-            // Используем фиксированную высоту для LazyVerticalGrid внутри Column (через высоту контента)
-            // Или просто Column с Row, так как месяцев всегда 12
             Column(modifier = Modifier.padding(8.dp)) {
                 for (row in 0..3) { // 4 ряда по 3 месяца
                     Row(modifier = Modifier.fillMaxWidth()) {

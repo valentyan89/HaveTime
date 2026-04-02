@@ -4,11 +4,8 @@ package com.example.havetime.presentation.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,27 +39,24 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel()) {
         CalendarHeader(
             selectedDate = selectedDate,
             onDayClick = { viewModel.setToday(); navController.navigate("day") },
+            onWeekClick = { navController.navigate("week") },
             onMonthClick = { navController.navigate("month") },
             onYearClick = { navController.navigate("year") }
         )
         NavHost(navController = navController, startDestination = "day") {
-            composable("day") { DayScreen(intervals) }
-
+            composable("day") {
+                DayScreen(intervals) { title, s, e, c -> viewModel.addInterval(title, s, e, c) }
+            }
             composable("week") {
-                WeekScreen(
-                    currentDate = selectedDate,
-                    getBusyMinutes = { date -> viewModel.getTotalBusyMinutes(date) },
-                    onDayClick = { date ->
-                        viewModel.selectDate(date)
-                        navController.navigate("day")
-                    }
-                )
+                WeekScreen(selectedDate, { d -> viewModel.getIntervalsForDateSync(d) }) { d ->
+                    viewModel.selectDate(d); navController.navigate("day")
+                }
             }
 
             composable("month") {
                 MonthScreen(
                     currentDate = selectedDate,
-                    getIntensity = { date -> viewModel.getIntensityForDate(date) },
+                    getIntensity = { date -> viewModel.getTotalBusyMinutes(date) },
                     onDayClick = { date ->
                         viewModel.selectDate(date)
                         navController.navigate("day")

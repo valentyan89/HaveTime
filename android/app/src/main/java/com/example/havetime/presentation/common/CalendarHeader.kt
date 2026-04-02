@@ -18,11 +18,12 @@ import java.util.Locale
 fun CalendarHeader(
     selectedDate: Calendar,
     onDayClick: () -> Unit,
+    onWeekClick: () -> Unit,
     onMonthClick: () -> Unit,
     onYearClick: () -> Unit
 ) {
     val dayFormat = SimpleDateFormat("d", Locale.getDefault())
-    val weekDayFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+    val weekDayFormat = SimpleDateFormat("EEE", Locale.getDefault())
     val monthFormat = SimpleDateFormat("LLLL", Locale.getDefault())
     val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
 
@@ -36,7 +37,7 @@ fun CalendarHeader(
             modifier = Modifier.width(82.dp)
         ) { Text(dayFormat.format(selectedDate)) }
 
-        Button(onClick = onDayClick,
+        Button(onClick = onWeekClick,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(120.dp)
         ) { Text(weekDayFormat.format(selectedDate)) }

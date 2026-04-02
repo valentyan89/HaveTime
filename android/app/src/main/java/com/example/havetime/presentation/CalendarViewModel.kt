@@ -1,6 +1,8 @@
 package com.example.havetime.presentation
 
 import android.icu.util.Calendar
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.model.TimeInterval
@@ -11,7 +13,7 @@ class CalendarViewModel : ViewModel() {
     private val useCase = GetIntervalsForDateUseCase()
 
     private val _selectedDate = MutableStateFlow(Calendar.getInstance())
-    val selectedDate: StateFlow<Calendar> = _selectedDate.asStateFlow()
+    val selectedDate = _selectedDate.asStateFlow()
 
     private val _allIntervals = MutableStateFlow<List<TimeInterval>>(emptyList())
 
@@ -19,38 +21,44 @@ class CalendarViewModel : ViewModel() {
         useCase.execute(intervals, date)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun updateDate(calendar: Calendar) {
-        _selectedDate.value = calendar
+    fun selectDate(calendar: Calendar) {
+        _selectedDate.value = calendar.clone() as Calendar
     }
 
     fun setToday() {
         _selectedDate.value = Calendar.getInstance()
     }
 
-    // Тестовый метод для проверки 00:00
-    fun addTestInterval() {
-        val start = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 22); set(Calendar.MINUTE, 0) }
-        val end = (start.clone() as Calendar).apply { add(Calendar.HOUR, 5) }
-        _allIntervals.value = _allIntervals.value + TimeInterval(start = start, end = end, intensity = 85)
-    }
-    fun selectDate(date: Calendar) {
-        _selectedDate.value = date.clone() as Calendar
-    }
-
-    // Вспомогательная функция для получения интенсивности дня (0-100)
-    fun getIntensityForDate(date: Calendar): Int {
-        // Пока заглушка, позже будем считать реальную занятость из репозитория
-        return (0..100).random()
-    }
     fun getIntervalsForDateSync(date: Calendar): List<TimeInterval> {
         return useCase.execute(_allIntervals.value, date)
     }
 
-    // Считаем суммарную занятость в минутах для дня
     fun getTotalBusyMinutes(date: Calendar): Int {
-        val dailyIntervals = getIntervalsForDateSync(date)
-        return dailyIntervals.sumOf {
+        return getIntervalsForDateSync(date).sumOf {
             ((it.end.timeInMillis - it.start.timeInMillis) / 60000).toInt()
         }
+    }
+
+    fun addInterval(title: String, startHour: Int, endHour: Int, color: Color) {
+        val startCal = _selectedDate.value.clone() as Calendar
+        startCal.set(Calendar.HOUR_OF_DAY, startHour)
+        startCal.set(Calendar.MINUTE, 0)
+
+        val endCal = _selectedDate.value.clone() as Calendar
+        if (endHour == 24) {
+            endCal.add(Calendar.DAY_OF_MONTH, 1)
+            endCal.set(Calendar.HOUR_OF_DAY, 0)
+        } else {
+            endCal.set(Calendar.HOUR_OF_DAY, endHour)
+        }
+        endCal.set(Calendar.MINUTE, 0)
+
+        val newInterval = TimeInterval(
+            title = if (title.isEmpty()) "Активность" else title,
+            start = startCal,
+            end = endCal,
+            color = color.toArgb()
+        )
+        _allIntervals.value = _allIntervals.value + newInterval
     }
 }

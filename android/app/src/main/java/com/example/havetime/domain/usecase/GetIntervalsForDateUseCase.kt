@@ -18,18 +18,13 @@ class GetIntervalsForDateUseCase {
             val isSameDayEnd = endDay == targetDay && endYear == targetYear
 
             when {
-                // Внутри одного дня
                 isSameDayStart && isSameDayEnd -> interval
-
-                // Начало сегодня, конец в будущем (режем хвост)
                 isSameDayStart && (endDay > targetDay || endYear > startYear) -> {
                     val endOfDay = (targetDate.clone() as Calendar).apply {
                         set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59)
                     }
                     interval.copy(end = endOfDay)
                 }
-
-                // Начало в прошлом, конец сегодня (режем начало)
                 isSameDayEnd && (startDay < targetDay || startYear < endYear) -> {
                     val startOfDay = (targetDate.clone() as Calendar).apply {
                         set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
