@@ -34,9 +34,6 @@ fun MonthScreen(
     val monthName = SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(monthCalendar)
     val firstDayOfWeek = monthCalendar.get(Calendar.DAY_OF_WEEK)
     val daysInMonth = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-
-    // Вычисляем сдвиг для понедельника (в Android Calendar.SUNDAY = 1, MONDAY = 2)
-    // Превращаем это в 0 (Пн) ... 6 (Вс)
     val offset = when (firstDayOfWeek) {
         Calendar.MONDAY -> 0
         Calendar.TUESDAY -> 1
@@ -49,7 +46,6 @@ fun MonthScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        // Заголовок месяца
         Text(
             text = monthName.replaceFirstChar { it.uppercase() },
             fontSize = 20.sp,
@@ -57,7 +53,6 @@ fun MonthScreen(
             modifier = Modifier.padding(bottom = 16.dp, start = 8.dp)
         )
 
-        // Строка заголовков дней недели (Пн, Вт...)
         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
             val weekDays = listOf("Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun")
             weekDays.forEach { day ->

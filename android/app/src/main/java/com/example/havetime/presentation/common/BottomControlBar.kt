@@ -29,11 +29,10 @@ fun BottomControlBar(
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .navigationBarsPadding() // Отступ от системных кнопок
-                .imePadding(), // Поднимается вместе с клавиатурой
+                .navigationBarsPadding()
+                .imePadding(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Поле поиска
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = onSearchChange,
@@ -50,7 +49,6 @@ fun BottomControlBar(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Кнопка Плюс
             Box(
                 modifier = Modifier
                     .size(56.dp)
