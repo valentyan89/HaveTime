@@ -60,9 +60,9 @@ fun MonthScreen(
                 val isToday = day.date == LocalDate.now()
                 val intensity = if (day.position == DayPosition.MonthDate) getIntensity(day.date) else 0
                 val backgroundColor = when {
-                    intensity > 480 -> Color(0xFFEF5350).copy(alpha = 0.4f) // Высокая нагрузка
-                    intensity > 120 -> Color(0xFFFFA726).copy(alpha = 0.3f) // Средняя
-                    intensity > 0 -> Color(0xFF66BB6A).copy(alpha = 0.2f)   // Низкая
+                    intensity > 480 -> Color(0xFFEF5350).copy(alpha = 0.4f)
+                    intensity > 120 -> Color(0xFFFFA726).copy(alpha = 0.3f)
+                    intensity > 0 -> Color(0xFF66BB6A).copy(alpha = 0.2f)
                     else -> Color.Transparent
                 }
 

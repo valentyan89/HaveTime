@@ -107,5 +107,4 @@ fun WeekScreen(
     }
 }
 
-// Вспомогательный модификатор для LazyColumn
-fun Modifier.fillWeight(weight: Float): Modifier = this.then(Modifier) // Заглушка, если вейт не нужен
+fun Modifier.fillWeight(weight: Float): Modifier = this.then(Modifier)

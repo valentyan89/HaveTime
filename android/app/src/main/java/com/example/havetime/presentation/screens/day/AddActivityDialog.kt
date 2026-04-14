@@ -23,7 +23,7 @@ import kotlin.math.roundToInt
 fun AddActivityDialog(
     initialStartTime: LocalTime = LocalTime.of(12, 0),
     initialEndTime: LocalTime = LocalTime.of(13, 0),
-    editingInterval: TimeInterval? = null, // Если не null - мы редактируем
+    editingInterval: TimeInterval? = null,
     initialDate: LocalDate,
     initialHour: Int,
     onDismiss: () -> Unit,
