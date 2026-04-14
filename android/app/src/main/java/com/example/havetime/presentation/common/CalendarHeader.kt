@@ -1,55 +1,78 @@
 package com.example.havetime.presentation.common
 
-import android.graphics.drawable.shapes.Shape
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import java.time.LocalDate
+import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
 fun CalendarHeader(
-    selectedDate: Calendar,
-    onDayClick: () -> Unit,
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
     onWeekClick: () -> Unit,
     onMonthClick: () -> Unit,
-    onYearClick: () -> Unit
+    onYearClick: () -> Unit,
+    currentDestination: String?
 ) {
-    val dayFormat = SimpleDateFormat("d", Locale.getDefault())
-    val weekDayFormat = SimpleDateFormat("EEE", Locale.getDefault())
-    val monthFormat = SimpleDateFormat("LLLL", Locale.getDefault())
-    val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+    val context = LocalContext.current
+    val today = LocalDate.now()
+    val locale = Locale.getDefault()
+    val handleNavigationClick = { targetRoute: String, action: () -> Unit ->
+        if (currentDestination == targetRoute && selectedDate != today) {
+            onDateSelected(today)
+        } else {
+            action()
+        }
+    }
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(5.dp),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top= 50.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        Button(onClick = onDayClick,
+        Button(
+            onClick = {
+                if (selectedDate != today) onDateSelected(today)
+                else {}
+            },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(82.dp)
-        ) { Text(dayFormat.format(selectedDate)) }
-
-        Button(onClick = onWeekClick,
+            modifier = Modifier.width(82.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(selectedDate.dayOfMonth.toString())
+        }
+        Button(
+            onClick = { handleNavigationClick("week", onWeekClick) },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(120.dp)
-        ) { Text(weekDayFormat.format(selectedDate)) }
-
-        Button(onClick = onMonthClick,
+            modifier = Modifier.width(120.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
+        }
+        Button(
+            onClick = { handleNavigationClick("month", onMonthClick) },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(120.dp)
-        ) { Text(monthFormat.format(selectedDate)) }
-
-        Button(onClick = onYearClick,
+            modifier = Modifier.width(120.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(selectedDate.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
+        }
+        Button(
+            onClick = { handleNavigationClick("year", onYearClick) },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(82.dp)
-        ) { Text(yearFormat.format(selectedDate)) }
+            modifier = Modifier.width(82.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(selectedDate.year.toString())
+        }
     }
 }

@@ -1,101 +1,111 @@
 package com.example.havetime.presentation.screens.week
 
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.havetime.domain.model.TimeInterval
+import com.kizitonwose.calendar.compose.WeekCalendar
+import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 @Composable
 fun WeekScreen(
-    currentDate: Calendar,
-    getIntervals: (Calendar) -> List<TimeInterval>,
-    onDayClick: (Calendar) -> Unit
+    currentDate: LocalDate,
+    getIntervals: (LocalDate) -> List<TimeInterval>,
+    onDayClick: (LocalDate) -> Unit
 ) {
-    val weekStart = currentDate.clone() as Calendar
-    weekStart.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+    val state = rememberWeekCalendarState(
+        startDate = currentDate.minusWeeks(50),
+        endDate = LocalDate.of(2077, 12, 31),
+        firstVisibleWeekDate = currentDate
+    )
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(7) { index ->
-            val day = weekStart.clone() as Calendar
-            day.add(Calendar.DAY_OF_MONTH, index)
-
-            val dayIntervals = getIntervals(day)
-            val dayOfMonth = day.get(Calendar.DAY_OF_MONTH).toString()
-            val dayName = SimpleDateFormat("EEEE", Locale.getDefault()).format(day)
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clickable { onDayClick(day) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = dayOfMonth, fontSize = 20.sp, modifier = Modifier.width(35.dp))
-                    Text(text = dayName, fontSize = 14.sp, color = Color.Gray)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
+    Column(modifier = Modifier.fillMaxSize()) {
+        WeekCalendar(
+            state = state,
+            dayContent = { day ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(24.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.LightGray.copy(alpha = 0.2f))
+                        .aspectRatio(1f)
+                        .clickable { onDayClick(day.date) },
+                    contentAlignment = Alignment.Center
                 ) {
-                    dayIntervals.forEach { interval ->
-                        val startHour = interval.start.get(Calendar.HOUR_OF_DAY)
-                        val startMin = interval.start.get(Calendar.MINUTE)
-                        val startTotalMin = startHour * 60 + startMin
+                    Text(
+                        text = day.date.dayOfMonth.toString(),
+                        color = if (day.date == currentDate) Color(0xFF664FA3) else Color.Black,
+                        fontWeight = if (day.date == currentDate) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
+        )
 
-                        val diffMillis = interval.end.timeInMillis - interval.start.timeInMillis
-                        val durationMin = (diffMillis / 60000).toInt()
+        HorizontalDivider(thickness = 0.5.dp)
 
-                        val startBias = startTotalMin.toFloat() / 1440f
-                        val widthRatio = durationMin.toFloat() / 1440f
+        val daysInWeek = remember(state.firstVisibleWeek) {
+            state.firstVisibleWeek.days.map { it.date }
+        }
 
-                        Row(modifier = Modifier.fillMaxSize()) {
-                            if (startBias > 0) {
-                                Spacer(modifier = Modifier.fillMaxWidth(startBias))
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(widthRatio / (1f - startBias))
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(interval.color))
-                                    .padding(horizontal = 4.dp),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Text(
-                                    text = interval.title,
-                                    fontSize = 9.sp,
-                                    color = Color.White,
-                                    maxLines = 1
+        LazyColumn(modifier = Modifier.fillWeight(1f)) {
+            items(daysInWeek) { day ->
+                val dayIntervals = getIntervals(day)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(90.dp)
+                        .clickable { onDayClick(day) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(day.dayOfMonth.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(35.dp))
+                        Text(day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()), fontSize = 13.sp, color = Color.Gray)
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Полоска дня
+                    Box(Modifier.fillMaxWidth().height(20.dp).clip(RoundedCornerShape(10.dp)).background(Color.LightGray.copy(0.2f))) {
+                        dayIntervals.forEach { interval ->
+                            val startMin = interval.start.hour * 60 + interval.start.minute
+                            val duration = ChronoUnit.MINUTES.between(interval.start, interval.end).toInt()
+
+                            val startBias = startMin / 1440f
+                            val widthRatio = duration / 1440f
+
+                            Row(Modifier.fillMaxSize()) {
+                                if (startBias > 0) Spacer(Modifier.fillMaxWidth(startBias))
+                                Box(
+                                    Modifier.fillMaxHeight()
+                                        .fillMaxWidth(if(startBias < 1f) widthRatio/(1f-startBias) else 1f)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color(interval.color))
                                 )
                             }
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(thickness = 0.5.dp)
             }
         }
     }
 }
+
+// Вспомогательный модификатор для LazyColumn
+fun Modifier.fillWeight(weight: Float): Modifier = this.then(Modifier) // Заглушка, если вейт не нужен

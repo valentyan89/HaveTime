@@ -6,7 +6,6 @@ plugins {
 
 android {
     namespace = "com.example.havetime"
-    // Устанавливаем 36, чтобы удовлетворить зависимости
     compileSdk = 36
 
     defaultConfig {
@@ -30,6 +29,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -57,11 +57,14 @@ dependencies {
 
     // Используем стабильные версии для навигации и вьюмодели
     implementation(libs.androidx.navigation.compose)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui.text)
 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("com.kizitonwose.calendar:compose:2.10.1")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
-    implementation(libs.androidx.compose.runtime)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

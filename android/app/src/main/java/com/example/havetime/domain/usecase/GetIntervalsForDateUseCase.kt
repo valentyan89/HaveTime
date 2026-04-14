@@ -1,36 +1,34 @@
 package com.example.havetime.domain.usecase
 
-import android.icu.util.Calendar
 import com.example.havetime.domain.model.TimeInterval
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class GetIntervalsForDateUseCase {
-    fun execute(allIntervals: List<TimeInterval>, targetDate: Calendar): List<TimeInterval> {
-        val targetDay = targetDate.get(Calendar.DAY_OF_YEAR)
-        val targetYear = targetDate.get(Calendar.YEAR)
-
+    fun execute(allIntervals: List<TimeInterval>, targetDate: LocalDate): List<TimeInterval> {
         return allIntervals.mapNotNull { interval ->
-            val startDay = interval.start.get(Calendar.DAY_OF_YEAR)
-            val startYear = interval.start.get(Calendar.YEAR)
-            val endDay = interval.end.get(Calendar.DAY_OF_YEAR)
-            val endYear = interval.end.get(Calendar.YEAR)
-
-            val isSameDayStart = startDay == targetDay && startYear == targetYear
-            val isSameDayEnd = endDay == targetDay && endYear == targetYear
+            val start = interval.start
+            val end = interval.end
+            val startDate = start.toLocalDate()
+            val endDate = end.toLocalDate()
 
             when {
-                isSameDayStart && isSameDayEnd -> interval
-                isSameDayStart && (endDay > targetDay || endYear > startYear) -> {
-                    val endOfDay = (targetDate.clone() as Calendar).apply {
-                        set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59)
-                    }
-                    interval.copy(end = endOfDay)
+                startDate == targetDate && endDate == targetDate -> interval
+
+                startDate == targetDate && endDate.isAfter(targetDate) -> {
+                    interval.copy(end = LocalDateTime.of(targetDate, LocalTime.MAX))
                 }
-                isSameDayEnd && (startDay < targetDay || startYear < endYear) -> {
-                    val startOfDay = (targetDate.clone() as Calendar).apply {
-                        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                    }
-                    interval.copy(start = startOfDay)
+                endDate == targetDate && startDate.isBefore(targetDate) -> {
+                    interval.copy(start = LocalDateTime.of(targetDate, LocalTime.MIN))
                 }
+                startDate.isBefore(targetDate) && endDate.isAfter(targetDate) -> {
+                    interval.copy(
+                        start = LocalDateTime.of(targetDate, LocalTime.MIN),
+                        end = LocalDateTime.of(targetDate, LocalTime.MAX)
+                    )
+                }
+
                 else -> null
             }
         }
