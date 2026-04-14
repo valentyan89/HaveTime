@@ -13,6 +13,7 @@ import com.example.havetime.presentation.screens.day.*
 import com.example.havetime.presentation.screens.week.WeekScreen
 import com.example.havetime.presentation.screens.month.MonthScreen
 import com.example.havetime.presentation.screens.year.YearScreen
+import java.time.LocalTime
 
 @Composable
 fun CalendarNavHost(viewModel: CalendarViewModel = viewModel()) {
@@ -25,19 +26,37 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel()) {
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingInterval by remember { mutableStateOf<TimeInterval?>(null) }
-    var newStartH by remember { mutableIntStateOf(0) }
-    var newEndH by remember { mutableIntStateOf(0) }
+    var newStartTime by remember { mutableStateOf(LocalTime.of(12, 0)) }
+    var newEndTime by remember { mutableStateOf(LocalTime.of(13, 0)) }
 
     if (showAddDialog || editingInterval != null) {
         AddActivityDialog(
             editingInterval = editingInterval,
             initialDate = selectedDate,
-            initialHour = if (editingInterval == null) newStartH else editingInterval!!.start.hour,
-            onDismiss = { showAddDialog = false; editingInterval = null },
-            onDelete = { id -> viewModel.removeInterval(id); editingInterval = null },
+            initialStartTime = if (editingInterval == null) newStartTime else editingInterval!!.start.toLocalTime(),
+            initialEndTime = if (editingInterval == null) newEndTime else editingInterval!!.end.toLocalTime(),
+            onDismiss = {
+                showAddDialog = false
+                editingInterval = null
+            },
+            onDelete = { id ->
+                viewModel.removeInterval(id)
+                editingInterval = null
+            },
             onConfirm = { interval ->
-                if (editingInterval != null) viewModel.updateInterval(interval)
-                else viewModel.addInterval(interval.title, selectedDate, interval.start.hour, interval.end.hour, androidx.compose.ui.graphics.Color(interval.color))
+                if (editingInterval != null) {
+                    viewModel.updateInterval(interval)
+                } else {
+                    viewModel.addInterval(
+                        title = interval.title,
+                        date = selectedDate,
+                        startH = interval.start.hour,
+                        startM = interval.start.minute,
+                        endH = interval.end.hour,
+                        endM = interval.end.minute,
+                        color = androidx.compose.ui.graphics.Color(interval.color)
+                    )
+                }
                 showAddDialog = false
                 editingInterval = null
             }
@@ -49,10 +68,14 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel()) {
             CalendarHeader(
                 selectedDate = selectedDate,
                 currentDestination = currentRoute,
-                onDateSelected = { viewModel.selectDate(it); if (currentRoute != "day") navController.navigate("day") },
+                onDateSelected = {
+                    viewModel.selectDate(it)
+                    if (currentRoute != "day") navController.navigate("day")
+                },
                 onWeekClick = { navController.navigate("week") },
                 onMonthClick = { navController.navigate("month") },
-                onYearClick = { navController.navigate("year") }
+                onYearClick = { navController.navigate("year") },
+                onDayClick = { navController.navigate("day") }
             )
         }
     ) { padding ->
@@ -62,11 +85,14 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel()) {
                     DayScreen(
                         intervals = intervals,
                         onIntervalCreated = { start, end ->
-                            newStartH = start
-                            newEndH = end
+                            newStartTime = start
+                            newEndTime = end
                             showAddDialog = true
                         },
-                        onIntervalClick = { editingInterval = it }
+                        onIntervalClick = { editingInterval = it },
+                        onIntervalUpdated = { updatedInterval ->
+                            viewModel.updateInterval(updatedInterval)
+                        }
                     )
                 }
                 composable("week") {

@@ -78,10 +78,7 @@ fun WeekScreen(
                         Text(day.dayOfMonth.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(35.dp))
                         Text(day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()), fontSize = 13.sp, color = Color.Gray)
                     }
-
                     Spacer(Modifier.height(8.dp))
-
-                    // Полоска дня
                     Box(Modifier.fillMaxWidth().height(20.dp).clip(RoundedCornerShape(10.dp)).background(Color.LightGray.copy(0.2f))) {
                         dayIntervals.forEach { interval ->
                             val startMin = interval.start.hour * 60 + interval.start.minute

@@ -1,13 +1,11 @@
 package com.example.havetime.presentation.common
 
-import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -20,14 +18,14 @@ fun CalendarHeader(
     onWeekClick: () -> Unit,
     onMonthClick: () -> Unit,
     onYearClick: () -> Unit,
+    onDayClick: () -> Unit,
     currentDestination: String?
 ) {
-    val context = LocalContext.current
     val today = LocalDate.now()
     val locale = Locale.getDefault()
     val handleNavigationClick = { targetRoute: String, action: () -> Unit ->
-        if (currentDestination == targetRoute && selectedDate != today) {
-            onDateSelected(today)
+        if (currentDestination == targetRoute) {
+            if (selectedDate != today) onDateSelected(today)
         } else {
             action()
         }
@@ -36,14 +34,11 @@ fun CalendarHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top= 50.dp),
+            .padding(top = 50.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Button(
-            onClick = {
-                if (selectedDate != today) onDateSelected(today)
-                else {}
-            },
+            onClick = { handleNavigationClick("day", onDayClick) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(82.dp),
             contentPadding = PaddingValues(0.dp)

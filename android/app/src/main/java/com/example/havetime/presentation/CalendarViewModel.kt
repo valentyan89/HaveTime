@@ -41,21 +41,17 @@ class CalendarViewModel : ViewModel() {
     }
 
 
-    fun addInterval(title: String, date: LocalDate, startH: Int, endH: Int, color: Color) {
-        val start = LocalDateTime.of(date, LocalTime.of(startH.coerceIn(0, 23), 0))
-        val end = if (endH >= 24) {
-            LocalDateTime.of(date.plusDays(1), LocalTime.MIDNIGHT)
-        } else {
-            LocalDateTime.of(date, LocalTime.of(endH.coerceIn(1, 24), 0))
-        }
+    fun addInterval(title: String, date: LocalDate, startH: Int, startM: Int, endH: Int, endM: Int, color: Color) {
+        val start = LocalDateTime.of(date, LocalTime.of(startH, startM))
+        val end = if (endH >= 24) LocalDateTime.of(date.plusDays(1), LocalTime.MIDNIGHT)
+        else LocalDateTime.of(date, LocalTime.of(endH, endM))
 
-        val newInterval = TimeInterval(
-            title = if (title.isEmpty()) "Активность" else title,
+        _allIntervals.value += TimeInterval(
+            title = title.ifEmpty { "Активность" },
             start = start,
             end = end,
             color = color.toArgb()
         )
-        _allIntervals.value = _allIntervals.value + newInterval
     }
 
 
