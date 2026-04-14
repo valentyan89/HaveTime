@@ -21,10 +21,7 @@ class CalendarViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    /**
-     * Реактивный поток интервалов для экрана дня.
-     * Фильтрует список по выбранной дате и поисковому запросу.
-     */
+
     val visibleIntervals: StateFlow<List<TimeInterval>> =
         combine(_allIntervals, _selectedDate, _searchQuery) { intervals, date, query ->
             intervals.filter { it.start.toLocalDate() == date }
@@ -43,9 +40,7 @@ class CalendarViewModel : ViewModel() {
         _searchQuery.value = query
     }
 
-    /**
-     * Добавление нового интервала.
-     */
+
     fun addInterval(title: String, date: LocalDate, startH: Int, endH: Int, color: Color) {
         val start = LocalDateTime.of(date, LocalTime.of(startH.coerceIn(0, 23), 0))
         val end = if (endH >= 24) {
@@ -63,32 +58,24 @@ class CalendarViewModel : ViewModel() {
         _allIntervals.value = _allIntervals.value + newInterval
     }
 
-    /**
-     * Удаление интервала по ID.
-     */
+
     fun removeInterval(id: String) {
         _allIntervals.value = _allIntervals.value.filter { it.id != id }
     }
 
-    /**
-     * Обновление существующего интервала.
-     */
+
     fun updateInterval(updated: TimeInterval) {
         _allIntervals.value = _allIntervals.value.map {
             if (it.id == updated.id) updated else it
         }
     }
 
-    /**
-     * Синхронное получение интервалов для конкретной даты (используется экраном недели).
-     */
+
     fun getIntervalsForDateSync(date: LocalDate): List<TimeInterval> {
         return _allIntervals.value.filter { it.start.toLocalDate() == date }
     }
 
-    /**
-     * Расчет суммарного времени занятости в минутах для визуализации интенсивности (HeatMap).
-     */
+
     fun getTotalBusyMinutes(date: LocalDate): Int {
         return getIntervalsForDateSync(date).sumOf {
             ChronoUnit.MINUTES.between(it.start, it.end).toInt()

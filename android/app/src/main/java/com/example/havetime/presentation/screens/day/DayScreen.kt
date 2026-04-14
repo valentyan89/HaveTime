@@ -24,19 +24,16 @@ import kotlin.math.roundToInt
 @Composable
 fun DayScreen(
     intervals: List<TimeInterval>,
-    onIntervalCreated: (Int, Int) -> Unit, // Старт и конец (часы)
+    onIntervalCreated: (Int, Int) -> Unit,
     onIntervalClick: (TimeInterval) -> Unit
 ) {
-    val hourHeight = 80.dp // Увеличили для удобства "тяги"
+    val hourHeight = 80.dp
     val scrollState = rememberScrollState()
-
-    // Состояние для отрисовки "тянущейся" новой активности
     var dragStartHour by remember { mutableStateOf<Float?>(null) }
     var dragEndHour by remember { mutableStateOf<Float?>(null) }
 
     Row(modifier = Modifier.fillMaxSize()) {
 
-        // --- ЧАСТЬ 1: ЛЕВЫЕ 10% (Подписи и Скролл) ---
         Box(modifier = Modifier
             .fillMaxHeight()
             .weight(0.1f)
@@ -54,14 +51,11 @@ fun DayScreen(
                 }
             }
         }
-
-        // --- ЧАСТЬ 2: ЦЕНТРАЛЬНЫЕ 80% (Зона Активностей и Тяги) ---
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(0.8f)
                 .verticalScroll(scrollState)
-                // РЕАЛИЗАЦИЯ ТЯГИ: создание активности движением пальца
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { offset ->
@@ -93,12 +87,10 @@ fun DayScreen(
                     }
                 }
         ) {
-            // Сетка линий
             Column {
                 repeat(24) { Box(Modifier.height(hourHeight).fillMaxWidth()) { HorizontalDivider(thickness = 0.5.dp) } }
             }
 
-            // РЕАЛИЗАЦИЯ НАЛОЖЕНИЯ: Алгоритм Google Calendar с вашими правками
             val sorted = intervals.sortedBy { it.start }
             val columns = calculateColumns(sorted)
 
@@ -107,9 +99,8 @@ fun DayScreen(
                 val startMin = interval.start.hour * 60 + interval.start.minute
                 val duration = ChronoUnit.MINUTES.between(interval.start, interval.end).toInt()
 
-                // Расчет ширины: если начались в одно время - 50/50, если позже - сдвиг 8dp
                 val baseWidthPercent = 1f / colInfo.second
-                val xOffset = (colInfo.first * 8).dp // Сдвиг 8dp для тех, кто позже
+                val xOffset = (colInfo.first * 8).dp
 
                 Box(modifier = Modifier
                     .fillMaxWidth(baseWidthPercent)
@@ -120,13 +111,12 @@ fun DayScreen(
                     .background(Color(interval.color).copy(alpha = 0.9f))
                     .clickable { onIntervalClick(interval) }
                     .padding(4.dp)
-                    .zIndex(startMin.toFloat()) // Чем позже, тем выше (на переднем плане)
+                    .zIndex(startMin.toFloat())
                 ) {
                     Text(interval.title, fontSize = 11.sp, color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, maxLines = 1)
                 }
             }
 
-            // Отрисовка "Призрака" во время тяги пальцем
             if (dragStartHour != null && dragEndHour != null) {
                 val s = dragStartHour!!
                 val e = dragEndHour!!
@@ -140,26 +130,19 @@ fun DayScreen(
                 )
             }
         }
-
-        // --- ЧАСТЬ 3: ПРАВЫЕ 10% (Чистый Скролл) ---
         Box(modifier = Modifier
             .fillMaxHeight()
             .weight(0.1f)
             .background(Color.White)
-            .verticalScroll(scrollState) // Тот же стейт - синхронное движение
+            .verticalScroll(scrollState)
         )
     }
 }
 
-/**
- * Логика наложения:
- * Triple(Индекс_колонки, Всего_колонок, Сдвиг)
- */
 fun calculateColumns(intervals: List<TimeInterval>): Map<String, Triple<Int, Int, Int>> {
     val results = mutableMapOf<String, Triple<Int, Int, Int>>()
     val groups = mutableListOf<MutableList<TimeInterval>>()
 
-    // Группировка пересекающихся
     for (interval in intervals) {
         var added = false
         for (group in groups) {
@@ -174,8 +157,6 @@ fun calculateColumns(intervals: List<TimeInterval>): Map<String, Triple<Int, Int
     for (group in groups) {
         group.sortBy { it.start }
         group.forEachIndexed { index, interval ->
-            // Если старт одинаковый - делим пополам (1/group.size)
-            // Если старт разный - индекс определяет сдвиг
             results[interval.id] = Triple(index, group.size, index * 8)
         }
     }
