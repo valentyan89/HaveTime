@@ -11,6 +11,7 @@ composeBom = "2024.09.00"
 navigationCompose = "2.9.7"
 runtime = "1.10.6"
 uiText = "1.10.6"
+room = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
