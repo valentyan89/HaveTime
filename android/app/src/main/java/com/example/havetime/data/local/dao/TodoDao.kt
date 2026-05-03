@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.example.havetime.data.local.entity.TodoEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface TodoDao {
@@ -25,4 +26,7 @@ interface TodoDao {
     @Transaction
     @Query("SELECT * FROM todo WHERE id = :id")
     fun getTodoById(id: Int): TodoEntity
+
+    @Query("SELECT * FROM todo WHERE start >= :dayStart AND start <= :dayEnd ORDER BY start ASC")
+    fun getTodosByDate(dayStart: LocalDateTime, dayEnd: LocalDateTime): Flow<List<TodoEntity>>
 }

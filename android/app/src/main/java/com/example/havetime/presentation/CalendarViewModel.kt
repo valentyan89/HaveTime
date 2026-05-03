@@ -5,76 +5,62 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.model.TimeInterval
+import com.example.havetime.domain.model.TodoItem
+import com.example.havetime.domain.usecase.AddTodoUseCase
+import com.example.havetime.domain.usecase.DeleteTodoUseCase
+import com.example.havetime.domain.usecase.GetIntervalsForDateUseCase
+import com.example.havetime.domain.usecase.SaveIntervalUseCase
+import com.example.havetime.domain.usecase.SyncWithServerUseCase
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
-class CalendarViewModel : ViewModel() {
+class CalendarViewModel(
+    private val addTodoUseCase: AddTodoUseCase,
+    private val deleteTodoUseCase: DeleteTodoUseCase,
+    private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
+    private val saveIntervalUseCase: SaveIntervalUseCase,
+    private val syncWithServerUseCase: SyncWithServerUseCase
+) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow(LocalDate.now())
-    val selectedDate = _selectedDate.asStateFlow()
+    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    private val _allIntervals = MutableStateFlow<List<TimeInterval>>(emptyList())
+    val activities: StateFlow<List<TodoItem>> = _selectedDate
+        .flatMapLatest { date ->
+            getIntervalsForDateUseCase(date)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
-
-
-    val visibleIntervals: StateFlow<List<TimeInterval>> =
-        combine(_allIntervals, _selectedDate, _searchQuery) { intervals, date, query ->
-            intervals.filter { it.start.toLocalDate() == date }
-                .filter { if (query.isEmpty()) true else it.title.contains(query, ignoreCase = true) }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    fun selectDate(date: LocalDate) {
+    fun onDateSelected(date: LocalDate) {
         _selectedDate.value = date
     }
 
-    fun setToday() {
-        _selectedDate.value = LocalDate.now()
-    }
+    fun addActivity(todo: TodoItem) {
+        viewModelScope.launch {
+            addTodoUseCase(todo).collect {
 
-    fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
-    }
-
-
-    fun addInterval(title: String, date: LocalDate, startH: Int, startM: Int, endH: Int, endM: Int, color: Color) {
-        val start = LocalDateTime.of(date, LocalTime.of(startH, startM))
-        val end = if (endH >= 24) LocalDateTime.of(date.plusDays(1), LocalTime.MIDNIGHT)
-        else LocalDateTime.of(date, LocalTime.of(endH, endM))
-
-        _allIntervals.value += TimeInterval(
-            title = title.ifEmpty { "Активность" },
-            start = start,
-            end = end,
-            color = color.toArgb()
-        )
-    }
-
-
-    fun removeInterval(id: String) {
-        _allIntervals.value = _allIntervals.value.filter { it.id != id }
-    }
-
-
-    fun updateInterval(updated: TimeInterval) {
-        _allIntervals.value = _allIntervals.value.map {
-            if (it.id == updated.id) updated else it
+            }
         }
     }
 
-
-    fun getIntervalsForDateSync(date: LocalDate): List<TimeInterval> {
-        return _allIntervals.value.filter { it.start.toLocalDate() == date }
+    fun deleteActivity(id: Int) {
+        viewModelScope.launch {
+            deleteTodoUseCase(id).collect {
+            }
+        }
     }
 
-
-    fun getTotalBusyMinutes(date: LocalDate): Int {
-        return getIntervalsForDateSync(date).sumOf {
-            ChronoUnit.MINUTES.between(it.start, it.end).toInt()
+    fun syncData() {
+        viewModelScope.launch {
+            syncWithServerUseCase().collect()
         }
     }
 }
