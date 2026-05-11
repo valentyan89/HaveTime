@@ -2,14 +2,17 @@ package com.example.havetime.data.repository
 
 import com.example.calendar.domain.repository.TodoRepository
 import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.entity.TodoEntity
 import com.example.havetime.data.mapper.toDomain
 import com.example.havetime.data.mapper.toEntity
+import com.example.havetime.data.model.TimeIntervalDto
 import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.domain.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class TodoRepositoryImpl(
@@ -35,7 +38,16 @@ class TodoRepositoryImpl(
     }
 
     override fun deleteTodo(id: Int): Flow<Unit> = flow{
-        todoDao.delete(id)
+        val entityToDelete = TodoEntity(
+            id = id,
+            title = "",
+            color = 0,
+            timeInterval = TimeIntervalDto(
+                LocalDateTime.now(),
+                LocalDateTime.now()
+            )
+        )
+        todoDao.delete(entityToDelete)
         emit(Unit)
     }
 
@@ -43,7 +55,7 @@ class TodoRepositoryImpl(
         emit(Unit)
     }
 
-    override suspend fun saveInterval(interval: TimeInterval) {
+    override fun saveInterval(interval: TimeInterval): Flow<Unit> = flow{
         TODO("Not yet implemented")
     }
 }

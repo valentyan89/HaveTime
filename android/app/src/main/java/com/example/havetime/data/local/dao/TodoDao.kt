@@ -1,6 +1,7 @@
 package com.example.havetime.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,13 +13,13 @@ import java.time.LocalDateTime
 @Dao
 interface TodoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(directors: List<TodoEntity>)
+    suspend fun insertAll(activities: List<TodoEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(todo: TodoEntity)
 
-    @Query("DELETE FROM todo WHERE id = :id")
-    suspend fun delete(id: Int)
+    @Delete
+    suspend fun delete(todo: TodoEntity)
 
     @Query("SELECT * FROM todo")
     fun getAllTodos(): Flow<List<TodoEntity>>

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.havetime.data.local.dao.TodoDao
 import com.example.havetime.data.local.entity.TodoEntity
 
@@ -12,6 +13,7 @@ import com.example.havetime.data.local.entity.TodoEntity
     version = 1,
     exportSchema = true
 )
+@TypeConverters(DateConverter::class)
 abstract class TodoDataBase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 
