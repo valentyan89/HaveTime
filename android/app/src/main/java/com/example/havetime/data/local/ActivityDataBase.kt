@@ -6,27 +6,33 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.havetime.data.local.dao.TodoDao
-import com.example.havetime.data.local.entity.TodoEntity
+import com.example.havetime.data.local.dao.UserDao
+import com.example.havetime.data.local.entity.ActivityEntity
+import com.example.havetime.data.local.entity.UserEntity
 
 @Database(
-    entities = [TodoEntity::class],
-    version = 1,
+    entities = [
+        ActivityEntity::class,
+        UserEntity::class
+               ],
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(DateConverter::class)
-abstract class TodoDataBase : RoomDatabase() {
+abstract class ActivityDataBase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
-        private var INSTANCE: TodoDataBase? = null
+        private var INSTANCE: ActivityDataBase? = null
 
-        fun getDatabase(context: Context): TodoDataBase {
+        fun getDatabase(context: Context): ActivityDataBase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    TodoDataBase::class.java,
-                    "todo.db"
+                    ActivityDataBase::class.java,
+                    "activity.db"
                 )
                     .fallbackToDestructiveMigration()
                     // .addMigrations(...)

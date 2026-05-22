@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.havetime.domain.model.TimeInterval
-import com.example.havetime.domain.model.TodoItem
+import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.CalendarViewModel
 import java.time.LocalDateTime
 import androidx.compose.foundation.lazy.items
@@ -21,23 +21,21 @@ import androidx.compose.foundation.lazy.items
 fun TestScreen(
     viewModel: CalendarViewModel = viewModel(factory = CalendarViewModel.Factory)
 ) {
-    // Подписываемся на список задач (на выбранный день, по умолчанию - сегодня)
     val activities by viewModel.activities.collectAsState()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // Генерируем тестовую задачу.
-                    // ВНИМАНИЕ: Подставь сюда правильные поля из твоего класса TodoItem!
-                    val testTodo = TodoItem(
-                        id = 0, // 0 нужен, чтобы Room сам сгенерировал ID
+                    val testTodo = Activity(
+                        id = 0,
                         title = "Тестовая задача ${System.currentTimeMillis()}",
                         timeInterval = TimeInterval(
-                            start = LocalDateTime.now(),
-                            end = LocalDateTime.now().plusHours(1),
+                            startTime = LocalDateTime.now(),
+                            endTime = LocalDateTime.now().plusHours(1),
                         ),
-                        color = 100
+                        color = 100,
+                        location = null
                     )
                     viewModel.addActivity(testTodo)
                 }
@@ -59,8 +57,12 @@ fun TestScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        // Здесь тоже подставь правильные поля из TodoItem (например, todo.title)
                         Text(text = "Задача: $todo", style = MaterialTheme.typography.bodyLarge)
+                        Button(
+                            onClick = {viewModel.deleteActivity(todo.id)}
+                        ) {
+                            Text("Delete activity")
+                        }
                     }
                 }
             }

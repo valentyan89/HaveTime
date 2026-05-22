@@ -2,24 +2,24 @@ package com.example.havetime
 
 import android.app.Application
 import androidx.room.Room
-import com.example.calendar.domain.repository.TodoRepository
-import com.example.havetime.data.local.TodoDataBase
-import com.example.havetime.data.repository.TodoRepositoryImpl
+import com.example.calendar.domain.repository.ActivityRepository
+import com.example.havetime.data.local.ActivityDataBase
+import com.example.havetime.data.repository.ActivityRepositoryImpl
 
 class HaveTimeApplication : Application() {
 
-    lateinit var todoRepository: TodoRepository
+    lateinit var todoRepository: ActivityRepository
 
     override fun onCreate() {
         super.onCreate()
 
         val database = Room.databaseBuilder(
             this,
-            TodoDataBase::class.java,
+            ActivityDataBase::class.java,
             "havetime_database"
         ).build()
 
-        todoRepository = TodoRepositoryImpl(
+        todoRepository = ActivityRepositoryImpl(
             todoDao = database.todoDao()
         )
     }
