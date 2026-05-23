@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.havetime.data.local.entity.ActivityEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
@@ -29,4 +30,6 @@ interface TodoDao {
 
     @Query("SELECT * FROM activity WHERE startTime >= :dayStart AND startTime <= :dayEnd ORDER BY startTime ASC")
     fun getTodosByDate(dayStart: LocalDateTime, dayEnd: LocalDateTime): Flow<List<ActivityEntity>>
+    @Update
+    suspend fun update(activity: ActivityEntity)
 }

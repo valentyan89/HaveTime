@@ -11,5 +11,5 @@ interface ActivityRepository {
     fun addTodo(todo: Activity): Flow<Unit>
     fun deleteTodo(id: Int): Flow<Unit>
     fun syncWithServer(): Flow<Unit>
-    fun saveInterval(interval: TimeInterval): Flow<Unit>
+    fun updateActivity(activity: Activity): Flow<Unit>
 }

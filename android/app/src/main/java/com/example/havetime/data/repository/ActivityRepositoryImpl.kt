@@ -43,7 +43,8 @@ class ActivityRepositoryImpl(
         emit(Unit)
     }
 
-    override fun saveInterval(interval: TimeInterval): Flow<Unit> = flow{
-        TODO("Not yet implemented")
+    override fun updateActivity(activity: Activity): Flow<Unit> = flow {
+        todoDao.update(activity.toEntity())
+        emit(Unit)
     }
 }
