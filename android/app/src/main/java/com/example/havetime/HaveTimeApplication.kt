@@ -4,11 +4,18 @@ import android.app.Application
 import androidx.room.Room
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.ActivityDataBase
+import com.example.havetime.data.local.TokenManager
+import com.example.havetime.data.remote.api.AuthApi
+import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.repository.ActivityRepositoryImpl
+import com.example.havetime.data.repository.UserRepositoryImpl
+import com.example.havetime.domain.repository.UserRepository
 
 class HaveTimeApplication : Application() {
 
     lateinit var todoRepository: ActivityRepository
+    lateinit var userRepository: UserRepository
+    lateinit var tokenManager: TokenManager
 
     override fun onCreate() {
         super.onCreate()
@@ -18,9 +25,19 @@ class HaveTimeApplication : Application() {
             ActivityDataBase::class.java,
             "havetime_database"
         ).build()
+        tokenManager = TokenManager(this)
+        val httpClient = KtorClient.client
+        val authApi = AuthApi(httpClient)
+
 
         todoRepository = ActivityRepositoryImpl(
             todoDao = database.todoDao()
+        )
+
+        userRepository = UserRepositoryImpl(
+            userDao = database.userDao(),
+            api = authApi,
+            tokenManager = tokenManager
         )
     }
 }
