@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.havetime.domain.model.TimeInterval
-import com.example.havetime.domain.model.TodoItem
+import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.CalendarViewModel
 import java.time.LocalDateTime
 import androidx.compose.foundation.lazy.items
@@ -30,8 +30,8 @@ fun TestScreen(
                 onClick = {
                     // Генерируем тестовую задачу.
                     // ВНИМАНИЕ: Подставь сюда правильные поля из твоего класса TodoItem!
-                    val testTodo = TodoItem(
-                        id = 0, // 0 нужен, чтобы Room сам сгенерировал ID
+                    val testTodo = Activity(
+                        id = java.util.UUID.randomUUID().toString(),
                         title = "Тестовая задача ${System.currentTimeMillis()}",
                         timeInterval = TimeInterval(
                             start = LocalDateTime.now(),

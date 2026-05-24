@@ -12,7 +12,10 @@ navigationCompose = "2.9.7"
 runtime = "1.10.6"
 uiText = "1.10.6"
 junitKtx = "1.3.0"
-room = "2.6.1"
+room = "2.8.4"
+ksp = "2.2.10-2.0.2"
+ktor = "3.0.1"
+osmdroid = "6.1.20"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,8 +36,17 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

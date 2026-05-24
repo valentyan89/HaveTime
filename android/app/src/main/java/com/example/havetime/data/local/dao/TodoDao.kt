@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.havetime.data.local.entity.TodoEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
@@ -20,6 +21,12 @@ interface TodoDao {
 
     @Delete
     suspend fun delete(todo: TodoEntity)
+
+    @Query("DELETE FROM todo WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
+    @Update
+    suspend fun update(todo: TodoEntity)
 
     @Query("SELECT * FROM todo")
     fun getAllTodos(): Flow<List<TodoEntity>>

@@ -38,16 +38,7 @@ class TodoRepositoryImpl(
     }
 
     override fun deleteTodo(id: Int): Flow<Unit> = flow{
-        val entityToDelete = TodoEntity(
-            id = id,
-            title = "",
-            color = 0,
-            timeInterval = TimeIntervalDto(
-                LocalDateTime.now(),
-                LocalDateTime.now()
-            )
-        )
-        todoDao.delete(entityToDelete)
+        todoDao.deleteById(id)
         emit(Unit)
     }
 

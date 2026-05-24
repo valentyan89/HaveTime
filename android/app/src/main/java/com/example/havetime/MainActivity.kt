@@ -6,9 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import com.example.havetime.presentation.CalendarViewModel
-//import com.example.havetime.presentation.navigation.CalendarNavHost
-import com.example.todolist.presentation.test.TestScreen
-import kotlin.getValue
+import com.example.havetime.presentation.navigation.CalendarNavHost
 
 class MainActivity : ComponentActivity() {
 
@@ -20,8 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-//                CalendarNavHost()
-                TestScreen()
+                CalendarNavHost(viewModel)
             }
         }
     }

@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -75,10 +75,18 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    val room_version = "2.6.1"
+    val room_version = libs.versions.room.get()
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.auth)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.osmdroid)
 
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 }

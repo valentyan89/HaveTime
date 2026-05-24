@@ -8,13 +8,13 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.model.TimeInterval
-import com.example.havetime.domain.model.TodoItem
-import com.example.havetime.domain.usecase.AddTodoUseCase
-import com.example.havetime.domain.usecase.DeleteTodoUseCase
-import com.example.havetime.domain.usecase.GetIntervalsForDateUseCase
-import com.example.havetime.domain.usecase.GetTodosUseCase
-import com.example.havetime.domain.usecase.SaveIntervalUseCase
-import com.example.havetime.domain.usecase.SyncWithServerUseCase
+import com.example.havetime.domain.model.Activity
+import com.example.havetime.domain.usecase.activity.AddTodoUseCase
+import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
+import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
+import com.example.havetime.domain.usecase.activity.GetTodosUseCase
+import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
+import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,14 +29,14 @@ class CalendarViewModel(
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val saveIntervalUseCase: SaveIntervalUseCase,
+    private val updateActivityUseCase: UpdateActivityUseCase,
     private val syncWithServerUseCase: SyncWithServerUseCase
 ) : ViewModel() {
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
     // Задачи для выбранной даты
-    val activities: StateFlow<List<TodoItem>> = _selectedDate
+    val activities: StateFlow<List<Activity>> = _selectedDate
         .flatMapLatest { date ->
             getIntervalsForDateUseCase(date)
         }
@@ -47,7 +47,7 @@ class CalendarViewModel(
         )
 
     // Если нужен список всех задач
-    val allActivities: StateFlow<List<TodoItem>> = getTodosUseCase().stateIn(
+    val allActivities: StateFlow<List<Activity>> = getTodosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
@@ -57,16 +57,16 @@ class CalendarViewModel(
         _selectedDate.value = date
     }
 
-    fun addActivity(todo: TodoItem) {
+    fun addActivity(todo: Activity) {
         addTodoUseCase(todo).launchIn(viewModelScope)
     }
 
-    fun deleteActivity(id: Int) {
+    fun deleteActivity(id: String) {
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
-    fun saveInterval(interval: TimeInterval) {
-        saveIntervalUseCase(interval).launchIn(viewModelScope)
+    fun updateActivity(activity: Activity) {
+        updateActivityUseCase(activity).launchIn(viewModelScope)
     }
 
     fun syncWithServer() {
@@ -78,15 +78,15 @@ class CalendarViewModel(
             initializer {
                 val application = (this[APPLICATION_KEY] as HaveTimeApplication)
 
-                val repo = application.todoRepository
+                val repo = application.activityRepository
 
                 CalendarViewModel(
                     addTodoUseCase = AddTodoUseCase(repo),
                     deleteTodoUseCase = DeleteTodoUseCase(repo),
                     getIntervalsForDateUseCase = GetIntervalsForDateUseCase(repo),
-                    saveIntervalUseCase = SaveIntervalUseCase(repo),
-                    syncWithServerUseCase = SyncWithServerUseCase(repo),
-                    getTodosUseCase = GetTodosUseCase(repo)
+                    getTodosUseCase = GetTodosUseCase(repo),
+                    updateActivityUseCase = UpdateActivityUseCase(repo),
+                    syncWithServerUseCase = SyncWithServerUseCase(repo)
                 )
             }
         }
