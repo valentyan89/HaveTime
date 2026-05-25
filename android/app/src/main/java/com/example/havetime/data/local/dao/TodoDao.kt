@@ -32,4 +32,7 @@ interface TodoDao {
     fun getTodosByDate(dayStart: LocalDateTime, dayEnd: LocalDateTime): Flow<List<ActivityEntity>>
     @Update
     suspend fun update(activity: ActivityEntity)
+
+    @Query("SELECT * FROM activity")
+    suspend fun getAllActivitiesSync(): List<ActivityEntity>
 }

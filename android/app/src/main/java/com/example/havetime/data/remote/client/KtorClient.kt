@@ -9,6 +9,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestPipeline
+import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.util.logging.Logger
@@ -30,6 +31,14 @@ object KtorClient{
             level = LogLevel.ALL
         }
 
+//        install("TokenInterceptor") {
+//            requestPipeline.intercept(HttpRequestPipeline.State) {
+//                currentAccessToken?.let { token ->
+//                    context.header("Authorization", "Bearer $token")
+//                }
+//            }
+//        }
+
         install(Auth) {
             bearer {
                 sendWithoutRequest { true }
@@ -40,7 +49,7 @@ object KtorClient{
         }
 
         defaultRequest {
-            url("http://63.245.216.9:8080/")
+            url("http://10.0.2.2:8080/")
         }
     }
 

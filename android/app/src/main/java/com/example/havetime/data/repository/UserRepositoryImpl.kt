@@ -34,6 +34,24 @@ class UserRepositoryImpl(
         response.token
     }
 
+    override suspend fun register(login: String, password: String): Result<Unit> = runCatching {
+        val response: LoginResponse = api.register(login, password)
+
+        tokenManager.saveToken(response.token)
+        KtorClient.updateToken(response.token)
+
+        userDao.insert(
+            UserEntity(
+                serverId = response.id,
+                login = response.login,
+                token = response.token,
+                createdAt = System.currentTimeMillis(),
+                lastSyncAt = System.currentTimeMillis()
+            )
+        )
+        response.token
+    }
+
     override suspend fun logout() {
         tokenManager.clearToken()
         KtorClient.clearToken()

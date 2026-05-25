@@ -2,9 +2,12 @@ package com.example.havetime.data.repository
 
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.dao.UserDao
 import com.example.havetime.data.mapper.toDomain
+import com.example.havetime.data.mapper.toDto
 import com.example.havetime.data.mapper.toEntity
-import com.example.havetime.domain.model.TimeInterval
+import com.example.havetime.data.remote.api.ActivityApi
+import com.example.havetime.data.remote.response.SyncRequest
 import com.example.havetime.domain.model.Activity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -13,7 +16,9 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class ActivityRepositoryImpl(
-    private val todoDao: TodoDao
+    private val todoDao: TodoDao,
+    private val userDao: UserDao,
+    private val api: ActivityApi
 ) : ActivityRepository{
     override fun getTodos(): Flow<List<Activity>> {
         return todoDao.getAllTodos().map { entities ->
@@ -40,6 +45,20 @@ class ActivityRepositoryImpl(
     }
 
     override fun syncWithServer(): Flow<Unit> = flow{
+        val user = userDao.getSyncUser()
+
+        user?.let { userRoom ->
+            val roomActivities = todoDao.getAllActivitiesSync().map {it.toDomain().toDto()}
+            val request = SyncRequest(
+                activities = roomActivities,
+                lastSync = userRoom.lastSyncAt
+            )
+
+            val freshDtos = api.sync(request).map { it.toEntity() }
+            todoDao.insertAll(freshDtos)
+            userDao.insert(userRoom.copy(lastSyncAt = System.currentTimeMillis()))
+        }
+
         emit(Unit)
     }
 

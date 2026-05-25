@@ -7,13 +7,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.havetime.HaveTimeApplication
-import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
 import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
-import com.example.havetime.domain.usecase.activity.SaveIntervalUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,7 +27,6 @@ class CalendarViewModel(
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val saveIntervalUseCase: SaveIntervalUseCase,
     private val syncWithServerUseCase: SyncWithServerUseCase
 ) : ViewModel() {
     private val _selectedDate = MutableStateFlow(LocalDate.now())
@@ -65,10 +62,6 @@ class CalendarViewModel(
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
-    fun saveInterval(interval: TimeInterval) {
-        saveIntervalUseCase(interval).launchIn(viewModelScope)
-    }
-
     fun syncWithServer() {
         syncWithServerUseCase().launchIn(viewModelScope)
     }
@@ -84,7 +77,6 @@ class CalendarViewModel(
                     addTodoUseCase = AddTodoUseCase(repo),
                     deleteTodoUseCase = DeleteTodoUseCase(repo),
                     getIntervalsForDateUseCase = GetIntervalsForDateUseCase(repo),
-                    saveIntervalUseCase = SaveIntervalUseCase(repo),
                     syncWithServerUseCase = SyncWithServerUseCase(repo),
                     getTodosUseCase = GetTodosUseCase(repo)
                 )
