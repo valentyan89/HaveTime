@@ -37,7 +37,10 @@ fun WeekScreen(
         firstVisibleWeekDate = currentDate
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         WeekCalendar(
             state = state,
             dayContent = { day ->
@@ -72,14 +75,36 @@ fun WeekScreen(
                         .fillMaxWidth()
                         .height(90.dp)
                         .clickable { onDayClick(day) }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp
+                        )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(day.dayOfMonth.toString(), fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(35.dp))
-                        Text(day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()), fontSize = 13.sp, color = Color.Gray)
+                        Text(
+                            day.dayOfMonth.toString(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .width(35.dp)
+                        )
+                        Text(
+                            day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                            fontSize = 13.sp,
+                            color = Color.Gray
+                        )
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Box(Modifier.fillMaxWidth().height(20.dp).clip(RoundedCornerShape(10.dp)).background(Color.LightGray.copy(0.2f))) {
+                    Spacer(
+                        Modifier
+                            .height(8.dp)
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(20.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.LightGray.copy(0.2f))
+                    ) {
                         dayIntervals.forEach { interval ->
                             val startMin = interval.timeInterval.start.hour * 60 + interval.timeInterval.start.minute
                             val duration = ChronoUnit.MINUTES.between(interval.timeInterval.start, interval.timeInterval.end).toInt()
@@ -90,7 +115,8 @@ fun WeekScreen(
                             Row(Modifier.fillMaxSize()) {
                                 if (startBias > 0) Spacer(Modifier.fillMaxWidth(startBias))
                                 Box(
-                                    Modifier.fillMaxHeight()
+                                    Modifier
+                                        .fillMaxHeight()
                                         .fillMaxWidth(if(startBias < 1f) widthRatio/(1f-startBias) else 1f)
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(Color(interval.color))

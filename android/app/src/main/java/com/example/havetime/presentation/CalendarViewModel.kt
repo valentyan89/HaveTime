@@ -35,7 +35,12 @@ class CalendarViewModel(
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    // Задачи для выбранной даты
+    private val _mapType = MutableStateFlow(0) // 0: Standard
+    val mapType: StateFlow<Int> = _mapType.asStateFlow()
+
+    fun onMapTypeChanged(type: Int) {
+        _mapType.value = type
+    }
     val activities: StateFlow<List<Activity>> = _selectedDate
         .flatMapLatest { date ->
             getIntervalsForDateUseCase(date)
@@ -45,8 +50,6 @@ class CalendarViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-
-    // Если нужен список всех задач
     val allActivities: StateFlow<List<Activity>> = getTodosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

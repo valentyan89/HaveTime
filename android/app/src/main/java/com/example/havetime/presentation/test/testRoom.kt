@@ -55,10 +55,14 @@ fun TestScreen(
         ) {
             items(activities) { todo ->
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                    ) {
                         // Здесь тоже подставь правильные поля из TodoItem (например, todo.title)
                         Text(text = "Задача: $todo", style = MaterialTheme.typography.bodyLarge)
                     }

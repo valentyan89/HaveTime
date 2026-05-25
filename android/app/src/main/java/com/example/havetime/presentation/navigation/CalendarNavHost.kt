@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.calendar.presentation.navigation.Screen
 import com.example.havetime.domain.model.Activity
+import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.CalendarViewModel
 import com.example.havetime.presentation.common.*
 import com.example.havetime.presentation.screens.day.*
@@ -25,27 +26,42 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
     val currentRoute = navBackStackEntry?.destination?.route
 
     val selectedDate by viewModel.selectedDate.collectAsState()
-    val activities by viewModel.activities.collectAsState()
     val allActivities by viewModel.allActivities.collectAsState()
+    val mapType by viewModel.mapType.collectAsState()
+
+    // Оптимизация: берем активности для выбранного дня +/- 1 день, 
+    // чтобы при прокрутке за 00:00 карточки не исчезали мгновенно
+    val dayActivities = remember(allActivities, selectedDate) {
+        allActivities.filter { 
+            val actDate = it.timeInterval.start.toLocalDate()
+            actDate >= selectedDate.minusDays(1) && actDate <= selectedDate.plusDays(1)
+        }
+    }
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var newStartTime by remember { mutableStateOf(LocalTime.of(12, 0)) }
     var newEndTime by remember { mutableStateOf(LocalTime.of(13, 0)) }
+    
+    var pendingLocation by remember { mutableStateOf<Location?>(null) }
 
     if (showAddDialog || editingActivity != null) {
         AddActivityDialog(
             editingActivity = editingActivity,
+            allActivities = allActivities,
             initialDate = selectedDate,
             initialStartTime = if (editingActivity == null) newStartTime else editingActivity!!.timeInterval.start.toLocalTime(),
             initialEndTime = if (editingActivity == null) newEndTime else editingActivity!!.timeInterval.end.toLocalTime(),
+            initialLocation = pendingLocation,
             onDismiss = {
                 showAddDialog = false
                 editingActivity = null
+                pendingLocation = null
             },
             onDelete = { id ->
                 viewModel.deleteActivity(id)
                 editingActivity = null
+                pendingLocation = null
             },
             onConfirm = { activity ->
                 if (editingActivity != null) {
@@ -55,6 +71,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                 }
                 showAddDialog = false
                 editingActivity = null
+                pendingLocation = null
             }
         )
     }
@@ -66,7 +83,9 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                 currentDestination = currentRoute,
                 onDateSelected = {
                     viewModel.onDateSelected(it)
-                    if (currentRoute != Screen.Day.route) navController.navigate(Screen.Day.route)
+                    if (currentRoute != Screen.Day.route && currentRoute != Screen.Map.route) {
+                        navController.navigate(Screen.Day.route)
+                    }
                 },
                 onWeekClick = { navController.navigate(Screen.Week.route) },
                 onMonthClick = { navController.navigate(Screen.Month.route) },
@@ -76,6 +95,8 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
         },
         bottomBar = {
             var searchQuery by remember { mutableStateOf("") }
+            val isMapScreen = currentRoute == Screen.Map.route
+            
             BottomControlBar(
                 searchQuery = searchQuery,
                 onSearchChange = { searchQuery = it },
@@ -83,7 +104,15 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                     newStartTime = LocalTime.now().withMinute(0).plusHours(1)
                     newEndTime = newStartTime.plusHours(1)
                     showAddDialog = true
-                }
+                },
+                onMapClick = {
+                    if (isMapScreen) {
+                        navController.navigate(Screen.Day.route)
+                    } else {
+                        navController.navigate(Screen.Map.route)
+                    }
+                },
+                isMapScreen = isMapScreen
             )
         }
     ) { padding ->
@@ -91,7 +120,8 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
             NavHost(navController = navController, startDestination = Screen.Day.route) {
                 composable(Screen.Day.route) {
                     DayScreen(
-                        intervals = activities,
+                        selectedDate = selectedDate,
+                        intervals = dayActivities,
                         onIntervalCreated = { start, end ->
                             newStartTime = start.toLocalTime()
                             newEndTime = end.toLocalTime()
@@ -142,7 +172,18 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                     )
                 }
                 composable(Screen.Map.route) {
-                    TestMapScreen(viewModel = viewModel)
+                    TestMapScreen(
+                        viewModel = viewModel,
+                        onCreateActivityAtLocation = { location ->
+                            pendingLocation = location
+                            newStartTime = LocalTime.now().withMinute(0).plusHours(1)
+                            newEndTime = newStartTime.plusHours(1)
+                            showAddDialog = true
+                        },
+                        onActivityClick = { activity ->
+                            editingActivity = activity
+                        }
+                    )
                 }
             }
         }

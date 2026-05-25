@@ -87,7 +87,12 @@ fun MonthScreen(
             },
             monthHeader = { month ->
                 Text(
-                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 8.dp),
+                    modifier = Modifier
+                        .padding(
+                            top = 16.dp,
+                            bottom = 16.dp,
+                            start = 8.dp
+                        ),
                     text = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
                         .replaceFirstChar { it.uppercase() } + " ${month.yearMonth.year}",
                     fontSize = 20.sp,

@@ -33,6 +33,7 @@ import kotlin.math.abs
 
 @Composable
 fun DayScreen(
+    selectedDate: LocalDate,
     intervals: List<Activity>,
     onIntervalCreated: (LocalDateTime, LocalDateTime) -> Unit,
     onIntervalClick: (Activity) -> Unit,
@@ -53,15 +54,28 @@ fun DayScreen(
     var dragStartDT by remember { mutableStateOf<LocalDateTime?>(null) }
     var dragEndDT by remember { mutableStateOf<LocalDateTime?>(null) }
 
-    LaunchedEffect(listState.firstVisibleItemIndex) {
-        val date = LocalDate.now().plusDays((listState.firstVisibleItemIndex - initialIndex).toLong())
-        onDateViewed(date)
+    LaunchedEffect(selectedDate) {
+        val targetIndex = initialIndex + ChronoUnit.DAYS.between(LocalDate.now(), selectedDate).toInt()
+        if (listState.firstVisibleItemIndex != targetIndex) {
+            listState.scrollToItem(targetIndex)
+        }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    LaunchedEffect(listState.firstVisibleItemIndex) {
+        val date = LocalDate.now().plusDays((listState.firstVisibleItemIndex - initialIndex).toLong())
+        if (date != selectedDate) {
+            onDateViewed(date)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             userScrollEnabled = !isInteracting && dragStartDT == null
         ) {
             items(10000, key = { it }) { index ->
@@ -95,8 +109,17 @@ fun DayScreen(
                     }
                 ) {
                     Column { repeat(24) { h ->
-                        Box(Modifier.height(hourHeight).fillMaxWidth()) {
-                            Text("${h}:00", fontSize = 10.sp, color = Color.Gray, modifier = Modifier.padding(4.dp))
+                        Box(
+                            Modifier
+                                .height(hourHeight)
+                                .fillMaxWidth()
+                        ) {
+                            Text("${h}:00",
+                                fontSize = 10.sp,
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .padding(4.dp)
+                            )
                             HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray.copy(0.3f))
                         }
                     } }
@@ -105,38 +128,35 @@ fun DayScreen(
         }
 
         intervals.forEach { interval ->
-            var currentStart by remember(interval) { mutableStateOf(interval.timeInterval.start) }
-            var currentEnd by remember(interval) { mutableStateOf(interval.timeInterval.end) }
-            var currentOffset by remember(interval) { mutableStateOf(interval.offsetX) }
-            var currentWidthPx by remember(interval) { mutableStateOf(interval.widthPx) }
+            var currentStart by remember(interval.id, interval.timeInterval.start, interval.color) { mutableStateOf(interval.timeInterval.start) }
+            var currentEnd by remember(interval.id, interval.timeInterval.end, interval.color) { mutableStateOf(interval.timeInterval.end) }
+            var currentOffset by remember(interval.id, interval.offsetX, interval.color) { mutableStateOf(interval.offsetX) }
+            var currentWidthPx by remember(interval.id, interval.widthPx, interval.color) { mutableStateOf(interval.widthPx) }
 
             val isCaptured = activeId == interval.id
-            val baseDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
-            val minutesFromBase = ChronoUnit.MINUTES.between(baseDateTime, currentStart)
+            
+            val activityDate = currentStart.toLocalDate()
+            val activityDayIndex = initialIndex + ChronoUnit.DAYS.between(LocalDate.now(), activityDate).toInt()
+            
+            val minutesFromMidnight = ChronoUnit.MINUTES.between(activityDate.atStartOfDay(), currentStart)
             val duration = ChronoUnit.MINUTES.between(currentStart, currentEnd)
 
             if (duration > 0) {
-                Box(modifier = Modifier
-                    .then(
-                        if (currentWidthPx != null) {
-                            Modifier.width(with(density) { currentWidthPx!!.toDp() })
-                        } else {
-                            Modifier.fillMaxWidth()
-                        }
-                    )
+                Box(
+                    modifier = Modifier
+                    .then(if (currentWidthPx != null) Modifier.width(with(density) { currentWidthPx!!.toDp() }) else Modifier.fillMaxWidth())
                     .padding(start = (16 + currentOffset).dp, end = interval.paddingEnd.dp)
                     .graphicsLayer {
-                        val scrollInPx = (listState.firstVisibleItemIndex - initialIndex) * (hourHeightPx * 24) + listState.firstVisibleItemScrollOffset
-                        translationY = (minutesFromBase * minuteHeightPx) - scrollInPx
+                        val scrollInPx = (listState.firstVisibleItemIndex - activityDayIndex) * (hourHeightPx * 24) + listState.firstVisibleItemScrollOffset
+                        translationY = (minutesFromMidnight * minuteHeightPx) - scrollInPx
+                        clip = false 
                     }
                     .height(with(density) { (duration * minuteHeightPx).toDp() })
                     .zIndex(if (isCaptured) 1000f else 1f)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(interval.color).copy(alpha = 0.9f))
                     .onSizeChanged { size ->
-                        if (currentWidthPx == null) {
-                            currentWidthPx = size.width.toFloat()
-                        }
+                        if (currentWidthPx == null) currentWidthPx = size.width.toFloat()
                     }
                     .pointerInput(interval.id) {
                         detectDragGesturesAfterLongPress(
@@ -147,12 +167,10 @@ fun DayScreen(
                                 val dX = dragAmount.x
                                 
                                 if (abs(dragAmount.y) > abs(dragAmount.x)) {
-                                    // Move vertically
                                     currentStart = currentStart.plusMinutes(dY)
                                     currentEnd = currentEnd.plusMinutes(dY)
                                 } else {
-                                    // Change width only
-                                    currentWidthPx = (currentWidthPx ?: size.width.toFloat()) + dX
+                                    currentWidthPx = ((currentWidthPx ?: 0f) + dX).coerceAtLeast(100f)
                                 }
                             },
                             onDragEnd = {
@@ -168,12 +186,21 @@ fun DayScreen(
                     .clickable { onIntervalClick(interval) }
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
-                        Text(interval.title, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                        Text(
+                            interval.title,
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
                         Text("${currentStart.format(timeFormatter)} - ${currentEnd.format(timeFormatter)}", color = Color.White.copy(0.8f), fontSize = 9.sp)
                     }
                     
-                    // Top handle for resizing
-                    Box(Modifier.fillMaxWidth().height(20.dp).align(Alignment.TopCenter).pointerInput(interval.id) {
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .height(24.dp)
+                            .align(Alignment.TopCenter)
+                            .pointerInput(interval.id) {
                         detectDragGestures(
                             onDragStart = { activeId = interval.id; isInteracting = true },
                             onDrag = { change, dragAmount ->
@@ -189,8 +216,7 @@ fun DayScreen(
                         )
                     })
                     
-                    // Bottom handle for resizing
-                    Box(Modifier.fillMaxWidth().height(20.dp).align(Alignment.BottomCenter).pointerInput(interval.id) {
+                    Box(Modifier.fillMaxWidth().height(24.dp).align(Alignment.BottomCenter).pointerInput(interval.id) {
                         detectDragGestures(
                             onDragStart = { activeId = interval.id; isInteracting = true },
                             onDrag = { change, dragAmount ->
@@ -208,18 +234,22 @@ fun DayScreen(
                 }
             }
         }
+        
+        // Превью создания новой активности (Тень)
         dragStartDT?.let { sDT -> dragEndDT?.let { eDT ->
             val s = if (sDT.isBefore(eDT)) sDT else eDT
             val e = if (sDT.isBefore(eDT)) eDT else sDT
-            val baseDT = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)
-            val offMin = ChronoUnit.MINUTES.between(baseDT, s)
+            
+            val dayOfS = s.toLocalDate()
+            val daySIndex = initialIndex + ChronoUnit.DAYS.between(LocalDate.now(), dayOfS).toInt()
+            val offMin = ChronoUnit.MINUTES.between(dayOfS.atStartOfDay(), s)
             val durMin = ChronoUnit.MINUTES.between(s, e)
 
             Box(Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .graphicsLayer {
-                    val scrollInPx = (listState.firstVisibleItemIndex - initialIndex) * (hourHeightPx * 24) + listState.firstVisibleItemScrollOffset
+                    val scrollInPx = (listState.firstVisibleItemIndex - daySIndex) * (hourHeightPx * 24) + listState.firstVisibleItemScrollOffset
                     translationY = (offMin * minuteHeightPx) - scrollInPx
                 }
                 .height(with(density) { (durMin * minuteHeightPx).toDp() })

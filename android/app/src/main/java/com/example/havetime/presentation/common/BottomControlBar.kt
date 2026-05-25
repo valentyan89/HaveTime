@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,7 +21,9 @@ import androidx.compose.ui.unit.dp
 fun BottomControlBar(
     searchQuery: String,
     onSearchChange: (String) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onMapClick: () -> Unit,
+    isMapScreen: Boolean = false
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -43,15 +47,37 @@ fun BottomControlBar(
             )
 
             Spacer(modifier = Modifier.width(12.dp))
+
+            if (!isMapScreen) {
+                // Кнопка добавления активности диалоговое окно
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF664FA3).copy(alpha = 0.8f))
+                        .clickable { onAddClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Кнопка переключения между экранами карты и календжаря
             Box(
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color(0xFF664FA3))
-                    .clickable { onAddClick() },
+                    .clickable { onMapClick() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+                Icon(
+                    imageVector = if (isMapScreen) Icons.Default.DateRange else Icons.Default.LocationOn,
+                    contentDescription = "Toggle Map/Calendar",
+                    tint = Color.White
+                )
             }
         }
     }
