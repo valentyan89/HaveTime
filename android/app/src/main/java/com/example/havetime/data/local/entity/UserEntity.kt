@@ -5,10 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user")
 data class UserEntity(
-    @PrimaryKey val id: Int = 1,
-    val serverId: Int,
+    @PrimaryKey val id: String,
     val login: String,
-    val token: String,
-    val createdAt: Long,
-    val lastSyncAt: Long
+    val email: String,
+    val token: String? = null
 )

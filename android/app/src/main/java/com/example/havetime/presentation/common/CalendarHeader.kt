@@ -38,7 +38,7 @@ fun CalendarHeader(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Button(
-            onClick = { handleNavigationClick("day", onDayClick) },
+            onClick = { handleNavigationClick("day_screen", onDayClick) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(82.dp),
             contentPadding = PaddingValues(0.dp)
@@ -46,7 +46,7 @@ fun CalendarHeader(
             Text(selectedDate.dayOfMonth.toString())
         }
         Button(
-            onClick = { handleNavigationClick("week", onWeekClick) },
+            onClick = { handleNavigationClick("week_screen", onWeekClick) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(120.dp),
             contentPadding = PaddingValues(0.dp)
@@ -54,7 +54,7 @@ fun CalendarHeader(
             Text(selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
         }
         Button(
-            onClick = { handleNavigationClick("month", onMonthClick) },
+            onClick = { handleNavigationClick("month_screen", onMonthClick) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(120.dp),
             contentPadding = PaddingValues(0.dp)
@@ -62,7 +62,7 @@ fun CalendarHeader(
             Text(selectedDate.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
         }
         Button(
-            onClick = { handleNavigationClick("year", onYearClick) },
+            onClick = { handleNavigationClick("year_screen", onYearClick) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.width(82.dp),
             contentPadding = PaddingValues(0.dp)

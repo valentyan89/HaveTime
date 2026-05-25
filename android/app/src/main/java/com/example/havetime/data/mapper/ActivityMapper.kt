@@ -58,7 +58,10 @@ fun ActivityDto.toEntity(): ActivityEntity {
         title = title,
         color = color,
         timeInterval = timeInterval,
-        location = location
+        location = location,
+        offsetX = 0f,
+        widthPx = null,
+        paddingEnd = 16f
     )
 }
 
@@ -77,7 +80,10 @@ fun ActivityDto.toDomain(): Activity {
                 longitude = it.longitude,
                 geocodedAddress = it.geocodedAddress
             )
-        }
+        },
+        offsetX = 0f,
+        widthPx = null,
+        paddingEnd = 16f
     )
 }
 

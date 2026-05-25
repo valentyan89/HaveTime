@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
@@ -86,12 +88,22 @@ fun AddActivityDialog(
         listOf(Color(0xFF42A5F5), Color(0xFF26A69A), Color(0xFF66BB6A), Color(0xFFFFCA28), Color(0xFFFF7043))
     )
 
+    val defaultActivityTitle = stringResource(R.string.dialog_default_activity_title)
+    val mapSelectedPointTitle = stringResource(R.string.map_selected_point)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(
-                Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text(text = if (showMapSelection) "Выберите место" else if (editingActivity == null) "Новая активность" else "Изменить")
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                Text(
+                    text = if (showMapSelection) {
+                        stringResource(R.string.map_title_selection)
+                    } else if (editingActivity == null) {
+                        stringResource(R.string.dialog_new_activity)
+                    } else {
+                        stringResource(R.string.dialog_edit_activity)
+                    }
+                )
                 if (!showMapSelection && editingActivity != null) {
                     IconButton(onClick = { onDelete(editingActivity.id) }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Red)
@@ -102,54 +114,35 @@ fun AddActivityDialog(
         text = {
             Crossfade(targetState = showMapSelection) { isMap ->
                 if (isMap) {
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(450.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
-                            Modifier.weight(1f)
-                                .padding(horizontal = 8.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
+                    Column(Modifier.fillMaxWidth().height(450.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.weight(1f).padding(horizontal = 8.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
                             LocationPickerView(
                                 initialLocation = tempLocation,
                                 markerColor = selectedColor,
                                 otherActivities = allActivities.filter { it.id != editingActivity?.id },
+                                selectedPointTitle = mapSelectedPointTitle,
                                 onLocationPicked = { tempLocation = it }
                             )
                         }
                         Spacer(Modifier.height(16.dp))
                         Button(
-                            onClick = { showMapSelection = false },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
+                            onClick = { showMapSelection = false }, 
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp), 
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Применить")
+                            Text(stringResource(R.string.dialog_apply_button))
                         }
                     }
                 } else {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                    ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.verticalScroll(rememberScrollState())) {
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
-                            label = { Text("Название") },
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            label = { Text(stringResource(R.string.dialog_title_label)) },
+                            modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(
-                            Modifier.
-                            height(8.dp)
-                        )
+                        Spacer(Modifier.height(8.dp))
                         
                         OutlinedTextField(
                             value = dateText,
@@ -158,10 +151,9 @@ fun AddActivityDialog(
                                     dateText = input
                                 }
                             },
-                            label = { Text("Дата начала (ДД.ММ.ГГГГ)") },
-                            placeholder = { Text("Напр. 03.11.2025") },
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            label = { Text(stringResource(R.string.dialog_date_label)) },
+                            placeholder = { Text(stringResource(R.string.dialog_date_placeholder)) },
+                            modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true
                         )
@@ -170,26 +162,36 @@ fun AddActivityDialog(
                         
                         OutlinedButton(
                             onClick = { showMapSelection = true },
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
-                            Spacer(
-                                Modifier
-                                    .width(8.dp)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = if (tempLocation != null) {
+                                    stringResource(R.string.dialog_location_selected)
+                                } else {
+                                    stringResource(R.string.dialog_select_location)
+                                }
                             )
-                            Text(text = if (tempLocation != null) "Место выбрано" else "Выбрать место на карте")
                         }
 
                         Spacer(Modifier.height(16.dp))
 
-                        Text(text = String.format(Locale.getDefault(), "Начало: %02d:%02d", startH % 24, startM % 60), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.dialog_start_time, startH % 24, startM % 60), 
+                            fontSize = 13.sp, 
+                            fontWeight = FontWeight.Bold
+                        )
                         TimeWheelPicker(startH % 24, startM % 60) { h, m -> startH = h; startM = m }
 
                         Spacer(Modifier.height(12.dp))
 
-                        Text(text = String.format(Locale.getDefault(), "Конец: %02d:%02d", endH % 24, endM % 60), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.dialog_end_time, endH % 24, endM % 60), 
+                            fontSize = 13.sp, 
+                            fontWeight = FontWeight.Bold
+                        )
                         TimeWheelPicker(endH % 24, endM % 60) { h, m -> endH = h; endM = m }
 
                         Spacer(Modifier.height(20.dp))
@@ -199,18 +201,12 @@ fun AddActivityDialog(
                                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
                                     row.forEach { colorItem ->
                                         Box(
-                                            modifier = Modifier
-                                                .size(34.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(colorItem)
+                                            modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(colorItem)
                                                 .clickable { selectedColor = colorItem }
                                                 .padding(4.dp)
                                         ) {
                                             if (selectedColor == colorItem) {
-                                                Box(
-                                                    Modifier.fillMaxSize()
-                                                        .background(Color.White.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
-                                                )
+                                                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.3f), RoundedCornerShape(4.dp)))
                                             }
                                         }
                                     }
@@ -239,22 +235,22 @@ fun AddActivityDialog(
                     if (end.isBefore(start.plusMinutes(10))) end = start.plusMinutes(10)
 
                     val updatedActivity = (editingActivity ?: Activity(
-                        title = title.ifEmpty { "Активность" },
+                        title = title.ifEmpty { defaultActivityTitle },
                         timeInterval = TimeInterval(start, end),
                         color = selectedColor.toArgb(),
                     )).copy(
-                        title = title.ifEmpty { "Активность" },
+                        title = title.ifEmpty { defaultActivityTitle },
                         timeInterval = TimeInterval(start, end),
                         color = selectedColor.toArgb(),
                         location = tempLocation
                     )
                     onConfirm(updatedActivity)
-                }) { Text("ОК") }
+                }) { Text(stringResource(R.string.dialog_ok)) }
             }
         },
         dismissButton = {
             if (!showMapSelection) {
-                TextButton(onClick = onDismiss) { Text("Отмена") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
             }
         }
     )
@@ -265,6 +261,7 @@ fun LocationPickerView(
     initialLocation: Location?,
     markerColor: Color,
     otherActivities: List<Activity>,
+    selectedPointTitle: String,
     onLocationPicked: (Location) -> Unit
 ) {
     val context = LocalContext.current
@@ -304,8 +301,6 @@ fun LocationPickerView(
                         position = GeoPoint(act.location!!.latitude, act.location!!.longitude)
                         title = act.title
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        
-                        // Используем стандартную иконку из ресурсов библиотеки osmdroid
                         val icon = ContextCompat.getDrawable(context, org.osmdroid.library.R.drawable.marker_default)?.mutate()
                         icon?.setTint(act.color)
                         this.icon = icon
@@ -316,7 +311,7 @@ fun LocationPickerView(
                 val marker = Marker(this).apply {
                     position = startPoint
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Выбранное место"
+                    title = selectedPointTitle
                     val icon = ContextCompat.getDrawable(context, org.osmdroid.library.R.drawable.marker_default)?.mutate()
                     icon?.setTint(markerColor.toArgb())
                     this.icon = icon
@@ -325,10 +320,10 @@ fun LocationPickerView(
 
                 val receiver = object : MapEventsReceiver {
                     override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                        overlays.filterIsInstance<Marker>().filter { it.title == "Выбранное место" }.forEach { overlays.remove(it) }
+                        overlays.filterIsInstance<Marker>().filter { it.title == selectedPointTitle }.forEach { overlays.remove(it) }
                         val newMarker = Marker(this@apply).apply {
                             position = p
-                            title = "Выбранное место"
+                            title = selectedPointTitle
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                             val icon = ContextCompat.getDrawable(context, org.osmdroid.library.R.drawable.marker_default)?.mutate()
                             icon?.setTint(markerColor.toArgb())
@@ -355,7 +350,7 @@ fun TimeWheelPicker(hour: Int, minute: Int, onTimeChange: (Int, Int) -> Unit) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        WheelColumn(24, hour, "ч") { onTimeChange(it, minute) }
+        WheelColumn(24, hour, stringResource(R.string.dialog_start_label).first().toString()) { onTimeChange(it, minute) }
         Spacer(Modifier.width(20.dp))
         WheelColumn(60, minute, "м") { onTimeChange(hour, it) }
     }

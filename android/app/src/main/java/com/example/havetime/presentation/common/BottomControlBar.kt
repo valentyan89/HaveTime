@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.havetime.R
 
 @Composable
 fun BottomControlBar(
@@ -40,7 +42,7 @@ fun BottomControlBar(
                 value = searchQuery,
                 onValueChange = onSearchChange,
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Поиск...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(24.dp),
                 singleLine = true
@@ -58,7 +60,11 @@ fun BottomControlBar(
                         .clickable { onAddClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
+                    Icon(
+                        imageVector = Icons.Default.Add, 
+                        contentDescription = stringResource(R.string.add_button_content_description), 
+                        tint = Color.White
+                    )
                 }
             }
 
@@ -75,7 +81,7 @@ fun BottomControlBar(
             ) {
                 Icon(
                     imageVector = if (isMapScreen) Icons.Default.DateRange else Icons.Default.LocationOn,
-                    contentDescription = "Toggle Map/Calendar",
+                    contentDescription = stringResource(if (isMapScreen) R.string.map_toggle_calendar else R.string.map_toggle_map),
                     tint = Color.White
                 )
             }

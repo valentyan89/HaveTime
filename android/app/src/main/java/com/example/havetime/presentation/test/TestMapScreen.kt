@@ -16,12 +16,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.CalendarViewModel
@@ -66,13 +68,15 @@ fun TestMapScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isSelectionMode) "Выберите место" else "Активности на карте") }
+                title = { 
+                    Text(stringResource(if (isSelectionMode) R.string.map_title_selection else R.string.map_title_activities)) 
+                }
             )
         },
         floatingActionButton = {
             if (isSelectionMode && selectedGeoPoint != null) {
                 ExtendedFloatingActionButton(
-                    text = { Text("Выбрать это место") },
+                    text = { Text(stringResource(R.string.map_select_this_place)) },
                     icon = { Icon(Icons.Default.Check, null) },
                     onClick = {
                         onLocationSelected(
@@ -124,13 +128,13 @@ fun TestMapScreen(
                             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                                 if (isSelectionMode) {
                                     selectedGeoPoint = p
-                                    overlays.filter { it is Marker && it.title == "Выбранная точка" }
+                                    overlays.filter { it is Marker && it.title == context.getString(R.string.map_selected_point) }
                                         .forEach { overlays.remove(it) }
                                     
                                     val marker = Marker(this@apply).apply {
                                         position = p
                                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                                        title = "Выбранная точка"
+                                        title = context.getString(R.string.map_selected_point)
                                     }
                                     overlays.add(marker)
                                     invalidate()
@@ -151,7 +155,7 @@ fun TestMapScreen(
                     .fillMaxSize(),
                 update = { view ->
                     val existingMarkers = view.overlays.filterIsInstance<Marker>()
-                        .filter { it.title != "Выбранная точка" }
+                        .filter { it.title != view.context.getString(R.string.map_selected_point) }
                     
                     if (existingMarkers.size != activities.count { it.location != null }) {
                         view.overlays.removeAll(existingMarkers)
@@ -175,6 +179,7 @@ fun TestMapScreen(
                 }
             )
 
+            // Кнопки зума (приближение/отдаление)
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -210,7 +215,7 @@ fun TestMapScreen(
                     shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.surfaceVariant
                 ) {
-                    Text("Нажмите на карту, чтобы выбрать место", modifier = Modifier.padding(12.dp))
+                    Text(stringResource(R.string.map_instruction_tap), modifier = Modifier.padding(12.dp))
                 }
             }
         }

@@ -18,7 +18,7 @@ import com.example.havetime.data.local.entity.UserEntity
         UserEntity::class,
         TodoEntity::class
                ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(DateConverter::class)
