@@ -48,7 +48,7 @@ fun DayScreen(
 
     val initialIndex = 5000
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
-    var activeId by remember { mutableStateOf<String?>(null) }
+    var activeId by remember { mutableStateOf<Int?>(null) }
     var isInteracting by remember { mutableStateOf(false) }
 
     var dragStartDT by remember { mutableStateOf<LocalDateTime?>(null) }
@@ -128,8 +128,8 @@ fun DayScreen(
         }
 
         intervals.forEach { interval ->
-            var currentStart by remember(interval.id, interval.timeInterval.start, interval.color) { mutableStateOf(interval.timeInterval.start) }
-            var currentEnd by remember(interval.id, interval.timeInterval.end, interval.color) { mutableStateOf(interval.timeInterval.end) }
+            var currentStart by remember(interval.id, interval.timeInterval.startTime, interval.color) { mutableStateOf(interval.timeInterval.startTime) }
+            var currentEnd by remember(interval.id, interval.timeInterval.endTime, interval.color) { mutableStateOf(interval.timeInterval.endTime) }
             var currentOffset by remember(interval.id, interval.offsetX, interval.color) { mutableStateOf(interval.offsetX) }
             var currentWidthPx by remember(interval.id, interval.widthPx, interval.color) { mutableStateOf(interval.widthPx) }
 

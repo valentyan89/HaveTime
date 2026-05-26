@@ -6,27 +6,28 @@ import com.example.havetime.domain.model.User
 
 fun UserEntity.toDomain(): User {
     return User(
-        id = id,
+        id = serverId,
         login = login,
-        email = email,
-        token = token
+        token = token,
+        createdAt = createdAt
     )
 }
 
 fun User.toEntity(): UserEntity {
     return UserEntity(
-        id = id,
+        serverId = id,
         login = login,
-        email = email,
-        token = token
+        token = token,
+        createdAt = createdAt,
+        lastSyncAt = System.currentTimeMillis()
     )
 }
 
 fun LoginResponse.toDomain(): User {
     return User(
-        id = id,
+        id = id.toIntOrNull() ?: 0,
         login = login,
-        email = "", // Сервер может не возвращать email при логине
-        token = token
+        token = token,
+        createdAt = System.currentTimeMillis()
     )
 }

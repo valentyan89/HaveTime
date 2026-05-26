@@ -60,19 +60,19 @@ fun AddActivityDialog(
     initialLocation: Location? = null,
     onDismiss: () -> Unit,
     onConfirm: (Activity) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (Int) -> Unit
 ) {
     var title by remember(editingActivity?.id) { mutableStateOf(editingActivity?.title ?: "") }
     
     val dateFormatter = remember { DateTimeFormatter.ofPattern("d.M.yyyy") }
     var dateText by remember(editingActivity?.id, initialDate) { 
-        mutableStateOf((editingActivity?.timeInterval?.start?.toLocalDate() ?: initialDate).format(dateFormatter)) 
+        mutableStateOf((editingActivity?.timeInterval?.startTime?.toLocalDate() ?: initialDate).format(dateFormatter)) 
     }
 
-    var startH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.start?.hour ?: initialStartTime.hour) }
-    var startM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.start?.minute ?: initialStartTime.minute) }
-    var endH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.end?.hour ?: initialEndTime.hour) }
-    var endM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.end?.minute ?: initialEndTime.minute) }
+    var startH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.startTime?.hour ?: initialStartTime.hour) }
+    var startM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.startTime?.minute ?: initialStartTime.minute) }
+    var endH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.endTime?.hour ?: initialEndTime.hour) }
+    var endM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.endTime?.minute ?: initialEndTime.minute) }
     
     var selectedColor by remember(editingActivity?.id, editingActivity?.color) { 
         mutableStateOf(Color(editingActivity?.color ?: 0xFF854CE5.toInt())) 

@@ -15,13 +15,14 @@ import kotlinx.coroutines.flow.*
 import java.time.LocalDate
 
 class CalendarViewModel(
-    private val addActivityUseCase: AddActivityUseCase,
+    private val addActivityUseCase: AddTodoUseCase,
     private val deleteActivityUseCase: DeleteTodoUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
     private val updateActivityUseCase: UpdateActivityUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val isAuthorizedUseCase: IsAuthorizedUseCase
+    private val isAuthorizedUseCase: IsAuthorizedUseCase,
+    private val syncWithServerUseCase: SyncWithServerUseCase
 ) : ViewModel() {
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
@@ -59,7 +60,7 @@ class CalendarViewModel(
         addActivityUseCase(activity).launchIn(viewModelScope)
     }
 
-    fun deleteActivity(id: String) {
+    fun deleteActivity(id: Int) {
         deleteActivityUseCase(id).launchIn(viewModelScope)
     }
 
@@ -71,19 +72,26 @@ class CalendarViewModel(
         logoutUseCase().launchIn(viewModelScope)
     }
 
+    fun syncWithServer() {
+        syncWithServerUseCase().launchIn(viewModelScope)
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = (this[APPLICATION_KEY] as HaveTimeApplication)
-                val di = app.appModule
+                val activityRepo = app.activityRepository
+                val userRepo = app.userRepository
+                
                 CalendarViewModel(
-                    addActivityUseCase = di.addActivityUseCase,
-                    deleteActivityUseCase = di.deleteActivityUseCase,
-                    getIntervalsForDateUseCase = di.getIntervalsForDateUseCase,
-                    getTodosUseCase = di.getTodosUseCase,
-                    updateActivityUseCase = di.updateActivityUseCase,
-                    logoutUseCase = di.logoutUseCase,
-                    isAuthorizedUseCase = di.isAuthorizedUseCase
+                    addActivityUseCase = AddTodoUseCase(activityRepo),
+                    deleteActivityUseCase = DeleteTodoUseCase(activityRepo),
+                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
+                    getTodosUseCase = GetTodosUseCase(activityRepo),
+                    updateActivityUseCase = UpdateActivityUseCase(activityRepo),
+                    syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
+                    logoutUseCase = LogoutUseCase(userRepo),
+                    isAuthorizedUseCase = IsAuthorizedUseCase(userRepo)
                 )
             }
         }

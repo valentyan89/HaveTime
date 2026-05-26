@@ -7,6 +7,9 @@ import com.example.havetime.data.model.activity.LocationDto
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun ActivityEntity.toDomain(): Activity {
     return Activity(
@@ -14,8 +17,8 @@ fun ActivityEntity.toDomain(): Activity {
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            start = timeInterval.startTime,
-            end = timeInterval.endTime
+            startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.startTime), ZoneId.systemDefault()),
+            endTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.endTime), ZoneId.systemDefault())
         ),
         location = location?.let {
             Location(
@@ -36,8 +39,8 @@ fun Activity.toEntity(): ActivityEntity {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.start,
-            endTime = timeInterval.end
+            startTime = timeInterval.startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+            endTime = timeInterval.endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         ),
         location = location?.let {
             LocationDto(
@@ -54,25 +57,22 @@ fun Activity.toEntity(): ActivityEntity {
 
 fun ActivityDto.toEntity(): ActivityEntity {
     return ActivityEntity(
-        id = id ?: java.util.UUID.randomUUID().toString(),
+        id = id,
         title = title,
         color = color,
         timeInterval = timeInterval,
-        location = location,
-        offsetX = 0f,
-        widthPx = null,
-        paddingEnd = 16f
+        location = location
     )
 }
 
 fun ActivityDto.toDomain(): Activity {
     return Activity(
-        id = id ?: java.util.UUID.randomUUID().toString(),
+        id = id,
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            start = timeInterval.startTime,
-            end = timeInterval.endTime
+            startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.startTime), ZoneId.systemDefault()),
+            endTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.endTime), ZoneId.systemDefault())
         ),
         location = location?.let {
             Location(
@@ -80,10 +80,7 @@ fun ActivityDto.toDomain(): Activity {
                 longitude = it.longitude,
                 geocodedAddress = it.geocodedAddress
             )
-        },
-        offsetX = 0f,
-        widthPx = null,
-        paddingEnd = 16f
+        }
     )
 }
 
@@ -93,8 +90,8 @@ fun Activity.toDto(): ActivityDto {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.start,
-            endTime = timeInterval.end
+            startTime = timeInterval.startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+            endTime = timeInterval.endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         ),
         location = location?.let {
             LocationDto(

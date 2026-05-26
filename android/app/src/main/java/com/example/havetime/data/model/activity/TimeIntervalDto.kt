@@ -1,8 +1,9 @@
 package com.example.havetime.data.model.activity
 
-import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TimeIntervalDto(
-    val startTime: LocalDateTime,
-    val endTime: LocalDateTime
+    val startTime: Long,
+    val endTime: Long
 )

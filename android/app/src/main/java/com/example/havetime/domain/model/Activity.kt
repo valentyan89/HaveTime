@@ -1,7 +1,7 @@
 package com.example.havetime.domain.model
 
 data class Activity(
-    val id: String = java.util.UUID.randomUUID().toString(),
+    val id: Int = 0,
     val title: String,
     val timeInterval: TimeInterval,
     val color: Int,

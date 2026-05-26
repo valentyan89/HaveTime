@@ -6,7 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
-import com.example.calendar.presentation.navigation.Screen
+import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.CalendarViewModel
@@ -33,7 +33,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
     // чтобы при прокрутке за 00:00 карточки не исчезали мгновенно
     val dayActivities = remember(allActivities, selectedDate) {
         allActivities.filter { 
-            val actDate = it.timeInterval.start.toLocalDate()
+            val actDate = it.timeInterval.startTime.toLocalDate()
             actDate >= selectedDate.minusDays(1) && actDate <= selectedDate.plusDays(1)
         }
     }
@@ -50,8 +50,8 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
             editingActivity = editingActivity,
             allActivities = allActivities,
             initialDate = selectedDate,
-            initialStartTime = if (editingActivity == null) newStartTime else editingActivity!!.timeInterval.start.toLocalTime(),
-            initialEndTime = if (editingActivity == null) newEndTime else editingActivity!!.timeInterval.end.toLocalTime(),
+            initialStartTime = if (editingActivity == null) newStartTime else editingActivity!!.timeInterval.startTime.toLocalTime(),
+            initialEndTime = if (editingActivity == null) newEndTime else editingActivity!!.timeInterval.endTime.toLocalTime(),
             initialLocation = pendingLocation,
             onDismiss = {
                 showAddDialog = false
@@ -140,7 +140,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                     WeekScreen(
                         currentDate = selectedDate,
                         getIntervals = { date ->
-                            allActivities.filter { it.timeInterval.start.toLocalDate() == date }
+                            allActivities.filter { it.timeInterval.startTime.toLocalDate() == date }
                         },
                         onDayClick = { date ->
                             viewModel.onDateSelected(date)
@@ -153,8 +153,8 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         currentDate = selectedDate,
                         getIntensity = { date ->
                             allActivities
-                                .filter { it.timeInterval.start.toLocalDate() == date }
-                                .sumOf { ChronoUnit.MINUTES.between(it.timeInterval.start, it.timeInterval.end).toInt() }
+                                .filter { it.timeInterval.startTime.toLocalDate() == date }
+                                .sumOf { ChronoUnit.MINUTES.between(it.timeInterval.startTime, it.timeInterval.endTime).toInt() }
                         },
                         onDayClick = { date ->
                             viewModel.onDateSelected(date)

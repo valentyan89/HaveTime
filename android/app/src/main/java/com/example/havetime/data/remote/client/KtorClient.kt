@@ -1,5 +1,6 @@
 package com.example.havetime.data.remote.client
 
+import com.example.havetime.util.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.HttpRequestRetry
@@ -10,16 +11,14 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.HttpRequestPipeline
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import java.util.logging.Logger
 
-object KtorClient{
+object KtorClient {
     private var currentAccessToken: String? = null
 
-    val client: HttpClient = HttpClient{
-        install(ContentNegotiation){
+    val client: HttpClient = HttpClient {
+        install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
                 prettyPrint = true
@@ -53,15 +52,15 @@ object KtorClient{
         }
 
         defaultRequest {
-            url("http://63.245.216.9:8080/")
+            url(Constants.BASE_URL)
         }
     }
 
-    fun updateToken(token: String){
+    fun updateToken(token: String) {
         currentAccessToken = token
     }
 
-    fun clearToken(){
+    fun clearToken() {
         currentAccessToken = null
     }
 }
