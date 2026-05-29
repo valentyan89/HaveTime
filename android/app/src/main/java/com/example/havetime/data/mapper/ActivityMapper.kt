@@ -11,6 +11,7 @@ import com.example.havetime.domain.model.TimeInterval
 fun ActivityEntity.toDomain(): Activity {
     return Activity(
         id = id,
+        userId = userId,
         title = title,
         color = color,
         timeInterval = TimeInterval(
@@ -23,13 +24,17 @@ fun ActivityEntity.toDomain(): Activity {
                 longitude = location.longitude,
                 geocodedAddress = location.geocodedAddress
             )
-        }
+        },
+        isSynced = isSynced,
+        isDeleted = isDeleted,
+        lastTimeModified = lastTimeModified
     )
 }
 
 fun Activity.toEntity(): ActivityEntity {
     return ActivityEntity(
         id = id,
+        userId = userId,
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
@@ -42,23 +47,31 @@ fun Activity.toEntity(): ActivityEntity {
                 longitude = location.longitude,
                 geocodedAddress = location.geocodedAddress
             )
-        }
+        },
+        isSynced = isSynced,
+        isDeleted = isDeleted,
+        lastTimeModified = lastTimeModified
     )
 }
 
 fun ActivityDto.toEntity(): ActivityEntity {
     return ActivityEntity(
         id = id,
+        userId = userId,
         title = title,
         color = color,
         timeInterval = timeInterval,
-        location = location
+        location = location,
+        isSynced = true,
+        isDeleted = false,
+        lastTimeModified = System.currentTimeMillis()
     )
 }
 
 fun ActivityDto.toDomain(): Activity {
     return Activity(
         id = id,
+        userId = userId,
         title = title,
         color = color,
         timeInterval = TimeInterval(
@@ -71,13 +84,17 @@ fun ActivityDto.toDomain(): Activity {
                 longitude = it.longitude,
                 geocodedAddress = it.geocodedAddress
             )
-        }
+        },
+        isSynced = true,
+        isDeleted = false,
+        lastTimeModified = lastTimeModified
     )
 }
 
 fun Activity.toDto(): ActivityDto {
     return ActivityDto(
         id = id,
+        userId = userId,
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(

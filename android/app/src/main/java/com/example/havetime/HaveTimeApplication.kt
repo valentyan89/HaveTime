@@ -2,20 +2,25 @@ package com.example.havetime
 
 import android.app.Application
 import androidx.room.Room
+import androidx.work.Configuration
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.ActivityDataBase
 import com.example.havetime.data.local.TokenManager
+import com.example.havetime.data.remote.api.ActivityApi
 import com.example.havetime.data.remote.api.AuthApi
 import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.repository.ActivityRepositoryImpl
 import com.example.havetime.data.repository.UserRepositoryImpl
 import com.example.havetime.domain.repository.UserRepository
+import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
+import com.example.havetime.presentation.worker.SyncWorkerFactory
 
-class HaveTimeApplication : Application() {
+class HaveTimeApplication : Application(), Configuration.Provider {
 
     lateinit var todoRepository: ActivityRepository
     lateinit var userRepository: UserRepository
     lateinit var tokenManager: TokenManager
+    lateinit var syncUseCase: SyncWithServerUseCase
 
     override fun onCreate() {
         super.onCreate()
@@ -28,10 +33,13 @@ class HaveTimeApplication : Application() {
         tokenManager = TokenManager(this)
         val httpClient = KtorClient.client
         val authApi = AuthApi(httpClient)
+        val activityApi = ActivityApi(httpClient)
 
 
         todoRepository = ActivityRepositoryImpl(
-            todoDao = database.todoDao()
+            todoDao = database.todoDao(),
+            userDao = database.userDao(),
+            api = activityApi
         )
 
         userRepository = UserRepositoryImpl(
@@ -39,5 +47,12 @@ class HaveTimeApplication : Application() {
             api = authApi,
             tokenManager = tokenManager
         )
+
+        syncUseCase = SyncWithServerUseCase(todoRepository)
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(SyncWorkerFactory(syncUseCase))
+            .build()
 }

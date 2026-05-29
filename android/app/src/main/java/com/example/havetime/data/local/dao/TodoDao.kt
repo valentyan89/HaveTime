@@ -21,18 +21,37 @@ interface TodoDao {
     @Query("DELETE FROM activity WHERE id = :id")
     suspend fun delete(id: Int)
 
-    @Query("SELECT * FROM activity")
+    @Query("DELETE FROM activity")
+    suspend fun deleteAllActivities()
+
+    @Query("SELECT * FROM activity WHERE isDeleted = 0")
     fun getAllTodos(): Flow<List<ActivityEntity>>
 
-    @Transaction
-    @Query("SELECT * FROM activity WHERE id = :id")
-    fun getTodoById(id: Int): ActivityEntity
+    @Query("SELECT * FROM activity WHERE id = :id AND isDeleted = 0")
+    suspend fun getTodoById(id: Int): ActivityEntity?
 
-    @Query("SELECT * FROM activity WHERE startTime >= :dayStart AND startTime <= :dayEnd ORDER BY startTime ASC")
+    @Query("SELECT * FROM activity WHERE startTime >= :dayStart AND startTime <= :dayEnd AND isDeleted = 0 ORDER BY startTime ASC")
     fun getTodosByDate(dayStart: LocalDateTime, dayEnd: LocalDateTime): Flow<List<ActivityEntity>>
+
     @Update
     suspend fun update(activity: ActivityEntity)
 
-    @Query("SELECT * FROM activity")
-    suspend fun getAllActivitiesSync(): List<ActivityEntity>
+    @Query("SELECT * FROM activity WHERE isSynced = 0 ORDER BY lastTimeModified ASC")
+    suspend fun getUnsyncedEvents(): List<ActivityEntity>
+
+    @Query("UPDATE activity SET isSynced = 1 WHERE id IN (:syncedIds)")
+    suspend fun markEventsSynced(syncedIds: List<Int>)
+
+    @Query("SELECT MAX(lastTimeModified) FROM activity WHERE isSynced = 1")
+    suspend fun getLastSyncTimestamp(): Long?
+
+    @Query("DELETE FROM activity WHERE isDeleted = 1 AND isSynced = 1")
+    suspend fun clearDeletedSynced()
+
+    @Transaction
+    suspend fun updateDataAfterSync(freshActivities: List<ActivityEntity>, syncedIds: List<Int>) {
+        clearDeletedSynced()
+        markEventsSynced(syncedIds)
+        insertAll(freshActivities)
+    }
 }
