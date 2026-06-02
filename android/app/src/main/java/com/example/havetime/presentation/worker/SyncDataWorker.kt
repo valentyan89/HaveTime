@@ -38,7 +38,6 @@ class SyncDataWorker(
         fun plannedSyncWorker(context: Context){
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
                 .build()
 
             val syncWork = PeriodicWorkRequestBuilder<SyncDataWorker>(

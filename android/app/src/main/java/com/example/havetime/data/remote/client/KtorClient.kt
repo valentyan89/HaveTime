@@ -10,6 +10,8 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestPipeline
 import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.util.logging.Logger
@@ -50,6 +52,7 @@ object KtorClient{
 
         defaultRequest {
             url("http://10.0.2.2:8080/")
+            contentType(ContentType.Application.Json)
         }
     }
 

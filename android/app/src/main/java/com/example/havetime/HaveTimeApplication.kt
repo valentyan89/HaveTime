@@ -10,7 +10,9 @@ import com.example.havetime.data.remote.api.ActivityApi
 import com.example.havetime.data.remote.api.AuthApi
 import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.repository.ActivityRepositoryImpl
+import com.example.havetime.data.repository.DateRepositoryImpl
 import com.example.havetime.data.repository.UserRepositoryImpl
+import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.presentation.worker.SyncWorkerFactory
@@ -19,6 +21,7 @@ class HaveTimeApplication : Application(), Configuration.Provider {
 
     lateinit var todoRepository: ActivityRepository
     lateinit var userRepository: UserRepository
+    lateinit var dateRepository: DateRepository
     lateinit var tokenManager: TokenManager
     lateinit var syncUseCase: SyncWithServerUseCase
 
@@ -47,6 +50,8 @@ class HaveTimeApplication : Application(), Configuration.Provider {
             api = authApi,
             tokenManager = tokenManager
         )
+
+        dateRepository = DateRepositoryImpl()
 
         syncUseCase = SyncWithServerUseCase(todoRepository)
     }
