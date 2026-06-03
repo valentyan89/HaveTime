@@ -15,10 +15,11 @@ import com.example.havetime.data.remote.api.AuthApi
 import com.example.havetime.data.repository.UserRepositoryImpl
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.presentation.CalendarViewModel
-import com.example.havetime.presentation.test.TestMapScreen
+//import com.example.havetime.presentation.test.TestMapScreen
 //import com.example.havetime.presentation.navigation.CalendarNavHost
-import com.example.todolist.presentation.test.TestScreen
+//import com.example.todolist.presentation.test.TestScreen
 import kotlinx.coroutines.launch
+import com.example.havetime.ui.theme.HaveTimeTheme
 import org.osmdroid.config.Configuration
 import kotlin.getValue
 
@@ -36,9 +37,9 @@ class MainActivity : ComponentActivity() {
         // 2. Устанавливаем User Agent (без этого сервер OSM не отдаст карту)
         Configuration.getInstance().userAgentValue = packageName
         setContent {
-            MaterialTheme {
+            HaveTimeTheme(dynamicColor = false)  {
 //                CalendarNavHost()
-                TestMapScreen()
+//                TestMapScreen()
             }
         }
     }
