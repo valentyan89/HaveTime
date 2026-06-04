@@ -15,6 +15,7 @@ import com.example.havetime.data.remote.api.AuthApi
 import com.example.havetime.data.repository.UserRepositoryImpl
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.presentation.CalendarViewModel
+import com.example.havetime.presentation.screens.auth.AuthScreen
 //import com.example.havetime.presentation.test.TestMapScreen
 //import com.example.havetime.presentation.navigation.CalendarNavHost
 //import com.example.todolist.presentation.test.TestScreen
@@ -25,9 +26,9 @@ import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: CalendarViewModel by viewModels {
-        CalendarViewModel.Factory
-    }
+//    private val viewModel: CalendarViewModel by viewModels {
+//        CalendarViewModel.Factory
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +41,9 @@ class MainActivity : ComponentActivity() {
             HaveTimeTheme(dynamicColor = false)  {
 //                CalendarNavHost()
 //                TestMapScreen()
+                AuthScreen(
+                    {println("uspeshno")}
+                )
             }
         }
     }
