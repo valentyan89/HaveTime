@@ -8,6 +8,7 @@ import com.example.havetime.data.mapper.toDomain
 import com.example.havetime.data.mapper.toDto
 import com.example.havetime.data.mapper.toEntity
 import com.example.havetime.data.remote.api.ActivityApi
+import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.remote.response.SyncRequest
 import com.example.havetime.domain.model.Activity
 import kotlinx.coroutines.flow.Flow
@@ -63,8 +64,9 @@ class ActivityRepositoryImpl(
     override suspend fun syncWithServer(): Result<Unit> {
         return try {
             val user = userDao.getSyncUser()
-
+            Log.d("RRR", "юзер с рума $user")
             user?.let { userRoom ->
+                KtorClient.updateToken(userRoom.token)
                 val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
 
                 val unsynced = todoDao.getUnsyncedEvents()
@@ -73,6 +75,7 @@ class ActivityRepositoryImpl(
                     activities = roomActivities,
                     lastSync = lastSyncTime
                 )
+                Log.d("RRR", "JSON $request")
                 val ids = unsynced.map { it.id }
                 val freshDtos = api.sync(request).map { it.toEntity() }
                 todoDao.updateDataAfterSync(freshDtos, ids)

@@ -13,13 +13,20 @@ import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
+import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
+import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
+import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
+import com.example.havetime.domain.usecase.date.GetCurrentYearUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class CalendarViewModel(
@@ -27,23 +34,41 @@ class CalendarViewModel(
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val syncWithServerUseCase: SyncWithServerUseCase
+    private val syncWithServerUseCase: SyncWithServerUseCase,
+    private val updateActivityUseCase: UpdateActivityUseCase,
+    private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
+    private val getCurrentDateUseCase: GetCurrentDateUseCase,
+    private val getCurrentYearUseCase: GetCurrentYearUseCase
 ) : ViewModel() {
-    private val _selectedDate = MutableStateFlow(LocalDate.now())
-    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
+    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
 
-    // Задачи для выбранной даты
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            getCurrentDateUseCase().collect { date ->
+                _selectedDate.value = date
+            }
+        }
+
+    }
+
     val activities: StateFlow<List<Activity>> = _selectedDate
         .flatMapLatest { date ->
-            getIntervalsForDateUseCase(date)
-        }
-        .stateIn(
+            when(date){
+                null -> flowOf(emptyList())
+                else -> getIntervalsForDateUseCase(date)
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    // Если нужен список всех задач
     val allActivities: StateFlow<List<Activity>> = getTodosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -62,23 +87,46 @@ class CalendarViewModel(
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
+    fun updateActivity(activity: Activity){
+        updateActivityUseCase(activity).launchIn(viewModelScope)
+    }
+
     fun syncWithServer() {
-        syncWithServerUseCase().launchIn(viewModelScope)
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = syncWithServerUseCase()
+                result.onSuccess {
+                    _errorMessage.value = null
+                }
+                result.onFailure {
+                    _errorMessage.value = it.message ?: "ошибка синхронизации"
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.message ?: "Неизвестная ошибка"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-
-                val repo = application.todoRepository
+                val activityRepo = application.todoRepository
+                val dateRepo = application.dateRepository
 
                 CalendarViewModel(
-                    addTodoUseCase = AddTodoUseCase(repo),
-                    deleteTodoUseCase = DeleteTodoUseCase(repo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(repo),
-                    syncWithServerUseCase = SyncWithServerUseCase(repo),
-                    getTodosUseCase = GetTodosUseCase(repo)
+                    addTodoUseCase = AddTodoUseCase(activityRepo),
+                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo),
+                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
+                    getTodosUseCase = GetTodosUseCase(activityRepo),
+                    syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
+                    updateActivityUseCase = UpdateActivityUseCase(activityRepo),
+                    getCurrentTimeUseCase = GetCurrentTimeUseCase(dateRepo),
+                    getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
+                    getCurrentYearUseCase = GetCurrentYearUseCase(dateRepo),
                 )
             }
         }
