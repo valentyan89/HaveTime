@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.IntOffset
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.roundToInt
+import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
 
 private const val SWIPE_THRESHOLD = 50f
 
@@ -241,7 +242,21 @@ fun DayScreen(
         }
     }
     if (showEventDialog) {
-        //  Добавить диалог создания события
+        AddActivityDialog(
+            editingActivity = null,
+            initialDate = date,
+            initialStartTime = java.time.LocalTime.of(12, 0),
+            initialEndTime = java.time.LocalTime.of(13, 0),
+            onDismiss = { showEventDialog = false },
+            onConfirm = { activity ->
+                viewModel.addActivity(activity)
+                showEventDialog = false
+            },
+            onDelete = { activityId ->
+                viewModel.deleteActivity(activityId)
+                showEventDialog = false
+            }
+        )
     }
 }
 
