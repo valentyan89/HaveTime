@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">HaveTime</string>
+    <string name="menu">Меню</string>
+    <string name="search">Поиск</string>
+    <string name="more">Ещё</string>
+    <string name="calendar">Календарь</string>
+    <string name="map">Карта</string>
+    <string name="add_event">Добавить событие</string>
 </resources>

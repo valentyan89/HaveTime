@@ -47,9 +47,9 @@ val AppTypography = Typography(
         fontSize = 32.sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = Fraunces,
+        fontFamily = PlusJakartaSans,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 28.sp
+        fontSize = 24.sp
     ),
     headlineSmall = TextStyle(
         fontFamily = Fraunces,
