@@ -12,4 +12,7 @@
     <color name="event_green">#4CAF50</color>
     <color name="event_purple">#854CE5</color>
     <color name="event_yellow">#FFCA31</color>
+    <color name="intensity_high">#EF5350</color>
+    <color name="intensity_medium">#FFA726</color>
+    <color name="intensity_low">#66BB6A</color>
 </resources>

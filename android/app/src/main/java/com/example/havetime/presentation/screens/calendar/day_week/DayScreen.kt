@@ -27,7 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.screens.calendar.CalendarMode
 import com.example.havetime.presentation.screens.calendar.day_week.WeekDayViewModel
-import com.example.havetime.ui.theme.HaveTimeTheme
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -35,6 +34,7 @@ import java.util.Locale
 import androidx.compose.ui.res.stringResource
 import com.example.havetime.R
 import androidx.compose.ui.unit.IntOffset
+import com.example.havetime.presentation.navigation.Screen
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.roundToInt
@@ -53,7 +53,6 @@ fun DayScreen(
     val currentDate by viewModel.currentDate.collectAsState()
     val events by viewModel.activityForDate.collectAsState()
     val calendarMode by viewModel.calendarMode.collectAsState()
-    var selectedTab by remember { mutableStateOf(0) }
     var showEventDialog by remember { mutableStateOf(false) }
 
 
@@ -117,14 +116,14 @@ fun DayScreen(
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
                         label = { Text(stringResource(R.string.calendar))},
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 }
+                        selected = true,
+                        onClick = { }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
                         label = { Text(stringResource(R.string.map)) },
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 }
+                        selected = false,
+                        onClick = { navController.navigate(Screen.Map.route) }
                     )
                 }
             }
@@ -290,7 +289,7 @@ fun DayTimeline(
                         ) {
 
                             Text(
-                                text = String.format("%02d:00", hour),
+                                text = String.format(Locale.getDefault(), "%02d:00", hour),
                                 modifier = Modifier
                                     .width(TIME_COLUMN_WIDTH_DP.dp)
                                     .padding(top = 4.dp),

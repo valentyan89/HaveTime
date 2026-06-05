@@ -78,6 +78,11 @@ class MonthViewModel(
             _currentMonth.value = getPreviousMonthUseCase(month)
         }
     }
+    fun setMonth(month: YearMonth) {
+        if (_currentMonth.value != month) {
+            _currentMonth.value = month
+        }
+    }
 
     fun getIntensityForDate(date: LocalDate): Int {
         return intensityMap.value[date] ?: 0

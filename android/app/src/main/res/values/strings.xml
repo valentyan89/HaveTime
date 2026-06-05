@@ -16,4 +16,5 @@
     <string name="default_activity_title">Активность</string>
     <string name="hour_label">ч</string>
     <string name="minute_label">м</string>
+    <string name="no_location_events">Нет событий с локацией</string>
 </resources>
