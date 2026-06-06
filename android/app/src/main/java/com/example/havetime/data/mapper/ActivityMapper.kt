@@ -146,12 +146,15 @@ fun Activity.toDto(): ActivityDto {
             startTime = timeInterval.startTime,
             endTime = timeInterval.endTime
         ),
-        location = location?.let {
+        location = this.location?.let {
             LocationDto(
                 latitude = it.latitude,
                 longitude = it.longitude,
                 geocodedAddress = it.geocodedAddress
             )
-        }
+        },
+        isSynced = isSynced,
+        isDeleted = isDeleted,
+        lastTimeModified = lastTimeModified
     )
 }
