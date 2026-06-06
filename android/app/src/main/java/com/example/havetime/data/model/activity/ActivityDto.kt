@@ -1,7 +1,7 @@
 package com.example.havetime.data.model.activity
 
 data class ActivityDto(
-    val id: String?,
+    val id: Int,
     val title: String,
     val timeInterval: TimeIntervalDto,
     val color: Int,

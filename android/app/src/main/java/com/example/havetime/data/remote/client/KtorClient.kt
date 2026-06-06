@@ -1,8 +1,6 @@
 package com.example.havetime.data.remote.client
 
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -26,17 +24,6 @@ object KtorClient{
                 isLenient = true
                 encodeDefaults = true
             })
-        }
-
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30000
-            connectTimeoutMillis = 30000
-            socketTimeoutMillis = 30000
-        }
-
-        install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 3)
-            exponentialDelay()
         }
 
         install(Logging) {

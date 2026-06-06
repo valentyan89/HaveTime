@@ -1,32 +1,44 @@
 package com.example.havetime.data.mapper
 
 import com.example.havetime.data.local.entity.UserEntity
-import com.example.havetime.data.remote.response.LoginResponse
+import com.example.havetime.data.model.UserDto
 import com.example.havetime.domain.model.User
+import java.time.LocalDateTime
 
 fun UserEntity.toDomain(): User {
     return User(
-        id = id,
+        id = serverId,
         login = login,
-        email = email,
-        token = token
+        token = token,
+        createdAt = createdAt
+    )
+}
+
+fun UserDto.toEntity(): UserEntity {
+    return UserEntity(
+        serverId = id,
+        login = login,
+        token = token,
+        createdAt = createdAt,
+        lastSyncAt = System.currentTimeMillis()
     )
 }
 
 fun User.toEntity(): UserEntity {
     return UserEntity(
-        id = id,
+        serverId = id,
         login = login,
-        email = email,
-        token = token
+        token = token,
+        createdAt = createdAt,
+        lastSyncAt = System.currentTimeMillis()
     )
 }
 
-fun LoginResponse.toDomain(): User {
-    return User(
-        id = id,
+fun UserEntity.toDto(): UserDto {
+    return UserDto(
+        id = serverId,
         login = login,
-        email = "", // Сервер может не возвращать email при логине
-        token = token
+        token = token,
+        createdAt = createdAt
     )
 }

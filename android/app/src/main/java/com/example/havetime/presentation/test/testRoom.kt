@@ -21,23 +21,21 @@ import androidx.compose.foundation.lazy.items
 fun TestScreen(
     viewModel: CalendarViewModel = viewModel(factory = CalendarViewModel.Factory)
 ) {
-    // Подписываемся на список задач (на выбранный день, по умолчанию - сегодня)
     val activities by viewModel.activities.collectAsState()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // Генерируем тестовую задачу.
-                    // ВНИМАНИЕ: Подставь сюда правильные поля из твоего класса TodoItem!
                     val testTodo = Activity(
-                        id = java.util.UUID.randomUUID().toString(),
+                        id = 0,
                         title = "Тестовая задача ${System.currentTimeMillis()}",
                         timeInterval = TimeInterval(
-                            start = LocalDateTime.now(),
-                            end = LocalDateTime.now().plusHours(1),
+                            startTime = LocalDateTime.now(),
+                            endTime = LocalDateTime.now().plusHours(1),
                         ),
-                        color = 100
+                        color = 100,
+                        location = null
                     )
                     viewModel.addActivity(testTodo)
                 }
@@ -55,16 +53,16 @@ fun TestScreen(
         ) {
             items(activities) { todo ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                    ) {
-                        // Здесь тоже подставь правильные поля из TodoItem (например, todo.title)
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "Задача: $todo", style = MaterialTheme.typography.bodyLarge)
+                        Button(
+                            onClick = {viewModel.deleteActivity(todo.id)}
+                        ) {
+                            Text("Delete activity")
+                        }
                     }
                 }
             }

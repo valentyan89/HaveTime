@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
+    id("com.google.devtools.ksp")
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 android {
@@ -61,7 +61,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui.text)
-    implementation("androidx.compose.material:material-icons-extended:1.7.5")
+    implementation(libs.play.services.auth)
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
@@ -77,18 +77,21 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    val room_version = libs.versions.room.get()
+    val room_version = "2.8.4"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.client.auth)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.osmdroid)
-
     implementation("androidx.datastore:datastore-preferences:1.1.7")
+
+    val ktorVersion = "3.3.1"
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:${ktorVersion}")
+    implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+    implementation("io.ktor:ktor-client-auth:${ktorVersion}")
+
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }

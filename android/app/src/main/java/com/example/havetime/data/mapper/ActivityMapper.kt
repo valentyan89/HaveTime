@@ -14,19 +14,16 @@ fun ActivityEntity.toDomain(): Activity {
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            start = timeInterval.startTime,
-            end = timeInterval.endTime
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             Location(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                geocodedAddress = it.geocodedAddress
+                latitude = location.latitude,
+                longitude = location.longitude,
+                geocodedAddress = location.geocodedAddress
             )
-        },
-        offsetX = offsetX,
-        widthPx = widthPx,
-        paddingEnd = paddingEnd
+        }
     )
 }
 
@@ -36,43 +33,37 @@ fun Activity.toEntity(): ActivityEntity {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.start,
-            endTime = timeInterval.end
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             LocationDto(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                geocodedAddress = it.geocodedAddress
+                latitude = location.latitude,
+                longitude = location.longitude,
+                geocodedAddress = location.geocodedAddress
             )
-        },
-        offsetX = offsetX,
-        widthPx = widthPx,
-        paddingEnd = paddingEnd
+        }
     )
 }
 
 fun ActivityDto.toEntity(): ActivityEntity {
     return ActivityEntity(
-        id = id ?: java.util.UUID.randomUUID().toString(),
+        id = id,
         title = title,
         color = color,
         timeInterval = timeInterval,
-        location = location,
-        offsetX = 0f,
-        widthPx = null,
-        paddingEnd = 16f
+        location = location
     )
 }
 
 fun ActivityDto.toDomain(): Activity {
     return Activity(
-        id = id ?: java.util.UUID.randomUUID().toString(),
+        id = id,
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            start = timeInterval.startTime,
-            end = timeInterval.endTime
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             Location(
@@ -80,10 +71,7 @@ fun ActivityDto.toDomain(): Activity {
                 longitude = it.longitude,
                 geocodedAddress = it.geocodedAddress
             )
-        },
-        offsetX = 0f,
-        widthPx = null,
-        paddingEnd = 16f
+        }
     )
 }
 
@@ -93,8 +81,8 @@ fun Activity.toDto(): ActivityDto {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.start,
-            endTime = timeInterval.end
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             LocationDto(
