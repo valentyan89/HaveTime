@@ -3,10 +3,12 @@ package com.example.havetime.presentation.screens.calendar.day_week
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +42,7 @@ import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.roundToInt
 import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
+import java.time.LocalDateTime
 
 private const val SWIPE_THRESHOLD = 50f
 
@@ -51,6 +55,7 @@ fun DayScreen(
     onMonthClick: () -> Unit = {}
 ) {
     val currentDate by viewModel.currentDate.collectAsState()
+    val currentTime by viewModel.currentTime.collectAsState()
     val events by viewModel.activityForDate.collectAsState()
     val calendarMode by viewModel.calendarMode.collectAsState()
     var showEventDialog by remember { mutableStateOf(false) }
@@ -161,16 +166,26 @@ fun DayScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                             .pointerInput(Unit) {
-                                detectHorizontalDragGestures(
-                                    onDragEnd = {},
-                                    onHorizontalDrag = { change, dragAmount ->
-                                        change.consume()
+                                var totalDragAmount = 0f // Копим общее расстояние свайпа здесь
 
-                                        if (dragAmount < -SWIPE_THRESHOLD) {
+                                detectHorizontalDragGestures(
+                                    onDragStart = {
+                                        totalDragAmount = 0f // Сбрасываем при начале нового касания
+                                    },
+                                    onDragEnd = {
+                                        // Палец оторвался от экрана — проверяем, на сколько суммарно сдвинули
+                                        if (totalDragAmount < -SWIPE_THRESHOLD) {
                                             viewModel.go2NextWeek()
-                                        } else if (dragAmount > SWIPE_THRESHOLD) {
+                                        } else if (totalDragAmount > SWIPE_THRESHOLD) {
                                             viewModel.go2PrevWeek()
                                         }
+                                    },
+                                    onDragCancel = {
+                                        totalDragAmount = 0f
+                                    },
+                                    onHorizontalDrag = { change, dragAmount ->
+                                        change.consume()
+                                        totalDragAmount += dragAmount // Просто суммируем каждый шаг движения
                                     }
                                 )
                             },
@@ -234,6 +249,8 @@ fun DayScreen(
 
             DayTimeline(
                 events = events,
+                currentDateTime = currentTime,
+                selectedDate = date,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -244,8 +261,8 @@ fun DayScreen(
         AddActivityDialog(
             editingActivity = null,
             initialDate = date,
-            initialStartTime = java.time.LocalTime.of(12, 0),
-            initialEndTime = java.time.LocalTime.of(13, 0),
+            initialStartTime = currentTime.toLocalTime(),
+            initialEndTime = currentTime.toLocalTime().plusHours(1),
             onDismiss = { showEventDialog = false },
             onConfirm = { activity ->
                 viewModel.addActivity(activity)
@@ -265,125 +282,146 @@ private const val TIME_COLUMN_WIDTH_DP = 60f
 @Composable
 fun DayTimeline(
     events: List<Activity>,
+    currentDateTime: LocalDateTime,
+    selectedDate: LocalDate,
     modifier: Modifier = Modifier
 ) {
+    val lazyListState = rememberLazyListState()
+    val density = LocalDensity.current
+    val isTodaySelected = selectedDate == currentDateTime.toLocalDate()
+
+    LaunchedEffect(key1 = isTodaySelected) {
+        if (isTodaySelected) {
+            val currentHour = currentDateTime.hour
+            val targetHour = (currentHour - 2).coerceAtLeast(0)
+
+            val targetOffsetPx = with(density) { (targetHour * HOUR_HEIGHT_DP).dp.toPx() }
+            val delta = targetOffsetPx - lazyListState.firstVisibleItemScrollOffset
+            if (delta != 0f) lazyListState.animateScrollBy(delta)
+        }
+    }
 
     LazyColumn(
+        state = lazyListState,
         modifier = modifier
     ) {
-
         item {
+            // Общая высота холста на 24 часа
+            val totalHeightDp = (24 * HOUR_HEIGHT_DP).dp
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height((24 * HOUR_HEIGHT_DP).dp)
+                    .height(totalHeightDp)
             ) {
 
-                Column {
+                // --- СЛОЙ 1: СЕТКА ЧАСОВ И ЛИНИИ ---
+                repeat(24) { hour ->
+                    val topOffsetDp = (hour * HOUR_HEIGHT_DP).dp
 
-                    repeat(24) { hour ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(HOUR_HEIGHT_DP.dp)
+                            .offset(y = topOffsetDp)
+                    ) {
+                        // Текст времени (привязан к верхней границе часа)
+                        Text(
+                            text = String.format(Locale.getDefault(), "%02d:00", hour),
+                            modifier = Modifier
+                                .width(TIME_COLUMN_WIDTH_DP.dp)
+                                .align(Alignment.TopStart),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                        Row(
-                            modifier = Modifier.height(HOUR_HEIGHT_DP.dp)
-                        ) {
-
-                            Text(
-                                text = String.format(Locale.getDefault(), "%02d:00", hour),
-                                modifier = Modifier
-                                    .width(TIME_COLUMN_WIDTH_DP.dp)
-                                    .padding(top = 4.dp),
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                            .copy(alpha = 0.3f)
-                                    )
-                            )
-                        }
+                        // Разделительная линия (четко по центру или по верхнему краю)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = TIME_COLUMN_WIDTH_DP.dp) // Чтобы линия не перекрывала текст
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                                .align(Alignment.TopStart) // Прижимаем к началу часа
+                        )
                     }
                 }
 
+                // --- СЛОЙ 2: СОБЫТИЯ ---
                 events.forEach { event ->
+                    val start = Instant.ofEpochMilli(event.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                    val end = Instant.ofEpochMilli(event.timeInterval.endTime).atZone(ZoneId.systemDefault())
 
-                    val start =
-                        Instant.ofEpochMilli(
-                            event.timeInterval.startTime
-                        ).atZone(
-                            ZoneId.systemDefault()
-                        )
+                    val startMinutes = start.hour * 60 + start.minute
+                    val durationMinutes = ((event.timeInterval.endTime - event.timeInterval.startTime) / 60000f).coerceAtLeast(30f)
 
-                    val end =
-                        Instant.ofEpochMilli(
-                            event.timeInterval.endTime
-                        ).atZone(
-                            ZoneId.systemDefault()
-                        )
-
-                    val startMinutes =
-                        start.hour * 60 + start.minute
-
-                    val durationMinutes =
-                        ((event.timeInterval.endTime -
-                                event.timeInterval.startTime) / 60000f)
-                            .coerceAtLeast(30f)
-
-                    val minuteHeight =
-                        HOUR_HEIGHT_DP / 60f
-
-                    val topOffset =
-                        startMinutes * minuteHeight
-
-                    val cardHeight =
-                        durationMinutes * minuteHeight
+                    val minuteHeight = HOUR_HEIGHT_DP / 60f
+                    val topOffset = startMinutes * minuteHeight
+                    val cardHeight = durationMinutes * minuteHeight
 
                     Card(
                         modifier = Modifier
                             .offset {
                                 IntOffset(
-                                    TIME_COLUMN_WIDTH_DP.dp.roundToPx(),
-                                    topOffset.roundToInt()
+                                    x = TIME_COLUMN_WIDTH_DP.dp.roundToPx(),
+                                    y = topOffset.dp.roundToPx()
                                 )
                             }
-                            .padding(horizontal = 8.dp)
-                            .fillMaxWidth(0.85f)
+                            .padding(end = 16.dp, start = 8.dp)
+                            .fillMaxWidth()
                             .height(cardHeight.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer
                         )
                     ) {
-
-                        Column(
-                            modifier = Modifier.padding(8.dp)
-                        ) {
-
+                        Column(modifier = Modifier.padding(8.dp)) {
                             Text(
                                 text = event.title,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 14.sp
                             )
-
-                            Spacer(
-                                modifier = Modifier.height(4.dp)
-                            )
-
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "%02d:%02d - %02d:%02d".format(
-                                    start.hour,
-                                    start.minute,
-                                    end.hour,
-                                    end.minute
-                                ),
-                                fontSize = 12.sp
+                                text = "%02d:%02d - %02d:%02d".format(start.hour, start.minute, end.hour, end.minute),
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+
+                // --- СЛОЙ 3: КРАСНАЯ ЛИНИЯ ТЕКУЩЕГО ВРЕМЕНИ ---
+                if (isTodaySelected) {
+                    val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
+                    val minuteHeight = HOUR_HEIGHT_DP / 60f
+                    val lineTopOffsetDp = (currentMinutes * minuteHeight).dp
+
+                    Row(
+                        modifier = Modifier
+                            .offset {
+                                IntOffset(
+                                    x = (TIME_COLUMN_WIDTH_DP - 3).dp.roundToPx(), // Сдвиг под точку
+                                    y = lineTopOffsetDp.roundToPx()
+                                )
+                            }
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Маленькая точка-индикатор
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(Color.Red, shape = CircleShape)
+                        )
+                        // Сама линия
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.5.dp)
+                                .background(Color.Red)
+                        )
                     }
                 }
             }

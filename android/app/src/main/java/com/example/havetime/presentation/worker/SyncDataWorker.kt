@@ -1,6 +1,7 @@
 package com.example.havetime.presentation.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.Constraints
 import java.util.concurrent.TimeUnit
 import androidx.work.CoroutineWorker
@@ -20,6 +21,7 @@ class SyncDataWorker(
     override suspend fun doWork(): Result {
 
         return try{
+            Log.d("RRR", "воркер")
             val result = syncWithServerUseCase()
             if (result.isSuccess){
                 Result.success()
@@ -51,7 +53,7 @@ class SyncDataWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 uniqueWorkName = WORKER_NAME,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.REPLACE,
                 request = syncWork
             )
         }

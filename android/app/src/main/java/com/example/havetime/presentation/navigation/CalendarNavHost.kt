@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.havetime.presentation.screens.auth.AuthScreen
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
 //import com.example.havetime.presentation.screens.calendar.year.YearScreen
@@ -32,6 +33,11 @@ fun CalendarNavHost() {
 //        composable(Screen.Year.route) {
 //            YearScreen(navController = navController)
 //        }
+        composable("auth") {
+            AuthScreen(
+                { println("good") }
+            )
+        }
 
         composable(Screen.Map.route) {
             MapScreen(navController = navController)

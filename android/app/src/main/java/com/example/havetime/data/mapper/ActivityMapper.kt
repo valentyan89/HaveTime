@@ -3,10 +3,55 @@ package com.example.havetime.data.mapper
 import com.example.havetime.data.local.entity.ActivityEntity
 import com.example.havetime.data.model.activity.TimeIntervalDto
 import com.example.havetime.data.model.activity.ActivityDto
+import com.example.havetime.data.model.activity.ActivityNetworkDto
 import com.example.havetime.data.model.activity.LocationDto
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
+
+fun ActivityDto.toNetworkDto(): ActivityNetworkDto {
+    return ActivityNetworkDto(
+        id = this.id,
+        userId = this.userId,
+        title = this.title,
+        color = this.color,
+        startTime = this.timeInterval.startTime,
+        endTime = this.timeInterval.endTime,
+        lat = this.location?.latitude,
+        lon = this.location?.longitude,
+        address = this.location?.geocodedAddress,
+        updatedAt = this.lastTimeModified,
+        isDeleted = this.isDeleted
+    )
+}
+
+fun ActivityNetworkDto.toClientDto(): ActivityDto {
+    val clientLocation =
+        if (this.lat != null && this.lon != null) {
+            LocationDto(
+                latitude = this.lat,
+                longitude = this.lon,
+                geocodedAddress = this.address
+            )
+        } else {
+            null
+        }
+
+    return ActivityDto(
+        id = this.id,
+        userId = this.userId,
+        title = this.title,
+        color = this.color,
+        timeInterval = TimeIntervalDto(
+            startTime = this.startTime,
+            endTime = this.endTime
+        ),
+        location = clientLocation,
+        isSynced = true,
+        isDeleted = this.isDeleted,
+        lastTimeModified = this.updatedAt
+    )
+}
 
 fun ActivityEntity.toDomain(): Activity {
     return Activity(

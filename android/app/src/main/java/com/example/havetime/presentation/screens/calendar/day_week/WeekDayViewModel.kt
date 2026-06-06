@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
 import com.example.havetime.presentation.screens.calendar.CalendarMode
+import java.time.LocalDateTime
 
 class WeekDayViewModel(
     private val addTodoUseCase: AddTodoUseCase,
@@ -39,6 +41,7 @@ class WeekDayViewModel(
     private val getTodosUseCase: GetTodosUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val syncWithServerUseCase: SyncWithServerUseCase,
+    private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextWeekUseCase: GetNextWeekUseCase,
     private val getPreviousWeekUseCase: GetPreviousWeekUseCase,
@@ -57,6 +60,13 @@ class WeekDayViewModel(
             _currentDate.value = today
         }
     }
+
+    val currentTime: StateFlow<LocalDateTime> = getCurrentTimeUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LocalDateTime.now()
+        )
 
     fun setCalendarMode(mode: CalendarMode) {
         _calendarMode.value = mode
@@ -152,6 +162,7 @@ class WeekDayViewModel(
                     getTodosUseCase = GetTodosUseCase(activityRepo),
                     getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
                     syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
+                    getCurrentTimeUseCase = GetCurrentTimeUseCase(dateRepo),
                     getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
                     getNextWeekUseCase = GetNextWeekUseCase(dateRepo),
                     getPreviousWeekUseCase = GetPreviousWeekUseCase(dateRepo),

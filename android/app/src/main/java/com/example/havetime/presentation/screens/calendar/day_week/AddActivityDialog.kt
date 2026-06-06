@@ -193,8 +193,8 @@ fun AddActivityDialog(
                         userId = editingActivity?.userId ?: 0,
                         title = title.ifEmpty { defaultTitle },
                         timeInterval = TimeInterval(
-                            startTime = startDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                            endTime = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            startTime = startDateTime.toInstant(java.time.ZoneOffset.UTC).toEpochMilli(),
+                            endTime = endDateTime.toInstant(java.time.ZoneOffset.UTC).toEpochMilli()
                         ),
                         color = selectedColor.toArgb(),
                         location = editingActivity?.location,

@@ -7,11 +7,13 @@ import com.example.havetime.data.local.dao.UserDao
 import com.example.havetime.data.mapper.toDomain
 import com.example.havetime.data.mapper.toDto
 import com.example.havetime.data.mapper.toEntity
+import com.example.havetime.data.mapper.toNetworkDto
 import com.example.havetime.data.remote.api.ActivityApi
 import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.remote.response.SyncRequest
 import com.example.havetime.domain.model.Activity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -39,7 +41,9 @@ class ActivityRepositoryImpl(
     }
 
     override fun addTodo(todo: Activity): Flow<Unit> = flow{
+        val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
         val entity = todo.toEntity().copy(
+            userId = userServerId,
             isSynced = false,
             lastTimeModified = System.currentTimeMillis()
         )
@@ -70,14 +74,15 @@ class ActivityRepositoryImpl(
                 val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
 
                 val unsynced = todoDao.getUnsyncedEvents()
-                val roomActivities = unsynced.map {it.toDomain().toDto()}
+                val roomActivities = unsynced.map {it.toDomain().toDto().toNetworkDto()}
                 val request = SyncRequest(
                     activities = roomActivities,
                     lastSync = lastSyncTime
                 )
                 Log.d("RRR", "JSON $request")
                 val ids = unsynced.map { it.id }
-                val freshDtos = api.sync(request).map { it.toEntity() }
+                val response = api.sync(request)
+                val freshDtos = response.map { it.toEntity() }
                 todoDao.updateDataAfterSync(freshDtos, ids)
                 userDao.insert(
                     user.copy(lastSyncAt = System.currentTimeMillis())

@@ -18,7 +18,6 @@ import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.presentation.worker.SyncWorkerFactory
 
 class HaveTimeApplication : Application(), Configuration.Provider {
-
     lateinit var todoRepository: ActivityRepository
     lateinit var userRepository: UserRepository
     lateinit var dateRepository: DateRepository
@@ -57,7 +56,26 @@ class HaveTimeApplication : Application(), Configuration.Provider {
     }
 
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(SyncWorkerFactory(syncUseCase))
-            .build()
+        get() {
+            if (!::syncUseCase.isInitialized) {
+                val database = Room.databaseBuilder(
+                    this,
+                    ActivityDataBase::class.java,
+                    "havetime_database"
+                ).build()
+
+                val activityApi = ActivityApi(KtorClient.client)
+
+                todoRepository = ActivityRepositoryImpl(
+                    todoDao = database.todoDao(),
+                    userDao = database.userDao(),
+                    api = activityApi
+                )
+                syncUseCase = SyncWithServerUseCase(todoRepository)
+            }
+
+            return Configuration.Builder()
+                .setWorkerFactory(SyncWorkerFactory(syncUseCase))
+                .build()
+        }
 }
