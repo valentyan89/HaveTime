@@ -42,7 +42,8 @@ fun MonthScreen(
     navController: NavController,
     viewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory),
     onDayClick: (LocalDate) -> Unit = {},
-    onYearClick: (Int) -> Unit = {}
+    onYearClick: (Int) -> Unit = {},
+    onAvatarClick: () -> Unit = {}
 ) {
     val currentMonth by viewModel.currentMonth.collectAsState()
     val intensityMap by viewModel.intensityMap.collectAsState()
@@ -88,6 +89,12 @@ fun MonthScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
+                    }
+                    IconButton(onClick = onAvatarClick) {
+                        Icon(
+                            Icons.Default.AccountCircle,
+                            contentDescription = stringResource(R.string.profile)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

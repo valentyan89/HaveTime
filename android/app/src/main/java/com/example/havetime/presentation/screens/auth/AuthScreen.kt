@@ -11,11 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun AuthScreen(
     onAuthSuccess: () -> Unit,
+    onBackClick: () -> Unit = { },
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
 ) {
@@ -44,13 +50,12 @@ fun AuthScreen(
     var loginInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
 
-    // Эффект для обработки успешного входа или показа ошибок
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Success -> {
                 Toast.makeText(context, "Успешный вход!", Toast.LENGTH_SHORT).show()
                 onAuthSuccess()
-                viewModel.resetState() // Сбрасываем стейт, чтобы не триггерить эффект повторно
+                viewModel.resetState()
             }
             is AuthState.Error -> {
                 val errorMsg = (authState as AuthState.Error).message
@@ -61,100 +66,121 @@ fun AuthScreen(
         }
     }
 
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        currentUser?.let { user ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Добро пожаловать, ${user.login}!",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Токен: ${user.token.take(10)}...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = { viewModel.logout() }) {
-                    Text("Выйти из аккаунта")
-                }
-            }
-        } ?: run {
-            Column(
+    Scaffold(
+        modifier = modifier.fillMaxSize()
+    ) { paddingValues ->
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = onBackClick,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 8.dp),
+                enabled = authState !is AuthState.Loading
             ) {
-                Text(
-                    text = "Авторизация",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.primary
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Назад"
                 )
+            }
 
-                Spacer(modifier = Modifier.height(32.dp))
 
-                OutlinedTextField(
-                    value = loginInput,
-                    onValueChange = { loginInput = it },
-                    label = { Text("Логин") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = authState !is AuthState.Loading
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = passwordInput,
-                    onValueChange = { passwordInput = it },
-                    label = { Text("Пароль") },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = authState !is AuthState.Loading
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+            currentUser?.let { user ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    OutlinedButton(
-                        onClick = { viewModel.register(loginInput, passwordInput) },
-                        modifier = Modifier.weight(1f),
-                        enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
-                    ) {
-                        Text("Регистрация")
+                    Text(
+                        text = "Добро пожаловать, ${user.login}!",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Токен: ${user.token.take(10)}...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(onClick = { viewModel.logout() }) {
+                        Text("Выйти из аккаунта")
                     }
+                }
+            } ?: run {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Авторизация",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                    Button(
-                        onClick = { viewModel.login(loginInput, passwordInput) },
-                        modifier = Modifier.weight(1f),
-                        enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
+                    OutlinedTextField(
+                        value = loginInput,
+                        onValueChange = { loginInput = it },
+                        label = { Text("Логин") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = passwordInput,
+                        onValueChange = { passwordInput = it },
+                        label = { Text("Пароль") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Войти")
+                        OutlinedButton(
+                            onClick = { viewModel.register(loginInput, passwordInput) },
+                            modifier = Modifier.weight(1f),
+                            enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
+                        ) {
+                            Text("Регистрация")
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Button(
+                            onClick = { viewModel.login(loginInput, passwordInput) },
+                            modifier = Modifier.weight(1f),
+                            enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
+                        ) {
+                            Text("Войти")
+                        }
                     }
                 }
             }
-        }
 
-        if (authState is AuthState.Loading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            if (authState is AuthState.Loading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }

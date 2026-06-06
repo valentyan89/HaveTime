@@ -31,13 +31,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import androidx.compose.ui.graphics.toArgb
-
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.havetime.ui.theme.HaveTimeTheme
-import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.Check
 
 private val EventColors = listOf(
     R.color.event_red,
@@ -97,6 +91,7 @@ fun AddActivityDialog(
     val titleLabel = stringResource(R.string.title)
     val startLabel = stringResource(R.string.start)
     val endLabel = stringResource(R.string.end)
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -187,6 +182,7 @@ fun AddActivityDialog(
                         LocalDateTime.of(initialDate.plusDays(1), LocalTime.MIDNIGHT)
                     else
                         LocalDateTime.of(initialDate, LocalTime.of(endH.coerceIn(0, 23), endM.coerceIn(0, 59)))
+
 
                     val activity = Activity(
                         id = editingActivity?.id ?: 0,
@@ -289,6 +285,7 @@ fun WheelColumn(
                 val displayValue = index % count
                 val isSelected = (listState.firstVisibleItemIndex + 1) == index
 
+
                 Box(
                     modifier = Modifier.fillMaxWidth().height(itemHeight),
                     contentAlignment = Alignment.Center
@@ -307,219 +304,4 @@ fun WheelColumn(
             }
         }
     }
-}
-
-// ==================== ПРЕВЬЮ ====================
-
-@Preview(
-    name = "Add Activity Dialog - Create Mode",
-    showBackground = true,
-    widthDp = 400,
-    heightDp = 700
-)
-@Composable
-fun PreviewAddActivityDialogCreate() {
-    HaveTimeTheme(dynamicColor = false) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            // Для превью создаём отдельный диалог без зависимостей
-            PreviewDialogContent(
-                title = "Новая активность",
-                startTime = "12:00",
-                endTime = "13:00"
-            )
-        }
-    }
-}
-
-@Preview(
-    name = "Add Activity Dialog - Edit Mode",
-    showBackground = true,
-    widthDp = 400,
-    heightDp = 700
-)
-@Composable
-fun PreviewAddActivityDialogEdit() {
-    HaveTimeTheme(dynamicColor = false) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            PreviewDialogContent(
-                title = "Изменить",
-                startTime = "14:30",
-                endTime = "15:30",
-                activityTitle = "Встреча с командой"
-            )
-        }
-    }
-}
-
-@Composable
-fun PreviewDialogContent(
-    title: String,
-    startTime: String,
-    endTime: String,
-    activityTitle: String = ""
-) {
-    var textFieldValue by remember { mutableStateOf(activityTitle) }
-
-    // 🔧 Исправлено: colorResource вынесен за пределы remember
-    val defaultColor = colorResource(R.color.event_purple)
-    var selectedColor by remember { mutableStateOf(defaultColor) }
-
-    val colors = listOf(
-        R.color.event_red,
-        R.color.event_blue,
-        R.color.event_green,
-        R.color.event_purple,
-        R.color.event_yellow
-    )
-
-    AlertDialog(
-        onDismissRequest = {},
-        title = {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(title)
-            }
-        },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                OutlinedTextField(
-                    value = textFieldValue,
-                    onValueChange = { textFieldValue = it },
-                    label = { Text("Название") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Начало: $startTime",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(horizontal = 32.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(startTime.take(2), fontSize = 20.sp)
-                    }
-                    Text(" : ", fontSize = 20.sp)
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(startTime.takeLast(2), fontSize = 20.sp)
-                    }
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Text(
-                    text = "Конец: $endTime",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .padding(horizontal = 32.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(endTime.take(2), fontSize = 20.sp)
-                    }
-                    Text(" : ", fontSize = 20.sp)
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(endTime.takeLast(2), fontSize = 20.sp)
-                    }
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    colors.forEach { colorRes ->
-                        val color = colorResource(colorRes)
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .clickable { selectedColor = color }
-                                .then(
-                                    if (selectedColor == color)
-                                        Modifier.background(Color.Black.copy(alpha = 0.2f), CircleShape)
-                                    else
-                                        Modifier
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (selectedColor == color) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = {}) {
-                Text("ОК")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {}) {
-                Text("Отмена")
-            }
-        }
-    )
 }

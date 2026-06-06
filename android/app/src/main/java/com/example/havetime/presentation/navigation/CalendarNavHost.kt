@@ -23,7 +23,10 @@ fun CalendarNavHost() {
     ) {
 
         composable(Screen.Day.route) {
-            DayScreen(navController = navController)
+            DayScreen(
+                navController = navController,
+                onAvatarClick = { navController.navigate(Screen.Auth.route) }
+            )
         }
 
         composable(Screen.Month.route) {
@@ -33,14 +36,16 @@ fun CalendarNavHost() {
 //        composable(Screen.Year.route) {
 //            YearScreen(navController = navController)
 //        }
-        composable("auth") {
-            AuthScreen(
-                { println("good") }
-            )
-        }
 
         composable(Screen.Map.route) {
             MapScreen(navController = navController)
+        }
+
+        composable(Screen.Auth.route) {
+            AuthScreen(
+                onAuthSuccess = { },
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }

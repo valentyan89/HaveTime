@@ -52,7 +52,9 @@ private const val SWIPE_THRESHOLD = 50f
 fun DayScreen(
     navController: NavController,
     viewModel: WeekDayViewModel = viewModel(factory = WeekDayViewModel.Factory),
-    onMonthClick: () -> Unit = {}
+    selectedDate: LocalDate? = null,
+    onMonthClick: () -> Unit = {},
+    onAvatarClick: () -> Unit = {}
 ) {
     val currentDate by viewModel.currentDate.collectAsState()
     val currentTime by viewModel.currentTime.collectAsState()
@@ -60,10 +62,12 @@ fun DayScreen(
     val calendarMode by viewModel.calendarMode.collectAsState()
     var showEventDialog by remember { mutableStateOf(false) }
 
-
     LaunchedEffect(Unit) {
         if (calendarMode != CalendarMode.WEEK_DAY) {
             viewModel.setCalendarMode(CalendarMode.WEEK_DAY)
+        }
+        if (selectedDate != null) {
+            viewModel.selectDate(selectedDate)
         }
     }
 
@@ -89,8 +93,10 @@ fun DayScreen(
                     IconButton(onClick = { }) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
+
+
+                    IconButton(onClick = onAvatarClick) {
+                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -157,7 +163,7 @@ fun DayScreen(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { onMonthClick() }
+                            modifier = Modifier.clickable { navController.navigate(Screen.Month.route) }
                         )
                     }
 
@@ -166,14 +172,15 @@ fun DayScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                             .pointerInput(Unit) {
-                                var totalDragAmount = 0f // Копим общее расстояние свайпа здесь
+                                var totalDragAmount = 0f
 
                                 detectHorizontalDragGestures(
                                     onDragStart = {
-                                        totalDragAmount = 0f // Сбрасываем при начале нового касания
+                                        totalDragAmount = 0f
                                     },
                                     onDragEnd = {
-                                        // Палец оторвался от экрана — проверяем, на сколько суммарно сдвинули
+
+
                                         if (totalDragAmount < -SWIPE_THRESHOLD) {
                                             viewModel.go2NextWeek()
                                         } else if (totalDragAmount > SWIPE_THRESHOLD) {
@@ -185,7 +192,7 @@ fun DayScreen(
                                     },
                                     onHorizontalDrag = { change, dragAmount ->
                                         change.consume()
-                                        totalDragAmount += dragAmount // Просто суммируем каждый шаг движения
+                                        totalDragAmount += dragAmount
                                     }
                                 )
                             },
@@ -247,6 +254,7 @@ fun DayScreen(
                 }
             }
 
+
             DayTimeline(
                 events = events,
                 currentDateTime = currentTime,
@@ -306,7 +314,6 @@ fun DayTimeline(
         modifier = modifier
     ) {
         item {
-            // Общая высота холста на 24 часа
             val totalHeightDp = (24 * HOUR_HEIGHT_DP).dp
 
             Box(
@@ -314,8 +321,6 @@ fun DayTimeline(
                     .fillMaxWidth()
                     .height(totalHeightDp)
             ) {
-
-                // --- СЛОЙ 1: СЕТКА ЧАСОВ И ЛИНИИ ---
                 repeat(24) { hour ->
                     val topOffsetDp = (hour * HOUR_HEIGHT_DP).dp
 
@@ -325,7 +330,6 @@ fun DayTimeline(
                             .height(HOUR_HEIGHT_DP.dp)
                             .offset(y = topOffsetDp)
                     ) {
-                        // Текст времени (привязан к верхней границе часа)
                         Text(
                             text = String.format(Locale.getDefault(), "%02d:00", hour),
                             modifier = Modifier
@@ -335,19 +339,17 @@ fun DayTimeline(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        // Разделительная линия (четко по центру или по верхнему краю)
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = TIME_COLUMN_WIDTH_DP.dp) // Чтобы линия не перекрывала текст
+                                .padding(start = TIME_COLUMN_WIDTH_DP.dp)
                                 .height(1.dp)
                                 .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-                                .align(Alignment.TopStart) // Прижимаем к началу часа
+                                .align(Alignment.TopStart)
                         )
                     }
                 }
 
-                // --- СЛОЙ 2: СОБЫТИЯ ---
                 events.forEach { event ->
                     val start = Instant.ofEpochMilli(event.timeInterval.startTime).atZone(ZoneId.systemDefault())
                     val end = Instant.ofEpochMilli(event.timeInterval.endTime).atZone(ZoneId.systemDefault())
@@ -358,6 +360,9 @@ fun DayTimeline(
                     val minuteHeight = HOUR_HEIGHT_DP / 60f
                     val topOffset = startMinutes * minuteHeight
                     val cardHeight = durationMinutes * minuteHeight
+
+                    val eventColor = Color(event.color)
+
 
                     Card(
                         modifier = Modifier
@@ -371,59 +376,50 @@ fun DayTimeline(
                             .fillMaxWidth()
                             .height(cardHeight.dp),
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                        colors = CardDefaults.cardColors(containerColor = eventColor)
                     ) {
                         Column(modifier = Modifier.padding(8.dp)) {
                             Text(
                                 text = event.title,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                                 fontSize = 14.sp
                             )
+
                             Spacer(modifier = Modifier.height(2.dp))
+
                             Text(
                                 text = "%02d:%02d - %02d:%02d".format(start.hour, start.minute, end.hour, end.minute),
                                 fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh
                             )
                         }
                     }
                 }
 
-                // --- СЛОЙ 3: КРАСНАЯ ЛИНИЯ ТЕКУЩЕГО ВРЕМЕНИ ---
-                if (isTodaySelected) {
-                    val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
-                    val minuteHeight = HOUR_HEIGHT_DP / 60f
-                    val lineTopOffsetDp = (currentMinutes * minuteHeight).dp
+                val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
+                val minuteHeight = HOUR_HEIGHT_DP / 60f
+                val lineTopOffsetDp = (currentMinutes * minuteHeight).dp
 
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                x = (TIME_COLUMN_WIDTH_DP - 3).dp.roundToPx(),
+                                y = lineTopOffsetDp.roundToPx()
+                            )
+                        }
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
                         modifier = Modifier
-                            .offset {
-                                IntOffset(
-                                    x = (TIME_COLUMN_WIDTH_DP - 3).dp.roundToPx(), // Сдвиг под точку
-                                    y = lineTopOffsetDp.roundToPx()
-                                )
-                            }
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Маленькая точка-индикатор
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(Color.Red, shape = CircleShape)
-                        )
-                        // Сама линия
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.5.dp)
-                                .background(Color.Red)
-                        )
-                    }
+                            .fillMaxWidth()
+                            .height(1.5.dp)
+                            .background(MaterialTheme.colorScheme.inversePrimary)
+                    )
                 }
+
             }
         }
     }

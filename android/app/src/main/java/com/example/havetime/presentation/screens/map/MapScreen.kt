@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 fun MapScreen(
     navController: NavController,
     viewModel: MapViewModel = viewModel(factory = MapViewModel.Factory),
+    onAvatarClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val geoMarks by viewModel.geoMarksForDate.collectAsState()
@@ -64,6 +65,12 @@ fun MapScreen(
                     }
                     IconButton(onClick = { }) {
                         Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
+                    }
+                    IconButton(onClick = onAvatarClick) {
+                        Icon(
+                            Icons.Default.AccountCircle,
+                            contentDescription = stringResource(R.string.profile)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
