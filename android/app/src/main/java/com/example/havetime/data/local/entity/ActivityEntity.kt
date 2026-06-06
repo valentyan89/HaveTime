@@ -8,7 +8,7 @@ import com.example.havetime.data.model.activity.TimeIntervalDto
 
 @Entity(tableName = "activity")
 data class ActivityEntity(
-    @PrimaryKey val id: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val color: Int,
     @Embedded val timeInterval: TimeIntervalDto,

@@ -1,4 +1,4 @@
-package com.example.calendar.presentation.navigation
+package com.example.havetime.presentation.navigation
 
 sealed class Screen(val route: String) {
     object Day : Screen("day_screen")

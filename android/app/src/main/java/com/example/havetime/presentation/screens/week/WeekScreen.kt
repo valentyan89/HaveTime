@@ -106,8 +106,8 @@ fun WeekScreen(
                             .background(Color.LightGray.copy(0.2f))
                     ) {
                         dayIntervals.forEach { interval ->
-                            val startMin = interval.timeInterval.start.hour * 60 + interval.timeInterval.start.minute
-                            val duration = ChronoUnit.MINUTES.between(interval.timeInterval.start, interval.timeInterval.end).toInt()
+                            val startMin = interval.timeInterval.startTime.hour * 60 + interval.timeInterval.startTime.minute
+                            val duration = ChronoUnit.MINUTES.between(interval.timeInterval.startTime, interval.timeInterval.endTime).toInt()
 
                             val startBias = startMin / 1440f
                             val widthRatio = duration / 1440f
