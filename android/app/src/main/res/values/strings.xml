@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">HaveTime</string>
+    <string name="menu">Меню</string>
+    <string name="search">Поиск</string>
+    <string name="more">Ещё</string>
+    <string name="calendar">Календарь</string>
+    <string name="map">Карта</string>
+    <string name="add_event">Добавить событие</string>
+    <string name="new_activity">Новая активность</string>
+    <string name="edit_activity">Изменить</string>
+    <string name="title">Название</string>
+    <string name="start">Начало</string>
+    <string name="end">Конец</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+    <string name="default_activity_title">Активность</string>
+    <string name="hour_label">ч</string>
+    <string name="minute_label">м</string>
+    <string name="no_location_events">Нет событий с локацией</string>
 </resources>
