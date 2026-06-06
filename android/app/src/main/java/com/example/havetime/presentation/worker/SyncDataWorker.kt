@@ -19,16 +19,16 @@ class SyncDataWorker(
     private val syncWithServerUseCase: SyncWithServerUseCase
 ) : CoroutineWorker(context, params){
     override suspend fun doWork(): Result {
-
+        Log.d("RRR", "воркер")
         return try{
-            Log.d("RRR", "воркер")
             val result = syncWithServerUseCase()
             if (result.isSuccess){
                 Result.success()
             } else {
+                val error = result.exceptionOrNull()
                 Result.retry()
             }
-        } catch (e: Exception){
+        } catch (e: Throwable){
             Result.retry()
         }
     }

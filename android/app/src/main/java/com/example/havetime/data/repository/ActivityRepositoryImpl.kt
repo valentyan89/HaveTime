@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.dao.TodoDao
 import com.example.havetime.data.local.dao.UserDao
+import com.example.havetime.data.mapper.toClientDto
 import com.example.havetime.data.mapper.toDomain
 import com.example.havetime.data.mapper.toDto
 import com.example.havetime.data.mapper.toEntity
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 class ActivityRepositoryImpl(
     private val todoDao: TodoDao,
@@ -32,9 +34,14 @@ class ActivityRepositoryImpl(
     }
 
     override fun getIntervalsForDate(date: LocalDate): Flow<List<Activity>> {
-        val startOfDay = date.atStartOfDay()
-        val endOfDay = date.atTime(LocalTime.MAX)
-        return todoDao.getTodosByDate(startOfDay, endOfDay).map { entities ->
+        val dayStart = date.atStartOfDay()
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+
+        val dayEnd = date.plusDays(1).atStartOfDay()
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+        return todoDao.getTodosByDate(dayStart, dayEnd).map { entities ->
             entities
                 .map { it.toDomain() }
         }
@@ -68,7 +75,6 @@ class ActivityRepositoryImpl(
     override suspend fun syncWithServer(): Result<Unit> {
         return try {
             val user = userDao.getSyncUser()
-            Log.d("RRR", "юзер с рума $user")
             user?.let { userRoom ->
                 KtorClient.updateToken(userRoom.token)
                 val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
@@ -82,7 +88,7 @@ class ActivityRepositoryImpl(
                 Log.d("RRR", "JSON $request")
                 val ids = unsynced.map { it.id }
                 val response = api.sync(request)
-                val freshDtos = response.map { it.toEntity() }
+                val freshDtos = response.map { it.toClientDto().toEntity() }
                 todoDao.updateDataAfterSync(freshDtos, ids)
                 userDao.insert(
                     user.copy(lastSyncAt = System.currentTimeMillis())
@@ -90,7 +96,6 @@ class ActivityRepositoryImpl(
                 Result.success(Unit)
             } ?: Result.failure(Exception("User not found"))
         } catch (e: Exception){
-            Log.e("RRR", "sync failed ${e.message}", e)
             Result.failure(e)
         }
     }

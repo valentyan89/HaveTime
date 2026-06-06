@@ -13,6 +13,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.havetime.data.local.ActivityDataBase
 import com.example.havetime.data.remote.api.AuthApi
 import com.example.havetime.data.repository.UserRepositoryImpl
@@ -31,11 +35,6 @@ import org.osmdroid.config.Configuration
 import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
-
-//    private val viewModel: CalendarViewModel by viewModels {
-//        CalendarViewModel.Factory
-//    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val ctx = applicationContext
@@ -45,13 +44,7 @@ class MainActivity : ComponentActivity() {
         Configuration.getInstance().userAgentValue = packageName
         setContent {
             HaveTimeTheme(dynamicColor = false)  {
-//                CalendarNavHost()
-//
-//                AuthScreen(
-//                    {println("uspeshno")}
-//                )
                 CalendarNavHost()
-
             }
         }
     }

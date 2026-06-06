@@ -1,6 +1,7 @@
 package com.example.havetime
 
 import android.app.Application
+import android.util.Log
 import androidx.room.Room
 import androidx.work.Configuration
 import com.example.calendar.domain.repository.ActivityRepository
@@ -18,64 +19,51 @@ import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.presentation.worker.SyncWorkerFactory
 
 class HaveTimeApplication : Application(), Configuration.Provider {
-    lateinit var todoRepository: ActivityRepository
-    lateinit var userRepository: UserRepository
-    lateinit var dateRepository: DateRepository
-    lateinit var tokenManager: TokenManager
-    lateinit var syncUseCase: SyncWithServerUseCase
+    val tokenManager by lazy { TokenManager(this) }
 
-    override fun onCreate() {
-        super.onCreate()
-
-        val database = Room.databaseBuilder(
+    private val database by lazy {
+        Room.databaseBuilder(
             this,
             ActivityDataBase::class.java,
             "havetime_database"
         ).build()
-        tokenManager = TokenManager(this)
-        val httpClient = KtorClient.client
-        val authApi = AuthApi(httpClient)
-        val activityApi = ActivityApi(httpClient)
+    }
 
+    private val httpClient by lazy { KtorClient.client }
+    private val authApi by lazy { AuthApi(httpClient) }
+    private val activityApi by lazy { ActivityApi(httpClient) }
 
-        todoRepository = ActivityRepositoryImpl(
+    val todoRepository: ActivityRepository by lazy {
+        ActivityRepositoryImpl(
             todoDao = database.todoDao(),
             userDao = database.userDao(),
             api = activityApi
         )
+    }
 
-        userRepository = UserRepositoryImpl(
+    val userRepository: UserRepository by lazy {
+        UserRepositoryImpl(
             userDao = database.userDao(),
             api = authApi,
             tokenManager = tokenManager
         )
+    }
 
-        dateRepository = DateRepositoryImpl()
+    val dateRepository: DateRepository by lazy {
+        DateRepositoryImpl()
+    }
 
-        syncUseCase = SyncWithServerUseCase(todoRepository)
+    val syncUseCase by lazy {
+        SyncWithServerUseCase(todoRepository)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
     }
 
     override val workManagerConfiguration: Configuration
-        get() {
-            if (!::syncUseCase.isInitialized) {
-                val database = Room.databaseBuilder(
-                    this,
-                    ActivityDataBase::class.java,
-                    "havetime_database"
-                ).build()
-
-                val activityApi = ActivityApi(KtorClient.client)
-
-                todoRepository = ActivityRepositoryImpl(
-                    todoDao = database.todoDao(),
-                    userDao = database.userDao(),
-                    api = activityApi
-                )
-                syncUseCase = SyncWithServerUseCase(todoRepository)
-            }
-
-            return Configuration.Builder()
-                .setWorkerFactory(SyncWorkerFactory(syncUseCase))
-                .build()
-        }
+        get() = Configuration.Builder()
+            .setMinimumLoggingLevel(Log.DEBUG)
+            .setWorkerFactory(SyncWorkerFactory(syncUseCase))
+            .build()
 }
