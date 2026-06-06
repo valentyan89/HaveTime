@@ -39,6 +39,7 @@
     <string name="dialog_apply_button">Применить</string>
     <string name="dialog_ok">ОК</string>
     <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_delete">Удалить</string>
     <string name="dialog_default_activity_title">Активность</string>
     <string name="dialog_next_day_warning">Завершится на следующий день</string>
 

@@ -69,10 +69,10 @@ fun AddActivityDialog(
         mutableStateOf((editingActivity?.timeInterval?.start?.toLocalDate() ?: initialDate).format(dateFormatter)) 
     }
 
-    var startH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.start?.hour ?: initialStartTime.hour) }
-    var startM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.start?.minute ?: initialStartTime.minute) }
-    var endH by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.end?.hour ?: initialEndTime.hour) }
-    var endM by remember(editingActivity?.id) { mutableIntStateOf(editingActivity?.timeInterval?.end?.minute ?: initialEndTime.minute) }
+    var startH by remember(editingActivity?.id, initialStartTime) { mutableIntStateOf(editingActivity?.timeInterval?.start?.hour ?: initialStartTime.hour) }
+    var startM by remember(editingActivity?.id, initialStartTime) { mutableIntStateOf(editingActivity?.timeInterval?.start?.minute ?: initialStartTime.minute) }
+    var endH by remember(editingActivity?.id, initialEndTime) { mutableIntStateOf(editingActivity?.timeInterval?.end?.hour ?: initialEndTime.hour) }
+    var endM by remember(editingActivity?.id, initialEndTime) { mutableIntStateOf(editingActivity?.timeInterval?.end?.minute ?: initialEndTime.minute) }
     
     var selectedColor by remember(editingActivity?.id, editingActivity?.color) { 
         mutableStateOf(Color(editingActivity?.color ?: 0xFF854CE5.toInt())) 
@@ -81,6 +81,17 @@ fun AddActivityDialog(
     var showMapSelection by remember { mutableStateOf(false) }
     var tempLocation by remember(editingActivity?.id, initialLocation) { 
         mutableStateOf(initialLocation ?: editingActivity?.location) 
+    }
+
+    val calculatedEndDate = remember(dateText, startH, startM, endH, endM) {
+        try {
+            val startDate = LocalDate.parse(dateText, dateFormatter)
+            val startTime = LocalTime.of(startH % 24, startM % 60)
+            val endTime = LocalTime.of(endH % 24, endM % 60)
+            var endDate = startDate
+            if (endTime.isBefore(startTime) || endH >= 24) endDate = endDate.plusDays(1)
+            endDate.format(dateFormatter)
+        } catch (e: Exception) { dateText }
     }
 
     val colorRows = listOf(
@@ -94,22 +105,15 @@ fun AddActivityDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text(
-                    text = if (showMapSelection) {
-                        stringResource(R.string.map_title_selection)
-                    } else if (editingActivity == null) {
-                        stringResource(R.string.dialog_new_activity)
-                    } else {
-                        stringResource(R.string.dialog_edit_activity)
-                    }
-                )
-                if (!showMapSelection && editingActivity != null) {
-                    IconButton(onClick = { onDelete(editingActivity.id) }) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Red)
-                    }
+            Text(
+                text = if (showMapSelection) {
+                    stringResource(R.string.map_title_selection)
+                } else if (editingActivity == null) {
+                    stringResource(R.string.dialog_new_activity)
+                } else {
+                    stringResource(R.string.dialog_edit_activity)
                 }
-            }
+            )
         },
         text = {
             Crossfade(targetState = showMapSelection) { isMap ->
@@ -144,19 +148,29 @@ fun AddActivityDialog(
 
                         Spacer(Modifier.height(8.dp))
                         
-                        OutlinedTextField(
-                            value = dateText,
-                            onValueChange = { input ->
-                                if (input.all { it.isDigit() || it == '.' }) {
-                                    dateText = input
-                                }
-                            },
-                            label = { Text(stringResource(R.string.dialog_date_label)) },
-                            placeholder = { Text(stringResource(R.string.dialog_date_placeholder)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true
-                        )
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            OutlinedTextField(
+                                value = dateText,
+                                onValueChange = { input ->
+                                    if (input.all { it.isDigit() || it == '.' }) dateText = input
+                                },
+                                label = { Text("Начало") },
+                                modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true
+                            )
+                            
+                            Spacer(Modifier.width(8.dp))
+                            
+                            OutlinedTextField(
+                                value = calculatedEndDate,
+                                onValueChange = {},
+                                label = { Text("Конец") },
+                                modifier = Modifier.weight(1f),
+                                readOnly = true,
+                                singleLine = true
+                            )
+                        }
 
                         Spacer(Modifier.height(8.dp))
                         
@@ -178,20 +192,8 @@ fun AddActivityDialog(
 
                         Spacer(Modifier.height(16.dp))
 
-                        Text(
-                            text = stringResource(R.string.dialog_start_time, startH % 24, startM % 60), 
-                            fontSize = 13.sp, 
-                            fontWeight = FontWeight.Bold
-                        )
                         TimeWheelPicker(startH % 24, startM % 60) { h, m -> startH = h; startM = m }
-
                         Spacer(Modifier.height(12.dp))
-
-                        Text(
-                            text = stringResource(R.string.dialog_end_time, endH % 24, endM % 60), 
-                            fontSize = 13.sp, 
-                            fontWeight = FontWeight.Bold
-                        )
                         TimeWheelPicker(endH % 24, endM % 60) { h, m -> endH = h; endM = m }
 
                         Spacer(Modifier.height(20.dp))
@@ -219,40 +221,63 @@ fun AddActivityDialog(
         },
         confirmButton = {
             if (!showMapSelection) {
-                Button(onClick = {
-                    val finalDate = try {
-                        LocalDate.parse(dateText, dateFormatter)
-                    } catch (e: Exception) {
-                        LocalDate.now()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (editingActivity != null) {
+                        TextButton(
+                            onClick = { onDelete(editingActivity.id) },
+                        ) {
+                            Text(stringResource(R.string.dialog_delete), color = Color.Red, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Spacer(Modifier.width(1.dp))
                     }
 
-                    val start = LocalDateTime.of(finalDate, LocalTime.of(startH % 24, startM % 60))
-                    var end = LocalDateTime.of(finalDate, LocalTime.of(endH % 24, endM % 60))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = onDismiss) { 
+                            Text(stringResource(R.string.dialog_cancel)) 
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val finalDate = try {
+                                    LocalDate.parse(dateText, dateFormatter)
+                                } catch (e: Exception) {
+                                    LocalDate.now()
+                                }
 
-                    if (end.isBefore(start) || endH >= 24) {
-                        end = end.plusDays(1)
+                                val start = LocalDateTime.of(finalDate, LocalTime.of(startH % 24, startM % 60))
+                                var end = LocalDateTime.of(finalDate, LocalTime.of(endH % 24, endM % 60))
+
+                                if (end.isBefore(start) || endH >= 24) {
+                                    end = end.plusDays(1)
+                                }
+                                if (end.isBefore(start.plusMinutes(10))) end = start.plusMinutes(10)
+
+                                val updatedActivity = (editingActivity ?: Activity(
+                                    title = title.ifEmpty { defaultActivityTitle },
+                                    timeInterval = TimeInterval(start, end),
+                                    color = selectedColor.toArgb(),
+                                )).copy(
+                                    title = title.ifEmpty { defaultActivityTitle },
+                                    timeInterval = TimeInterval(start, end),
+                                    color = selectedColor.toArgb(),
+                                    location = tempLocation
+                                )
+                                onConfirm(updatedActivity)
+                            },
+                            shape = RoundedCornerShape(24.dp)
+                        ) { 
+                            Text(stringResource(R.string.dialog_ok)) 
+                        }
                     }
-                    if (end.isBefore(start.plusMinutes(10))) end = start.plusMinutes(10)
-
-                    val updatedActivity = (editingActivity ?: Activity(
-                        title = title.ifEmpty { defaultActivityTitle },
-                        timeInterval = TimeInterval(start, end),
-                        color = selectedColor.toArgb(),
-                    )).copy(
-                        title = title.ifEmpty { defaultActivityTitle },
-                        timeInterval = TimeInterval(start, end),
-                        color = selectedColor.toArgb(),
-                        location = tempLocation
-                    )
-                    onConfirm(updatedActivity)
-                }) { Text(stringResource(R.string.dialog_ok)) }
+                }
             }
         },
-        dismissButton = {
-            if (!showMapSelection) {
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
-            }
-        }
+        dismissButton = null
     )
 }
 
@@ -350,9 +375,9 @@ fun TimeWheelPicker(hour: Int, minute: Int, onTimeChange: (Int, Int) -> Unit) {
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        WheelColumn(24, hour, stringResource(R.string.dialog_start_label).first().toString()) { onTimeChange(it, minute) }
+        WheelColumn(24, hour, "") { onTimeChange(it, minute) }
         Spacer(Modifier.width(20.dp))
-        WheelColumn(60, minute, "м") { onTimeChange(hour, it) }
+        WheelColumn(60, minute, "") { onTimeChange(hour, it) }
     }
 }
 
@@ -376,7 +401,7 @@ fun WheelColumn(count: Int, initialValue: Int, label: String, onValueChange: (In
                 val isSelected = (listState.firstVisibleItemIndex + 1) == index
                 Box(Modifier.fillMaxWidth().height(itemHeight), Alignment.Center) {
                     Text(
-                        text = if(label == "м") String.format(Locale.getDefault(), "%02d%s", displayValue, label) else "$displayValue$label",
+                        text = String.format(Locale.getDefault(), "%02d%s", displayValue, label),
                         fontSize = if (isSelected) 18.sp else 15.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray.copy(alpha = 0.6f)

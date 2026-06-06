@@ -9,7 +9,7 @@ interface ActivityRepository {
     fun getTodos(): Flow<List<Activity>>
     fun getIntervalsForDate(date: LocalDate): Flow<List<Activity>>
     fun addTodo(todo: Activity): Flow<Unit>
-    fun deleteTodo(id: Int): Flow<Unit>
+    fun deleteTodo(id: String): Flow<Unit>
     fun syncWithServer(): Flow<Unit>
     fun updateActivity(activity: Activity): Flow<Unit>
 }

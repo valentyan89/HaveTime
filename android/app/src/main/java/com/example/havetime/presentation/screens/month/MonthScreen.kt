@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -21,7 +20,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.TextStyle
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
@@ -42,18 +41,6 @@ fun MonthScreen(
     )
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-            daysOfWeek.forEach { dayOfWeek ->
-                Text(
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
         VerticalCalendar(
             state = state,
             dayContent = { day ->
@@ -86,17 +73,16 @@ fun MonthScreen(
                 }
             },
             monthHeader = { month ->
+                val locale = Locale("ru")
+                val formatter = remember { DateTimeFormatter.ofPattern("LLLL yyyy", locale) }
+                val monthName = month.yearMonth.format(formatter).replaceFirstChar { it.uppercase() }
+                
                 Text(
-                    modifier = Modifier
-                        .padding(
-                            top = 16.dp,
-                            bottom = 16.dp,
-                            start = 8.dp
-                        ),
-                    text = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                        .replaceFirstChar { it.uppercase() } + " ${month.yearMonth.year}",
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 8.dp),
+                    text = monthName,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00796B)
                 )
             }
         )

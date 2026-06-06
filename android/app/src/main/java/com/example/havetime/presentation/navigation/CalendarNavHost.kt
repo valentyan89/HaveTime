@@ -27,21 +27,16 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
 
     val selectedDate by viewModel.selectedDate.collectAsState()
     val allActivities by viewModel.allActivities.collectAsState()
-    val mapType by viewModel.mapType.collectAsState()
+    val currentTime by viewModel.currentTime.collectAsState()
 
-    // Оптимизация: берем активности для выбранного дня +/- 1 день, 
-    // чтобы при прокрутке за 00:00 карточки не исчезали мгновенно
-    val dayActivities = remember(allActivities, selectedDate) {
-        allActivities.filter { 
-            val actDate = it.timeInterval.start.toLocalDate()
-            actDate >= selectedDate.minusDays(1) && actDate <= selectedDate.plusDays(1)
-        }
-    }
+    val dayActivities = allActivities
 
     var showAddDialog by remember { mutableStateOf(false) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
-    var newStartTime by remember { mutableStateOf(LocalTime.of(12, 0)) }
-    var newEndTime by remember { mutableStateOf(LocalTime.of(13, 0)) }
+    
+    val defaultStartTime = remember(currentTime) { currentTime.toLocalTime() }
+    var newStartTime by remember { mutableStateOf(defaultStartTime) }
+    var newEndTime by remember { mutableStateOf(defaultStartTime.plusHours(1)) }
     
     var pendingLocation by remember { mutableStateOf<Location?>(null) }
 
@@ -52,7 +47,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
             initialDate = selectedDate,
             initialStartTime = if (editingActivity == null) newStartTime else editingActivity!!.timeInterval.start.toLocalTime(),
             initialEndTime = if (editingActivity == null) newEndTime else editingActivity!!.timeInterval.end.toLocalTime(),
-            initialLocation = pendingLocation,
+            initialLocation = pendingLocation ?: editingActivity?.location,
             onDismiss = {
                 showAddDialog = false
                 editingActivity = null
@@ -80,6 +75,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
         topBar = {
             CalendarHeader(
                 selectedDate = selectedDate,
+                todayDate = currentTime.toLocalDate(),
                 currentDestination = currentRoute,
                 onDateSelected = {
                     viewModel.onDateSelected(it)
@@ -87,10 +83,15 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         navController.navigate(Screen.Day.route)
                     }
                 },
-                onWeekClick = { navController.navigate(Screen.Week.route) },
-                onMonthClick = { navController.navigate(Screen.Month.route) },
-                onYearClick = { navController.navigate(Screen.Year.route) },
-                onDayClick = { navController.navigate(Screen.Day.route) }
+                onTodayClick = {
+                    viewModel.onDateSelected(currentTime.toLocalDate())
+                    if (currentRoute != Screen.Day.route && currentRoute != Screen.Map.route) {
+                        navController.navigate(Screen.Day.route)
+                    }
+                },
+                onMonthClick = { 
+                    navController.navigate(Screen.Month.route) 
+                }
             )
         },
         bottomBar = {
@@ -101,7 +102,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                 searchQuery = searchQuery,
                 onSearchChange = { searchQuery = it },
                 onAddClick = {
-                    newStartTime = LocalTime.now().withMinute(0).plusHours(1)
+                    newStartTime = currentTime.toLocalTime()
                     newEndTime = newStartTime.plusHours(1)
                     showAddDialog = true
                 },
@@ -112,6 +113,12 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         navController.navigate(Screen.Map.route)
                     }
                 },
+                onMapStyleClick = {
+                    // Пока заглушка
+                },
+                onProfileClick = {
+                    viewModel.logout()
+                },
                 isMapScreen = isMapScreen
             )
         }
@@ -121,6 +128,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                 composable(Screen.Day.route) {
                     DayScreen(
                         selectedDate = selectedDate,
+                        currentTime = currentTime,
                         intervals = dayActivities,
                         onIntervalCreated = { start, end ->
                             newStartTime = start.toLocalTime()
@@ -131,7 +139,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         onIntervalUpdated = { updated ->
                             viewModel.updateActivity(updated)
                         },
-                        onDateViewed = { date ->
+                        onDateChanged = { date ->
                             viewModel.onDateSelected(date)
                         }
                     )
@@ -158,7 +166,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         },
                         onDayClick = { date ->
                             viewModel.onDateSelected(date)
-                            navController.navigate(Screen.Day.route)
+                            navController.popBackStack()
                         }
                     )
                 }
@@ -176,7 +184,7 @@ fun CalendarNavHost(viewModel: CalendarViewModel = viewModel(factory = CalendarV
                         viewModel = viewModel,
                         onCreateActivityAtLocation = { location ->
                             pendingLocation = location
-                            newStartTime = LocalTime.now().withMinute(0).plusHours(1)
+                            newStartTime = currentTime.toLocalTime()
                             newEndTime = newStartTime.plusHours(1)
                             showAddDialog = true
                         },

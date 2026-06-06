@@ -7,35 +7,41 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.havetime.HaveTimeApplication
-import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.domain.model.Activity
-import com.example.havetime.domain.usecase.activity.AddTodoUseCase
-import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
-import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
-import com.example.havetime.domain.usecase.activity.GetTodosUseCase
-import com.example.havetime.domain.usecase.activity.SaveIntervalUseCase
-import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.stateIn
+import com.example.havetime.domain.usecase.activity.*
+import com.example.havetime.domain.usecase.auth.LogoutUseCase
+import com.example.havetime.domain.usecase.auth.IsAuthorizedUseCase
+import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
+import kotlinx.coroutines.flow.*
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class CalendarViewModel(
-    private val addTodoUseCase: AddTodoUseCase,
-    private val deleteTodoUseCase: DeleteTodoUseCase,
+    private val addActivityUseCase: AddActivityUseCase,
+    private val deleteActivityUseCase: DeleteTodoUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val saveIntervalUseCase: SaveIntervalUseCase,
-    private val syncWithServerUseCase: SyncWithServerUseCase
+    private val updateActivityUseCase: UpdateActivityUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val isAuthorizedUseCase: IsAuthorizedUseCase,
+    private val getCurrentTimeUseCase: GetCurrentTimeUseCase
 ) : ViewModel() {
+
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
-    // Задачи для выбранной даты
+    private val _mapType = MutableStateFlow(0)
+    val mapType: StateFlow<Int> = _mapType.asStateFlow()
+
+    val isAuthorized = isAuthorizedUseCase().stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val currentTime: StateFlow<LocalDateTime> = getCurrentTimeUseCase()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), LocalDateTime.now())
+
+    fun onMapTypeChanged(type: Int) {
+        _mapType.value = type
+    }
+
     val activities: StateFlow<List<Activity>> = _selectedDate
         .flatMapLatest { date ->
             getIntervalsForDateUseCase(date)
@@ -46,7 +52,6 @@ class CalendarViewModel(
             initialValue = emptyList()
         )
 
-    // Если нужен список всех задач
     val allActivities: StateFlow<List<Activity>> = getTodosUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -57,36 +62,36 @@ class CalendarViewModel(
         _selectedDate.value = date
     }
 
-    fun addActivity(todo: Activity) {
-        addTodoUseCase(todo).launchIn(viewModelScope)
+    fun addActivity(activity: Activity) {
+        addActivityUseCase(activity).launchIn(viewModelScope)
     }
 
-    fun deleteActivity(id: Int) {
-        deleteTodoUseCase(id).launchIn(viewModelScope)
+    fun deleteActivity(id: String) {
+        deleteActivityUseCase(id).launchIn(viewModelScope)
     }
 
-    fun saveInterval(interval: TimeInterval) {
-        saveIntervalUseCase(interval).launchIn(viewModelScope)
+    fun updateActivity(activity: Activity) {
+        updateActivityUseCase(activity).launchIn(viewModelScope)
     }
 
-    fun syncWithServer() {
-        syncWithServerUseCase().launchIn(viewModelScope)
+    fun logout() {
+        logoutUseCase().launchIn(viewModelScope)
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-
-                val repo = application.todoRepository
-
+                val app = (this[APPLICATION_KEY] as HaveTimeApplication)
+                val di = app.appModule
                 CalendarViewModel(
-                    addTodoUseCase = AddTodoUseCase(repo),
-                    deleteTodoUseCase = DeleteTodoUseCase(repo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(repo),
-                    saveIntervalUseCase = SaveIntervalUseCase(repo),
-                    syncWithServerUseCase = SyncWithServerUseCase(repo),
-                    getTodosUseCase = GetTodosUseCase(repo)
+                    addActivityUseCase = di.addActivityUseCase,
+                    deleteActivityUseCase = di.deleteActivityUseCase,
+                    getIntervalsForDateUseCase = di.getIntervalsForDateUseCase,
+                    getTodosUseCase = di.getTodosUseCase,
+                    updateActivityUseCase = di.updateActivityUseCase,
+                    logoutUseCase = di.logoutUseCase,
+                    isAuthorizedUseCase = di.isAuthorizedUseCase,
+                    getCurrentTimeUseCase = di.getCurrentTimeUseCase
                 )
             }
         }

@@ -27,6 +27,6 @@ interface ActivityDao {
     @Query("SELECT * FROM activity")
     fun getAllActivities(): Flow<List<ActivityEntity>>
 
-    @Query("SELECT * FROM activity WHERE startTime >= :dayStart AND startTime <= :dayEnd ORDER BY startTime ASC")
+    @Query("SELECT * FROM activity WHERE start >= :dayStart AND start <= :dayEnd ORDER BY start ASC")
     fun getActivitiesByDate(dayStart: LocalDateTime, dayEnd: LocalDateTime): Flow<List<ActivityEntity>>
 }
