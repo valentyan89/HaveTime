@@ -51,6 +51,7 @@ fun DayScreen(
     sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = viewModel(factory = WeekDayViewModel.Factory),
     onAvatarClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     LaunchedEffect(initialDate) {
         viewModel.selectDate(initialDate)
@@ -87,7 +88,7 @@ fun DayScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                     }
                 },
@@ -287,7 +288,7 @@ fun DayScreen(
 
     if (showEventDialog) {
         AddActivityDialog(
-            editingActivity = editingActivity,  // ← передаём редактируемое событие
+            editingActivity = editingActivity,
             initialDate = editingActivity?.let {
                 Instant.ofEpochMilli(it.timeInterval.startTime).atZone(ZoneId.systemDefault())
                     .toLocalDate()

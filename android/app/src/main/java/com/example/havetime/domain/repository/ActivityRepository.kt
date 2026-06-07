@@ -1,11 +1,12 @@
 package com.example.calendar.domain.repository
 
-import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.domain.model.Activity
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
+import java.time.YearMonth
 
 interface ActivityRepository {
+    fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>>
     fun getTodos(): Flow<List<Activity>>
     fun getIntervalsForDate(date: LocalDate): Flow<List<Activity>>
     fun addTodo(todo: Activity): Flow<Unit>

@@ -44,7 +44,8 @@ fun MapScreen(
     initialDate: LocalDate = LocalDate.now(),
     sharedViewModel: MonthViewModel,
     viewModel: MapViewModel = viewModel(factory = MapViewModel.Factory),
-    onAvatarClick: () -> Unit = {}
+    onAvatarClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
     LaunchedEffect(initialDate) {
         viewModel.selectDate(initialDate)
@@ -88,7 +89,7 @@ fun MapScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                     }
                 },

@@ -14,11 +14,11 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 
-class DateRepositoryImpl: DateRepository {
+class DateRepositoryImpl : DateRepository {
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
-        while(true){
+        while (true) {
             emit(LocalDateTime.now())
-            delay(60*1000)
+            delay(60 * 1000)
         }
     }
 
@@ -93,5 +93,13 @@ class DateRepositoryImpl: DateRepository {
 
     override fun getPreviousMonth(yearMonth: YearMonth): YearMonth {
         return yearMonth.minusMonths(1)
+    }
+
+    override suspend fun getNextYear(currentYear: Int): Int {
+        return currentYear + 1
+    }
+
+    override suspend fun getPreviousYear(currentYear: Int): Int {
+        return currentYear - 1
     }
 }

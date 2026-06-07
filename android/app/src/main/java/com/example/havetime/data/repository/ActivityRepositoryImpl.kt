@@ -20,16 +20,17 @@ import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
+import java.time.YearMonth
 
 class ActivityRepositoryImpl(
     private val todoDao: TodoDao,
     private val userDao: UserDao,
     private val api: ActivityApi
-) : ActivityRepository{
+) : ActivityRepository {
+
     override fun getTodos(): Flow<List<Activity>> {
         return todoDao.getAllTodos().map { entities ->
-            entities
-                .map { it.toDomain() }
+            entities.map { it.toDomain() }
         }
     }
 
@@ -42,12 +43,11 @@ class ActivityRepositoryImpl(
             .toInstant(ZoneOffset.UTC)
             .toEpochMilli()
         return todoDao.getTodosByDate(dayStart, dayEnd).map { entities ->
-            entities
-                .map { it.toDomain() }
+            entities.map { it.toDomain() }
         }
     }
 
-    override fun addTodo(todo: Activity): Flow<Unit> = flow{
+    override fun addTodo(todo: Activity): Flow<Unit> = flow {
         val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
         val entity = todo.toEntity().copy(
             userId = userServerId,
@@ -58,7 +58,7 @@ class ActivityRepositoryImpl(
         emit(Unit)
     }
 
-    override fun deleteTodo(id: Int): Flow<Unit> = flow{
+    override fun deleteTodo(id: Int): Flow<Unit> = flow {
         val activity = todoDao.getTodoById(id)
         activity?.let {
             todoDao.update(
@@ -80,7 +80,7 @@ class ActivityRepositoryImpl(
                 val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
 
                 val unsynced = todoDao.getUnsyncedEvents()
-                val roomActivities = unsynced.map {it.toDomain().toDto().toNetworkDto()}
+                val roomActivities = unsynced.map { it.toDomain().toDto().toNetworkDto() }
                 val request = SyncRequest(
                     activities = roomActivities,
                     lastSync = lastSyncTime
@@ -95,7 +95,7 @@ class ActivityRepositoryImpl(
                 )
                 Result.success(Unit)
             } ?: Result.failure(Exception("User not found"))
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -107,5 +107,23 @@ class ActivityRepositoryImpl(
         )
         todoDao.update(entity)
         emit(Unit)
+    }
+
+
+    override fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>> {
+        val monthStart = yearMonth.atDay(1)
+            .atStartOfDay()
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+
+        val monthEnd = yearMonth.atEndOfMonth()
+            .atStartOfDay()
+            .plusDays(1)
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+
+        return todoDao.getTodosByDate(monthStart, monthEnd).map { entities ->
+            entities.map { it.toDomain() }
+        }
     }
 }

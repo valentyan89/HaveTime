@@ -37,16 +37,19 @@ import java.util.Locale
 fun MonthScreen(
     navController: NavController,
     initialDate: LocalDate = LocalDate.now(),
-    viewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory),
+    sharedViewModel: MonthViewModel,
     onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
-    onYearClick: (Int) -> Unit = {}
+    onYearClick: (Int) -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
     LaunchedEffect(initialDate) {
-        viewModel.setMonth(YearMonth.from(initialDate))
+        if (sharedViewModel.currentMonth.value == null){
+            sharedViewModel.setMonth(YearMonth.from(initialDate))
+        }
     }
-    val currentMonth by viewModel.currentMonth.collectAsState()
-    val intensityMap by viewModel.intensityMap.collectAsState()
+    val currentMonth by sharedViewModel.currentMonth.collectAsState()
+    val intensityMap by sharedViewModel.intensityMap.collectAsState()
     val intensityHigh = colorResource(R.color.intensity_high)
     val intensityMedium = colorResource(R.color.intensity_medium)
     val intensityLow = colorResource(R.color.intensity_low)
@@ -71,7 +74,7 @@ fun MonthScreen(
     )
     val visibleMonth = state.firstVisibleMonth.yearMonth
     LaunchedEffect(visibleMonth) {
-        viewModel.setMonth(visibleMonth)
+        sharedViewModel.setMonth(visibleMonth)
     }
 
     Scaffold(
@@ -79,7 +82,7 @@ fun MonthScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                     }
                 },
@@ -125,7 +128,6 @@ fun MonthScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 8.dp)
         ) {
-            // Заголовок с годом (кликабельный)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,18 +166,17 @@ fun MonthScreen(
                         intensityMap[day.date] ?: 0
                     } else 0
 
-                    // Цвет фона для дней текущего месяца (с интенсивностью)
                     val backgroundColor = when {
-                        !isCurrentMonth -> Color.Transparent  // ← дни из соседних месяцев без фона
+                        !isCurrentMonth -> Color.Transparent
                         intensity >= 8 -> intensityHigh.copy(alpha = 0.4f)
                         intensity >= 4 -> intensityMedium.copy(alpha = 0.3f)
                         intensity > 0 -> intensityLow.copy(alpha = 0.2f)
                         else -> Color.Transparent
                     }
 
-                    // Цвет текста для дней из соседних месяцев (потемнее)
+
                     val textColor = when {
-                        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)  // ← потемнее
+                        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         isToday -> MaterialTheme.colorScheme.onPrimary
                         else -> MaterialTheme.colorScheme.onSurface
                     }
@@ -192,7 +193,7 @@ fun MonthScreen(
                                     backgroundColor
                                 }
                             )
-                            .clickable(enabled = true) {  // ← enabled = true для всех дней
+                            .clickable(enabled = true) {
                                 onDayClick(day.date)
                             },
                         contentAlignment = Alignment.Center

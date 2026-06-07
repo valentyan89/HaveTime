@@ -28,4 +28,6 @@ interface DateRepository {
     fun getPreviousWeek(date: LocalDate): LocalDate
     fun getNextMonth(yearMonth: YearMonth): YearMonth
     fun getPreviousMonth(yearMonth: YearMonth): YearMonth
+    suspend fun getNextYear(currentYear: Int): Int
+    suspend fun getPreviousYear(currentYear: Int): Int
 }
