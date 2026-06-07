@@ -28,10 +28,15 @@ class MonthViewModel(
     private val _currentMonth = MutableStateFlow<YearMonth?>(null)
     val currentMonth: StateFlow<YearMonth?> = _currentMonth.asStateFlow()
 
+    // ← ДОБАВИТЬ: выбранная дата
+    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
+    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
+
     init {
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
             _currentMonth.value = YearMonth.from(today)
+            _selectedDate.value = today  // ← добавить
         }
     }
 
@@ -54,34 +59,44 @@ class MonthViewModel(
                 }
             }
         }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyMap()
-            )
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
 
     fun go2Today() {
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
             _currentMonth.value = YearMonth.from(today)
+            _selectedDate.value = today  // ← добавить
         }
     }
 
     fun go2NextMonth() {
         _currentMonth.value?.let { month ->
-            _currentMonth.value = getNextMonthUseCase(month)
+            viewModelScope.launch {
+                _currentMonth.value = getNextMonthUseCase(month)
+            }
         }
     }
 
     fun go2PrevMonth() {
         _currentMonth.value?.let { month ->
-            _currentMonth.value = getPreviousMonthUseCase(month)
+            viewModelScope.launch {
+                _currentMonth.value = getPreviousMonthUseCase(month)
+            }
         }
     }
+
     fun setMonth(month: YearMonth) {
         if (_currentMonth.value != month) {
             _currentMonth.value = month
         }
+    }
+
+    fun selectDate(date: LocalDate) {
+        _selectedDate.value = date
     }
 
     fun getIntensityForDate(date: LocalDate): Int {

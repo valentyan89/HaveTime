@@ -1,6 +1,5 @@
 package com.example.havetime.presentation.screens.calendar.month
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,25 +25,26 @@ import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.example.havetime.R
+import com.example.havetime.presentation.navigation.Screen
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
-import com.example.havetime.presentation.navigation.Screen
-
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonthScreen(
     navController: NavController,
+    initialDate: LocalDate = LocalDate.now(),
     viewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory),
+    onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
-    onYearClick: (Int) -> Unit = {},
-    onAvatarClick: () -> Unit = {}
+    onYearClick: (Int) -> Unit = {}
 ) {
+    LaunchedEffect(initialDate) {
+        viewModel.setMonth(YearMonth.from(initialDate))
+    }
     val currentMonth by viewModel.currentMonth.collectAsState()
     val intensityMap by viewModel.intensityMap.collectAsState()
     val intensityHigh = colorResource(R.color.intensity_high)
@@ -59,8 +59,8 @@ fun MonthScreen(
     }
 
     val month = currentMonth!!
-    val startMonth = remember { currentMonth!!.minusYears(50) }
-    val endMonth = remember { currentMonth!!.plusYears(50) }
+    val startMonth = remember(month) { month.minusYears(50) }
+    val endMonth = remember(month) { month.plusYears(50) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
 
     val state = rememberCalendarState(
@@ -87,14 +87,8 @@ fun MonthScreen(
                     IconButton(onClick = { }) {
                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                     }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
-                    }
                     IconButton(onClick = onAvatarClick) {
-                        Icon(
-                            Icons.Default.AccountCircle,
-                            contentDescription = stringResource(R.string.profile)
-                        )
+                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -152,7 +146,7 @@ fun MonthScreen(
                     Text(
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
-                        text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                        text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
@@ -164,15 +158,26 @@ fun MonthScreen(
                 state = state,
                 dayContent = { day ->
                     val isToday = day.date == LocalDate.now()
-                    val intensity = if (day.position == DayPosition.MonthDate) {
+                    val isCurrentMonth = day.position == DayPosition.MonthDate
+
+                    val intensity = if (isCurrentMonth) {
                         intensityMap[day.date] ?: 0
                     } else 0
 
+                    // Цвет фона для дней текущего месяца (с интенсивностью)
                     val backgroundColor = when {
+                        !isCurrentMonth -> Color.Transparent  // ← дни из соседних месяцев без фона
                         intensity >= 8 -> intensityHigh.copy(alpha = 0.4f)
                         intensity >= 4 -> intensityMedium.copy(alpha = 0.3f)
                         intensity > 0 -> intensityLow.copy(alpha = 0.2f)
                         else -> Color.Transparent
+                    }
+
+                    // Цвет текста для дней из соседних месяцев (потемнее)
+                    val textColor = when {
+                        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)  // ← потемнее
+                        isToday -> MaterialTheme.colorScheme.onPrimary
+                        else -> MaterialTheme.colorScheme.onSurface
                     }
 
                     Box(
@@ -180,8 +185,14 @@ fun MonthScreen(
                             .aspectRatio(1f)
                             .padding(4.dp)
                             .clip(CircleShape)
-                            .background(if (isToday) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else backgroundColor)
-                            .clickable(enabled = day.position == DayPosition.MonthDate) {
+                            .background(
+                                if (isToday && isCurrentMonth) {
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                } else {
+                                    backgroundColor
+                                }
+                            )
+                            .clickable(enabled = true) {  // ← enabled = true для всех дней
                                 onDayClick(day.date)
                             },
                         contentAlignment = Alignment.Center
@@ -189,12 +200,8 @@ fun MonthScreen(
                         Text(
                             text = day.date.dayOfMonth.toString(),
                             fontSize = 15.sp,
-                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                            color = when {
-                                day.position != DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurfaceVariant
-                                isToday -> MaterialTheme.colorScheme.onPrimary
-                                else -> MaterialTheme.colorScheme.onSurface
-                            }
+                            fontWeight = if (isToday && isCurrentMonth) FontWeight.Bold else FontWeight.Normal,
+                            color = textColor
                         )
                     }
                 },
@@ -204,7 +211,7 @@ fun MonthScreen(
                             .fillMaxWidth()
                             .padding(vertical = 20.dp, horizontal = 8.dp),
                         textAlign = TextAlign.Start,
-                        text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
+                        text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru"))
                             .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,

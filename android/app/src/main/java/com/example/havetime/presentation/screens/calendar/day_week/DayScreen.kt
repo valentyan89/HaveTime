@@ -1,6 +1,5 @@
 package com.example.havetime.presentation.screens.calendar.day_week
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -26,10 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.screens.calendar.CalendarMode
-import com.example.havetime.presentation.screens.calendar.day_week.WeekDayViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -38,36 +35,37 @@ import androidx.compose.ui.res.stringResource
 import com.example.havetime.R
 import androidx.compose.ui.unit.IntOffset
 import com.example.havetime.presentation.navigation.Screen
+import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.roundToInt
-import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
 import java.time.LocalDateTime
 
 private const val SWIPE_THRESHOLD = 50f
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayScreen(
     navController: NavController,
+    initialDate: LocalDate = LocalDate.now(),
+    sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = viewModel(factory = WeekDayViewModel.Factory),
-    selectedDate: LocalDate? = null,
-    onMonthClick: () -> Unit = {},
-    onAvatarClick: () -> Unit = {}
+    onAvatarClick: () -> Unit = {},
 ) {
+    LaunchedEffect(initialDate) {
+        viewModel.selectDate(initialDate)
+    }
+
     val currentDate by viewModel.currentDate.collectAsState()
     val currentTime by viewModel.currentTime.collectAsState()
     val events by viewModel.activityForDate.collectAsState()
     val calendarMode by viewModel.calendarMode.collectAsState()
     var showEventDialog by remember { mutableStateOf(false) }
+    var editingActivity by remember { mutableStateOf<Activity?>(null) }
 
     LaunchedEffect(Unit) {
         if (calendarMode != CalendarMode.WEEK_DAY) {
             viewModel.setCalendarMode(CalendarMode.WEEK_DAY)
-        }
-        if (selectedDate != null) {
-            viewModel.selectDate(selectedDate)
         }
     }
 
@@ -77,8 +75,12 @@ fun DayScreen(
         }
         return
     }
+    LaunchedEffect(currentDate) {
+        currentDate?.let { sharedViewModel.selectDate(it) }
+    }
 
     val date = currentDate!!
+    val today = LocalDate.now()
 
     Scaffold(
         topBar = {
@@ -91,12 +93,16 @@ fun DayScreen(
                 },
                 actions = {
                     IconButton(onClick = { }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = stringResource(R.string.search)
+                        )
                     }
-
-
                     IconButton(onClick = onAvatarClick) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                        Icon(
+                            Icons.Default.AccountCircle,
+                            contentDescription = stringResource(R.string.profile)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -115,23 +121,31 @@ fun DayScreen(
                 )
             }
         },
-
         bottomBar = {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ) {
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                        label = { Text(stringResource(R.string.calendar))},
+                        icon = {
+                            Icon(
+                                Icons.Default.CalendarMonth,
+                                contentDescription = stringResource(R.string.calendar)
+                            )
+                        },
+                        label = { Text(stringResource(R.string.calendar)) },
                         selected = true,
                         onClick = { }
                     )
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
+                        icon = {
+                            Icon(
+                                Icons.Default.Map,
+                                contentDescription = stringResource(R.string.map)
+                            )
+                        },
                         label = { Text(stringResource(R.string.map)) },
                         selected = false,
                         onClick = { navController.navigate(Screen.Map.route) }
@@ -159,7 +173,12 @@ fun DayScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault()).replaceFirstChar { it.uppercase() }} ${date.year}",
+                            text = "${
+                                date.month.getDisplayName(
+                                    TextStyle.FULL_STANDALONE,
+                                    Locale("ru")
+                                ).replaceFirstChar { it.uppercase() }
+                            } ${date.year}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary,
@@ -173,23 +192,16 @@ fun DayScreen(
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                             .pointerInput(Unit) {
                                 var totalDragAmount = 0f
-
                                 detectHorizontalDragGestures(
-                                    onDragStart = {
-                                        totalDragAmount = 0f
-                                    },
+                                    onDragStart = { totalDragAmount = 0f },
                                     onDragEnd = {
-
-
                                         if (totalDragAmount < -SWIPE_THRESHOLD) {
                                             viewModel.go2NextWeek()
                                         } else if (totalDragAmount > SWIPE_THRESHOLD) {
                                             viewModel.go2PrevWeek()
                                         }
                                     },
-                                    onDragCancel = {
-                                        totalDragAmount = 0f
-                                    },
+                                    onDragCancel = { totalDragAmount = 0f },
                                     onHorizontalDrag = { change, dragAmount ->
                                         change.consume()
                                         totalDragAmount += dragAmount
@@ -202,6 +214,7 @@ fun DayScreen(
 
                         weekDays.forEach { dayDate ->
                             val isSelected = dayDate == date
+                            val isToday = dayDate == today
                             val dayOfWeekName = getShortDayOfWeekName(dayDate)
 
                             Column(
@@ -229,10 +242,13 @@ fun DayScreen(
                                         .size(40.dp)
                                         .clip(CircleShape)
                                         .background(
-                                            if (isSelected) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                Color.Transparent
+                                            when {
+                                                isSelected -> MaterialTheme.colorScheme.primary
+                                                isToday -> MaterialTheme.colorScheme.primary.copy(
+                                                    alpha = 0.2f
+                                                )
+
+                                                else -> Color.Transparent
                                             }
                                         ),
                                     contentAlignment = Alignment.Center
@@ -240,11 +256,11 @@ fun DayScreen(
                                     Text(
                                         text = dayDate.dayOfMonth.toString(),
                                         fontSize = 17.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) {
-                                            MaterialTheme.colorScheme.onPrimary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurface
+                                        fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+                                        color = when {
+                                            isSelected -> MaterialTheme.colorScheme.onPrimary
+                                            isToday -> MaterialTheme.colorScheme.primary
+                                            else -> MaterialTheme.colorScheme.onSurface
                                         }
                                     )
                                 }
@@ -254,31 +270,53 @@ fun DayScreen(
                 }
             }
 
-
             DayTimeline(
                 events = events,
                 currentDateTime = currentTime,
                 selectedDate = date,
+                onEventClick = { activity ->
+                    editingActivity = activity
+                    showEventDialog = true
+                },
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
     }
+
     if (showEventDialog) {
         AddActivityDialog(
-            editingActivity = null,
-            initialDate = date,
-            initialStartTime = currentTime.toLocalTime(),
-            initialEndTime = currentTime.toLocalTime().plusHours(1),
-            onDismiss = { showEventDialog = false },
-            onConfirm = { activity ->
-                viewModel.addActivity(activity)
+            editingActivity = editingActivity,  // ← передаём редактируемое событие
+            initialDate = editingActivity?.let {
+                Instant.ofEpochMilli(it.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+            } ?: date,
+            initialStartTime = editingActivity?.let {
+                Instant.ofEpochMilli(it.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                    .toLocalTime()
+            } ?: currentTime.toLocalTime(),
+            initialEndTime = editingActivity?.let {
+                Instant.ofEpochMilli(it.timeInterval.endTime).atZone(ZoneId.systemDefault())
+                    .toLocalTime()
+            } ?: currentTime.toLocalTime().plusHours(1),
+            onDismiss = {
                 showEventDialog = false
+                editingActivity = null
+            },
+            onConfirm = { activity ->
+                if (editingActivity != null) {
+                    viewModel.updateActivity(activity)  // ← обновление
+                } else {
+                    viewModel.addActivity(activity)     // ← создание
+                }
+                showEventDialog = false
+                editingActivity = null
             },
             onDelete = { activityId ->
                 viewModel.deleteActivity(activityId)
                 showEventDialog = false
+                editingActivity = null
             }
         )
     }
@@ -292,6 +330,7 @@ fun DayTimeline(
     events: List<Activity>,
     currentDateTime: LocalDateTime,
     selectedDate: LocalDate,
+    onEventClick: (Activity) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
@@ -302,7 +341,6 @@ fun DayTimeline(
         if (isTodaySelected) {
             val currentHour = currentDateTime.hour
             val targetHour = (currentHour - 2).coerceAtLeast(0)
-
             val targetOffsetPx = with(density) { (targetHour * HOUR_HEIGHT_DP).dp.toPx() }
             val delta = targetOffsetPx - lazyListState.firstVisibleItemScrollOffset
             if (delta != 0f) lazyListState.animateScrollBy(delta)
@@ -331,7 +369,7 @@ fun DayTimeline(
                             .offset(y = topOffsetDp)
                     ) {
                         Text(
-                            text = String.format(Locale.getDefault(), "%02d:00", hour),
+                            text = String.format(Locale("ru"), "%02d:00", hour),
                             modifier = Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
@@ -363,7 +401,6 @@ fun DayTimeline(
 
                     val eventColor = Color(event.color)
 
-
                     Card(
                         modifier = Modifier
                             .offset {
@@ -374,7 +411,8 @@ fun DayTimeline(
                             }
                             .padding(end = 16.dp, start = 8.dp)
                             .fillMaxWidth()
-                            .height(cardHeight.dp),
+                            .height(cardHeight.dp)
+                            .clickable { onEventClick(event) },
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = eventColor)
                     ) {
@@ -382,51 +420,52 @@ fun DayTimeline(
                             Text(
                                 text = event.title,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                color = Color.White,  // ← белый текст на цветном фоне
                                 fontSize = 14.sp
                             )
-
                             Spacer(modifier = Modifier.height(2.dp))
-
                             Text(
                                 text = "%02d:%02d - %02d:%02d".format(start.hour, start.minute, end.hour, end.minute),
                                 fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh
+                                color = Color.White.copy(alpha = 0.8f)  // ← полупрозрачный белый
                             )
                         }
                     }
                 }
 
-                val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
-                val minuteHeight = HOUR_HEIGHT_DP / 60f
-                val lineTopOffsetDp = (currentMinutes * minuteHeight).dp
+                if (isTodaySelected) {
+                    val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
+                    val minuteHeight = HOUR_HEIGHT_DP / 60f
+                    val lineTopOffsetDp = (currentMinutes * minuteHeight).dp
 
-                Row(
-                    modifier = Modifier
-                        .offset {
-                            IntOffset(
-                                x = (TIME_COLUMN_WIDTH_DP - 3).dp.roundToPx(),
-                                y = lineTopOffsetDp.roundToPx()
-                            )
-                        }
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.5.dp)
-                            .background(MaterialTheme.colorScheme.inversePrimary)
-                    )
+                            .offset {
+                                IntOffset(
+                                    x = (TIME_COLUMN_WIDTH_DP - 3).dp.roundToPx(),
+                                    y = lineTopOffsetDp.roundToPx()
+                                )
+                            }
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(Color.Red, shape = CircleShape)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.5.dp)
+                                .background(Color.Red)
+                        )
+                    }
                 }
-
             }
         }
     }
 }
-
-
-
 
 fun getWeekDays(centerDate: LocalDate): List<LocalDate> {
     var monday = centerDate
@@ -437,6 +476,6 @@ fun getWeekDays(centerDate: LocalDate): List<LocalDate> {
 }
 
 fun getShortDayOfWeekName(date: LocalDate): String {
-    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    return date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru"))
         .uppercase()
 }
