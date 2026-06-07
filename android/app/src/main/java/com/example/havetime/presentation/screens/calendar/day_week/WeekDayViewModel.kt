@@ -180,11 +180,12 @@ class WeekDayViewModel(
                 val application = (this[APPLICATION_KEY] as HaveTimeApplication)
                 val activityRepo = application.todoRepository
                 val dateRepo = application.dateRepository
+                val manager = application.remindManager
 
                 WeekDayViewModel(
-                    addTodoUseCase = AddTodoUseCase(activityRepo),
-                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo),
-                    updateActivityUseCase = UpdateActivityUseCase(activityRepo),
+                    addTodoUseCase = AddTodoUseCase(activityRepo, manager),
+                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo, manager),
+                    updateActivityUseCase = UpdateActivityUseCase(activityRepo, manager),
                     getTodosUseCase = GetTodosUseCase(activityRepo),
                     getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
                     syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
