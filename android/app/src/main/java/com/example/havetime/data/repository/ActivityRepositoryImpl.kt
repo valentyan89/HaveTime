@@ -126,4 +126,11 @@ class ActivityRepositoryImpl(
             entities.map { it.toDomain() }
         }
     }
+
+    override fun searchActivities(query: String): Flow<List<Activity>> {
+        return todoDao.getAllTodos().map { entities ->
+            entities.filter { it.title.contains(query, ignoreCase = true) }
+                .map { it.toDomain() }
+        }
+    }
 }

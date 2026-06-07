@@ -14,6 +14,7 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentYearUseCase
@@ -38,7 +39,8 @@ class CalendarViewModel(
     private val updateActivityUseCase: UpdateActivityUseCase,
     private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
-    private val getCurrentYearUseCase: GetCurrentYearUseCase
+    private val getCurrentYearUseCase: GetCurrentYearUseCase,
+    private val searchUseCase: SearchUseCase
 ) : ViewModel() {
     private val _selectedDate = MutableStateFlow<LocalDate?>(null)
 
@@ -48,13 +50,15 @@ class CalendarViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
     init {
         viewModelScope.launch {
             getCurrentDateUseCase().collect { date ->
                 _selectedDate.value = date
             }
         }
-
     }
 
     val activities: StateFlow<List<Activity>> = _selectedDate
@@ -74,6 +78,20 @@ class CalendarViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    val searchResults: StateFlow<List<Activity>> = _searchQuery
+        .flatMapLatest { query ->
+            if (query.isBlank()) flowOf(emptyList())
+            else searchUseCase(query)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
 
     fun onDateSelected(date: LocalDate) {
         _selectedDate.value = date
@@ -127,6 +145,7 @@ class CalendarViewModel(
                     getCurrentTimeUseCase = GetCurrentTimeUseCase(dateRepo),
                     getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
                     getCurrentYearUseCase = GetCurrentYearUseCase(dateRepo),
+                    searchUseCase = SearchUseCase(activityRepo)
                 )
             }
         }

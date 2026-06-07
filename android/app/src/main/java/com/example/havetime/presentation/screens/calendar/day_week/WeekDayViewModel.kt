@@ -13,6 +13,7 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextDayUseCase
 import com.example.havetime.domain.usecase.date.GetNextWeekUseCase
@@ -30,13 +31,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
 import com.example.havetime.presentation.screens.calendar.CalendarMode
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.LocalDateTime
-import kotlin.collections.emptyList
 
 class WeekDayViewModel(
     private val addTodoUseCase: AddTodoUseCase,
@@ -153,25 +150,21 @@ class WeekDayViewModel(
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
-    val searchQuery = MutableStateFlow("")
+    val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val searchResults: StateFlow<List<Activity>> = searchQuery
-        .debounce(300)
-        .distinctUntilChanged()
+    val searchResults: StateFlow<List<Activity>> = _searchQuery
         .flatMapLatest { query ->
-            if (query.isBlank()) {
-                flowOf(emptyList())
-            } else {
-                searchUseCase(query)
-            }
+            if (query.isBlank()) flowOf(emptyList())
+            else searchUseCase(query)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    fun onSearchQueryChanged(newQuery: String) {
-        searchQuery.value = newQuery
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 
     companion object {

@@ -13,6 +13,7 @@ import com.example.havetime.domain.repository.UserRepository
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
@@ -23,6 +24,12 @@ class UserRepositoryImpl(
     private val api: AuthApi,
     private val tokenManager: TokenManager
 ) : UserRepository{
+    override fun isAuthorized(): Flow<Boolean> {
+        return combine(userDao.getUser(), tokenManager.tokenFlow) { entity, token ->
+            entity != null && token != null
+        }
+    }
+
     override suspend fun login(login: String, password: String): Result<Unit> = try {
         val response: LoginResponse = api.login(login, password)
 

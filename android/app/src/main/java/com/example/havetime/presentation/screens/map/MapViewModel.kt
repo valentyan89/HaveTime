@@ -13,6 +13,7 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextDayUseCase
 import com.example.havetime.domain.usecase.date.GetNextWeekUseCase
@@ -43,7 +44,8 @@ class MapViewModel(
     private val getNextWeekUseCase: GetNextWeekUseCase,
     private val getPreviousWeekUseCase: GetPreviousWeekUseCase,
     private val getNextDayUseCase: GetNextDayUseCase,
-    private val getPreviousDayUseCase: GetPreviousDayUseCase
+    private val getPreviousDayUseCase: GetPreviousDayUseCase,
+    private val searchUseCase: SearchUseCase
 ) : ViewModel() {
     private val _currentDate = MutableStateFlow<LocalDate?>(null)
     val currentDate: StateFlow<LocalDate?> = _currentDate.asStateFlow()
@@ -72,13 +74,14 @@ class MapViewModel(
             initialValue = emptyList()
         )
 
-    val geoMarksForDate: StateFlow<List<Activity>> = activityForDate.map { activities ->
-        activities.filter { it.location != null }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    val geoMarksForDate: StateFlow<List<Activity>> = activityForDate
+        .map { list ->
+            list.filter { it.location != null }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun selectDate(date: LocalDate) {
         _currentDate.value = date
@@ -139,6 +142,23 @@ class MapViewModel(
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
+    val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    val searchResults: StateFlow<List<Activity>> = _searchQuery
+        .flatMapLatest { query ->
+            if (query.isBlank()) flowOf(emptyList())
+            else searchUseCase(query)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -157,7 +177,8 @@ class MapViewModel(
                     getNextWeekUseCase = GetNextWeekUseCase(dateRepo),
                     getPreviousWeekUseCase = GetPreviousWeekUseCase(dateRepo),
                     getNextDayUseCase = GetNextDayUseCase(dateRepo),
-                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo)
+                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo),
+                    searchUseCase = SearchUseCase(activityRepo)
                 )
             }
         }
