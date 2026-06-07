@@ -30,9 +30,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
 import com.example.havetime.presentation.screens.calendar.CalendarMode
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.LocalDateTime
+import kotlin.collections.emptyList
 
 class WeekDayViewModel(
     private val addTodoUseCase: AddTodoUseCase,
@@ -46,7 +50,8 @@ class WeekDayViewModel(
     private val getNextWeekUseCase: GetNextWeekUseCase,
     private val getPreviousWeekUseCase: GetPreviousWeekUseCase,
     private val getNextDayUseCase: GetNextDayUseCase,
-    private val getPreviousDayUseCase: GetPreviousDayUseCase
+    private val getPreviousDayUseCase: GetPreviousDayUseCase,
+    private val searchUseCase: SearchUseCase
 ) : ViewModel() {
     private val _currentDate = MutableStateFlow<LocalDate?>(null)
     val currentDate: StateFlow<LocalDate?> = _currentDate.asStateFlow()
@@ -148,6 +153,27 @@ class WeekDayViewModel(
         deleteTodoUseCase(id).launchIn(viewModelScope)
     }
 
+    val searchQuery = MutableStateFlow("")
+
+    val searchResults: StateFlow<List<Activity>> = searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isBlank()) {
+                flowOf(emptyList())
+            } else {
+                searchUseCase(query)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    fun onSearchQueryChanged(newQuery: String) {
+        searchQuery.value = newQuery
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -167,7 +193,8 @@ class WeekDayViewModel(
                     getNextWeekUseCase = GetNextWeekUseCase(dateRepo),
                     getPreviousWeekUseCase = GetPreviousWeekUseCase(dateRepo),
                     getNextDayUseCase = GetNextDayUseCase(dateRepo),
-                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo)
+                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo),
+                    searchUseCase = SearchUseCase(activityRepo)
                 )
             }
         }

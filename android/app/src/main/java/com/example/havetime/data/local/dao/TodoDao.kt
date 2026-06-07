@@ -54,4 +54,10 @@ interface TodoDao {
         markEventsSynced(syncedIds)
         insertAll(freshActivities)
     }
+
+    @Query("SELECT * FROM activity WHERE title LIKE :searchQuery AND isDeleted = 0")
+    fun searchActivities(searchQuery: String): Flow<List<ActivityEntity>>
+
+    @Query("UPDATE activity SET userId = :userId WHERE userId = 0 AND isDeleted = 0")
+    suspend fun setTasksBeforeLogin(userId: Int)
 }
