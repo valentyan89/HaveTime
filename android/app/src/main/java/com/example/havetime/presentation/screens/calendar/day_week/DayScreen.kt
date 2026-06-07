@@ -104,31 +104,7 @@ fun DayScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = stringResource(R.string.search)
-                        )
-                    }
-                    IconButton(onClick = onAvatarClick) {
-                        Icon(
-                            Icons.Default.AccountCircle,
-                            contentDescription = stringResource(R.string.profile)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
+            Spacer(modifier = Modifier.statusBarsPadding())
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -185,38 +161,49 @@ fun DayScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column {
-                    Row(
+                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer)
-                                .clickable { viewModel.go2Today() },
-                            contentAlignment = Alignment.Center
+                        // Левая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = today.dayOfMonth.toString(),
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
+                            IconButton(onClick = { /* Меню */ }) {
+                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                            }
+                            
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .clickable { viewModel.go2Today() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.CalendarToday,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Text(
+                                        text = today.dayOfMonth.toString(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
                             }
                         }
 
+                        // Центральная часть (Заголовок)
                         Text(
                             text = "${
                                 date.month.getDisplayName(
@@ -225,12 +212,31 @@ fun DayScreen(
                                 ).replaceFirstChar { it.uppercase() }
                             } ${date.year}",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { navController.navigate(Screen.Month.route) }
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .clickable { navController.navigate(Screen.Month.route) }
                         )
+
+                        // Правая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { /* Поиск */ }) {
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                            }
+                            IconButton(onClick = onAvatarClick) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = stringResource(R.string.profile)
+                                )
+                            }
+                        }
                     }
 
+                    // Лента недель
                     val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
                     val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
                     
@@ -274,7 +280,7 @@ fun DayScreen(
                                         Text(
                                             text = dayOfWeekName,
                                             fontSize = 12.sp,
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            color = if (isSelected) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                         )
 
@@ -286,8 +292,8 @@ fun DayScreen(
                                                 .clip(CircleShape)
                                                 .background(
                                                     when {
-                                                        isSelected -> MaterialTheme.colorScheme.primary
-                                                        isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                                        isSelected -> Color(0xFF1B5E20)
+                                                        isTodayItem -> Color(0xFF1B5E20).copy(alpha = 0.15f)
                                                         else -> Color.Transparent
                                                     }
                                                 ),
@@ -298,8 +304,8 @@ fun DayScreen(
                                                 fontSize = 16.sp,
                                                 fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
                                                 color = when {
-                                                    isSelected -> MaterialTheme.colorScheme.onPrimary
-                                                    isTodayItem -> MaterialTheme.colorScheme.primary
+                                                    isSelected -> Color.White
+                                                    isTodayItem -> Color(0xFF1B5E20)
                                                     else -> MaterialTheme.colorScheme.onSurface
                                                 }
                                             )
@@ -401,6 +407,16 @@ fun DayTimeline(
     var creatingActivityEnd by remember { mutableStateOf<Long?>(null) }
     
     var activeId by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(selectedDate) {
+        if (isTodaySelected) {
+            val currentHour = currentDateTime.hour
+            // Прокрутка так, чтобы текущий час был в верхней трети экрана
+            val targetHour = (currentHour - 2).coerceAtLeast(0)
+            val targetOffsetPx = targetHour * hourHeightPx
+            lazyListState.scrollToItem(0, targetOffsetPx.toInt())
+        }
+    }
 
     LazyColumn(
         state = lazyListState,
@@ -508,69 +524,98 @@ fun DayTimeline(
                     }
                 } }
 
-                events.forEach { event ->
-                    val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                // ЛОГИКА НАСЛОЕНИЯ И КОЛОНОК (как в референсе)
+                val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-                    if (event.timeInterval.startTime < dayEnd && event.timeInterval.endTime > dayStart) {
-                        var currentStart by remember(event.id, event.timeInterval.startTime) { mutableStateOf(event.timeInterval.startTime) }
-                        var currentEnd by remember(event.id, event.timeInterval.endTime) { mutableStateOf(event.timeInterval.endTime) }
+                val dayVisibleIntervals = events.filter { 
+                    it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart 
+                }.sortedBy { it.timeInterval.startTime }
 
-                        val displayStart = if (currentStart < dayStart) dayStart else currentStart
-                        val displayEnd = if (currentEnd > dayEnd) dayEnd else currentEnd
+                dayVisibleIntervals.forEachIndexed { idx, event ->
+                    var currentStart by remember(event.id, event.timeInterval.startTime) { mutableStateOf(event.timeInterval.startTime) }
+                    var currentEnd by remember(event.id, event.timeInterval.endTime) { mutableStateOf(event.timeInterval.endTime) }
+
+                    // Ищем пересекающиеся активности
+                    val overlapping = dayVisibleIntervals.filter { 
+                        it.timeInterval.startTime < event.timeInterval.endTime && 
+                        it.timeInterval.endTime > event.timeInterval.startTime
+                    }
+                    
+                    // Активности, начинающиеся ОДНОВРЕМЕННО
+                    val simultaneous = overlapping.filter { it.timeInterval.startTime == event.timeInterval.startTime }
+                    
+                    val widthFactor: Float
+                    val horizontalOffsetFactor: Float
+                    
+                    if (simultaneous.size > 1) {
+                        widthFactor = 1f / simultaneous.size
+                        val pos = simultaneous.indexOf(event)
+                        horizontalOffsetFactor = pos.toFloat()
+                    } else {
+                        widthFactor = 1f
+                        horizontalOffsetFactor = 0f
+                    }
+
+                    val displayStart = if (currentStart < dayStart) dayStart else currentStart
+                    val displayEnd = if (currentEnd > dayEnd) dayEnd else currentEnd
+                    
+                    val startMin = (displayStart - dayStart) / 60000f
+                    val durMin = (displayEnd - displayStart) / 60000f
+
+                    if (durMin > 0) {
+                        val eventColor = Color(event.color)
                         
-                        val startMin = (displayStart - dayStart) / 60000f
-                        val durMin = (displayEnd - displayStart) / 60000f
-
-                        if (durMin > 0) {
-                            val eventColor = Color(event.color)
-                            
-                            Card(
-                                modifier = Modifier
-                                    .graphicsLayer { translationY = startMin * minuteHeightPx }
-                                    .fillMaxWidth()
-                                    .padding(start = TIME_COLUMN_WIDTH_DP.dp + 8.dp, end = 16.dp)
-                                    .height(with(density) { (durMin * minuteHeightPx).toDp() })
-                                    .zIndex(if (activeId == event.id) 1000f else 10f)
-                                    .pointerInput(event.id, selectedDate) {
-                                        detectDragGesturesAfterLongPress(
-                                            onDragStart = { activeId = event.id },
-                                            onDrag = { change, dragAmount ->
-                                                change.consume()
-                                                val dMin = (dragAmount.y / minuteHeightPx).toLong()
-                                                
-                                                val duration = currentEnd - currentStart
-                                                currentStart += dMin * 60000
-                                                currentEnd = currentStart + duration
-
-                                                if (change.position.y < 50f) {
-                                                    scope.launch { lazyListState.animateScrollBy(-30f) }
-                                                } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
-                                                    scope.launch { lazyListState.animateScrollBy(30f) }
-                                                }
-                                            },
-                                            onDragEnd = {
-                                                val updatedEvent = event.copy(timeInterval = TimeInterval(currentStart, currentEnd), lastTimeModified = System.currentTimeMillis())
-                                                onUpdateActivity(updatedEvent)
-                                                
-                                                if (currentStart < dayStart || currentEnd > dayEnd) {
-                                                    onEventClick(updatedEvent)
-                                                }
-                                                activeId = null
-                                            },
-                                            onDragCancel = { activeId = null }
-                                        )
-                                    }
-                                    .clickable { onEventClick(event) },
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = eventColor)
-                            ) {
-                                Column(modifier = Modifier.padding(8.dp)) {
-                                    Text(event.title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp, maxLines = 1)
-                                    val sT = Instant.ofEpochMilli(currentStart).atZone(ZoneId.systemDefault()).toLocalTime()
-                                    val eT = Instant.ofEpochMilli(currentEnd).atZone(ZoneId.systemDefault()).toLocalTime()
-                                    Text("%02d:%02d - %02d:%02d".format(sT.hour, sT.minute, eT.hour, eT.minute), color = Color.White.copy(0.8f), fontSize = 11.sp)
+                        Card(
+                            modifier = Modifier
+                                .graphicsLayer { 
+                                    translationY = startMin * minuteHeightPx 
+                                    // Смещение по горизонтали для одновременных активностей
+                                    translationX = horizontalOffsetFactor * (with(density) { (400.dp.toPx()) }) * widthFactor
                                 }
+                                .fillMaxWidth(widthFactor)
+                                .padding(start = TIME_COLUMN_WIDTH_DP.dp + 4.dp, end = 4.dp)
+                                .height(with(density) { (durMin * minuteHeightPx).toDp() })
+                                // Тот кто начался позже - слоем выше (idx выше, так как отсортировано по startTime)
+                                .zIndex(if (activeId == event.id) 1000f else 10f + idx)
+                                .pointerInput(event.id, selectedDate) {
+                                    detectDragGesturesAfterLongPress(
+                                        onDragStart = { activeId = event.id },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            val dMin = (dragAmount.y / minuteHeightPx).toLong()
+                                            
+                                            val duration = currentEnd - currentStart
+                                            currentStart += dMin * 60000
+                                            currentEnd = currentStart + duration
+
+                                            if (change.position.y < 50f) {
+                                                scope.launch { lazyListState.animateScrollBy(-30f) }
+                                            } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
+                                                scope.launch { lazyListState.animateScrollBy(30f) }
+                                            }
+                                        },
+                                        onDragEnd = {
+                                            val updatedEvent = event.copy(timeInterval = TimeInterval(currentStart, currentEnd), lastTimeModified = System.currentTimeMillis())
+                                            onUpdateActivity(updatedEvent)
+                                            
+                                            if (currentStart < dayStart || currentEnd > dayEnd) {
+                                                onEventClick(updatedEvent)
+                                            }
+                                            activeId = null
+                                        },
+                                        onDragCancel = { activeId = null }
+                                    )
+                                }
+                                .clickable { onEventClick(event) },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(containerColor = eventColor)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text(event.title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp, maxLines = 1)
+                                val sT = Instant.ofEpochMilli(currentStart).atZone(ZoneId.systemDefault()).toLocalTime()
+                                val eT = Instant.ofEpochMilli(currentEnd).atZone(ZoneId.systemDefault()).toLocalTime()
+                                Text("%02d:%02d - %02d:%02d".format(sT.hour, sT.minute, eT.hour, eT.minute), color = Color.White.copy(0.8f), fontSize = 11.sp)
                             }
                         }
                     }

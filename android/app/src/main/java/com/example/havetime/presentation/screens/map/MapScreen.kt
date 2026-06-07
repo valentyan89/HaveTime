@@ -29,6 +29,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
+import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.screens.calendar.day_week.getShortDayOfWeekName
 import com.example.havetime.presentation.screens.calendar.day_week.getWeekDays
@@ -46,8 +47,6 @@ import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
-
-private const val SWIPE_THRESHOLD = 50f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,39 +66,47 @@ fun MapScreen(
 
     val mapView = remember { MapView(context) }
     var selectedLocation by remember { mutableStateOf<Location?>(null) }
+    var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(geoMarks, currentDate) {
         mapView.overlays.removeAll { it is Marker || it is MapEventsOverlay }
         
-        geoMarks.forEach { activity ->
-            activity.location?.let { location ->
-                val marker = Marker(mapView).apply {
-                    position = GeoPoint(location.latitude, location.longitude)
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = activity.title
-                    
-                    val drawable = GradientDrawable().apply {
-                        shape = GradientDrawable.OVAL
-                        setColor(activity.color)
-                        setSize(60, 60)
-                        setStroke(4, android.graphics.Color.WHITE)
-                    }
-                    icon = drawable
-                }
-                mapView.overlays.add(marker)
-            }
-        }
-
         val mapEventsReceiver = object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                 selectedLocation = Location(p.latitude, p.longitude, null)
+                editingActivity = null
                 showEventDialog = true
                 return true
             }
             override fun longPressHelper(p: GeoPoint): Boolean = false
         }
         mapView.overlays.add(MapEventsOverlay(mapEventsReceiver))
+
+        geoMarks.forEach { activity ->
+            activity.location?.let { location ->
+                val marker = Marker(mapView).apply {
+                    position = GeoPoint(location.latitude, location.longitude)
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                    title = activity.title
+                    
+                    val drawable = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(activity.color)
+                        setSize(65, 65)
+                        setStroke(4, android.graphics.Color.WHITE)
+                    }
+                    icon = drawable
+                    
+                    setOnMarkerClickListener { _, _ ->
+                        editingActivity = activity
+                        showEventDialog = true
+                        true
+                    }
+                }
+                mapView.overlays.add(marker)
+            }
+        }
         
         mapView.invalidate()
     }
@@ -119,25 +126,7 @@ fun MapScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
-                    }
-                    IconButton(onClick = onAvatarClick) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
+            Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
             Column(
@@ -173,23 +162,75 @@ fun MapScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column {
-                    Row(
+                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
+                        // Левая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { /* Меню */ }) {
+                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                            }
+                            
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .clickable { viewModel.go2Today() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.CalendarToday,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Text(
+                                        text = today.dayOfMonth.toString(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+                        }
+
+                        // Центральная часть (Заголовок)
                         Text(
                             text = "${date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${date.year}",
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { 
-                                navController.navigate(Screen.Month.route) 
-                            }
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .clickable { 
+                                    navController.navigate(Screen.Month.route) 
+                                }
                         )
+
+                        // Правая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { /* Поиск */ }) {
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                            }
+                            IconButton(onClick = onAvatarClick) {
+                                Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                            }
+                        }
                     }
+
                     val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
                     val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
                     
@@ -233,7 +274,7 @@ fun MapScreen(
                                         Text(
                                             text = dayOfWeekName,
                                             fontSize = 12.sp,
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            color = if (isSelected) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                         )
 
@@ -245,8 +286,8 @@ fun MapScreen(
                                                 .clip(CircleShape)
                                                 .background(
                                                     when {
-                                                        isSelected -> MaterialTheme.colorScheme.primary
-                                                        isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                                        isSelected -> Color(0xFF1B5E20)
+                                                        isTodayItem -> Color(0xFF1B5E20).copy(alpha = 0.15f)
                                                         else -> Color.Transparent
                                                     }
                                                 ),
@@ -257,8 +298,8 @@ fun MapScreen(
                                                 fontSize = 16.sp,
                                                 fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
                                                 color = when {
-                                                    isSelected -> MaterialTheme.colorScheme.onPrimary
-                                                    isTodayItem -> MaterialTheme.colorScheme.primary
+                                                    isSelected -> Color.White
+                                                    isTodayItem -> Color(0xFF1B5E20)
                                                     else -> MaterialTheme.colorScheme.onSurface
                                                 }
                                             )
@@ -287,6 +328,7 @@ fun MapScreen(
                         factory = {
                             mapView.apply {
                                 setMultiTouchControls(true)
+                                setBuiltInZoomControls(true)
                                 controller.setZoom(15.0)
                                 controller.setCenter(GeoPoint(55.7558, 37.6173))
                             }
@@ -315,25 +357,33 @@ fun MapScreen(
         }
     }
 
-    if (showEventDialog && selectedLocation != null) {
+    if (showEventDialog) {
         com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog(
-            editingActivity = null,
+            editingActivity = editingActivity,
             initialDate = date,
             initialStartTime = LocalTime.now(),
             initialEndTime = LocalTime.now().plusHours(1),
+            initialLocation = selectedLocation,
             onDismiss = {
                 showEventDialog = false
                 selectedLocation = null
+                editingActivity = null
             },
             onConfirm = { activity ->
-                val activityWithLocation = activity.copy(location = selectedLocation)
-                viewModel.addActivity(activityWithLocation)
+                if (editingActivity != null) {
+                    viewModel.updateActivity(activity)
+                } else {
+                    viewModel.addActivity(activity)
+                }
                 showEventDialog = false
                 selectedLocation = null
+                editingActivity = null
             },
             onDelete = { activityId ->
+                viewModel.deleteActivity(activityId)
                 showEventDialog = false
                 selectedLocation = null
+                editingActivity = null
             }
         )
     }

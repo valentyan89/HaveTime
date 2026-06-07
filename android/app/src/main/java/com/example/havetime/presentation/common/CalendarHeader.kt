@@ -99,7 +99,7 @@ fun CalendarHeader(
                     text = monthYearText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00796B),
+                    color = Color(0xFF0D6A57),
                     modifier = Modifier.clickable { onMonthClick() }
                 )
             }

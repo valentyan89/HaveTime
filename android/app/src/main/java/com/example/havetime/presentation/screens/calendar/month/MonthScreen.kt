@@ -79,25 +79,7 @@ fun MonthScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
-                    }
-                    IconButton(onClick = onAvatarClick) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
+            Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
             Column(
@@ -126,64 +108,98 @@ fun MonthScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 8.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = 12.dp)
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                        .clickable { viewModel.go2Today() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                Column {
+                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                    ) {
+                        // Левая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { /* Меню */ }) {
+                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                            }
+                            
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .clickable { viewModel.go2Today() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.CalendarToday,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    Text(
+                                        text = today.dayOfMonth.toString(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                            }
+                        }
+
+                        // Центральная часть (Заголовок)
                         Text(
-                            text = today.dayOfMonth.toString(),
-                            fontSize = 9.sp,
+                            text = "${visibleMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${visibleMonth.year}",
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = Color(0xFF1B5E20),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .clickable { onYearClick(visibleMonth.year) }
                         )
+
+                        // Правая часть
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { /* Поиск */ }) {
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                            }
+                            IconButton(onClick = onAvatarClick) {
+                                Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                            }
+                        }
                     }
-                }
 
-                Text(
-                    text = visibleMonth.year.toString(),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { onYearClick(visibleMonth.year) }
-                )
-            }
-
-            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                daysOfWeek.forEach { dayOfWeek ->
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                        daysOfWeek.forEach { dayOfWeek ->
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center,
+                                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                 }
             }
 
             VerticalCalendar(
                 state = state,
+                modifier = Modifier.padding(horizontal = 8.dp),
                 dayContent = { day ->
                     val isToday = day.date == today
                     val isCurrentMonth = day.position == DayPosition.MonthDate
@@ -213,7 +229,7 @@ fun MonthScreen(
                             .clip(CircleShape)
                             .background(
                                 if (isToday && isCurrentMonth) {
-                                    MaterialTheme.colorScheme.primary
+                                    Color(0xFF1B5E20)
                                 } else {
                                     backgroundColor
                                 }
@@ -242,7 +258,7 @@ fun MonthScreen(
                                 .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = Color(0xFF1B5E20)
                         )
                         HorizontalDivider(modifier = Modifier.padding(top = 4.dp, end = 16.dp))
                     }
