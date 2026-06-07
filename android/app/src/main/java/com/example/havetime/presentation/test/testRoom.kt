@@ -1,8 +1,7 @@
-package com.example.havetime.presentation.test
+package com.example.todolist.presentation.test
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -12,10 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.TimeInterval
+import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.CalendarViewModel
 import java.time.LocalDateTime
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun TestScreen(
@@ -34,7 +34,8 @@ fun TestScreen(
                             startTime = LocalDateTime.now(),
                             endTime = LocalDateTime.now().plusHours(1),
                         ),
-                        color = 0xFF854CE5.toInt()
+                        color = 100,
+                        location = null
                     )
                     viewModel.addActivity(testTodo)
                 }
@@ -52,15 +53,16 @@ fun TestScreen(
         ) {
             items(activities) { todo ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp)
-                    ) {
-                        Text(text = "Задача: ${todo.title}", style = MaterialTheme.typography.bodyLarge)
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = "Задача: $todo", style = MaterialTheme.typography.bodyLarge)
+                        Button(
+                            onClick = {viewModel.deleteActivity(todo.id)}
+                        ) {
+                            Text("Delete activity")
+                        }
                     }
                 }
             }

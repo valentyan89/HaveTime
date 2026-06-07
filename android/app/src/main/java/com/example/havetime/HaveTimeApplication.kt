@@ -2,21 +2,18 @@ package com.example.havetime
 
 import android.app.Application
 import androidx.room.Room
+import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.ActivityDataBase
 import com.example.havetime.data.local.TokenManager
 import com.example.havetime.data.remote.api.AuthApi
-import com.example.havetime.data.remote.api.ActivityApi
 import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.repository.ActivityRepositoryImpl
 import com.example.havetime.data.repository.UserRepositoryImpl
-import com.example.havetime.domain.repository.ActivityRepository
 import com.example.havetime.domain.repository.UserRepository
-import com.example.havetime.util.Constants
-import org.osmdroid.config.Configuration
 
 class HaveTimeApplication : Application() {
 
-    lateinit var activityRepository: ActivityRepository
+    lateinit var todoRepository: ActivityRepository
     lateinit var userRepository: UserRepository
     lateinit var tokenManager: TokenManager
 
@@ -26,18 +23,15 @@ class HaveTimeApplication : Application() {
         val database = Room.databaseBuilder(
             this,
             ActivityDataBase::class.java,
-            Constants.DATABASE_NAME
-        ).fallbackToDestructiveMigration().build()
-
+            "havetime_database"
+        ).build()
         tokenManager = TokenManager(this)
         val httpClient = KtorClient.client
         val authApi = AuthApi(httpClient)
-        val activityApi = ActivityApi(httpClient)
 
-        activityRepository = ActivityRepositoryImpl(
-            api = activityApi,
-            activityDao = database.activityDao(),
-            userDao = database.userDao()
+
+        todoRepository = ActivityRepositoryImpl(
+            todoDao = database.todoDao()
         )
 
         userRepository = UserRepositoryImpl(
@@ -45,8 +39,5 @@ class HaveTimeApplication : Application() {
             api = authApi,
             tokenManager = tokenManager
         )
-
-        Configuration.getInstance().userAgentValue = packageName
-        Configuration.getInstance().load(this, android.preference.PreferenceManager.getDefaultSharedPreferences(this))
     }
 }

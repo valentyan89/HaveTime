@@ -1,4 +1,4 @@
-package com.example.havetime.domain.repository
+package com.example.calendar.domain.repository
 
 import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.domain.model.Activity

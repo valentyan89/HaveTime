@@ -12,8 +12,5 @@ data class ActivityEntity(
     val title: String,
     val color: Int,
     @Embedded val timeInterval: TimeIntervalDto,
-    @Embedded val location: LocationDto? = null,
-    val offsetX: Float = 0f,
-    val widthPx: Float? = null,
-    val paddingEnd: Float = 16f
+    @Embedded val location: LocationDto? = null
 )

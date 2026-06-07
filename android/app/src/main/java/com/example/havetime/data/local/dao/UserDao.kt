@@ -17,4 +17,7 @@ interface UserDao {
 
     @Query("DELETE FROM user")
     suspend fun logout()
+
+    @Query("SELECT * FROM user LIMIT 1")
+    suspend fun getSyncUser(): UserEntity?
 }

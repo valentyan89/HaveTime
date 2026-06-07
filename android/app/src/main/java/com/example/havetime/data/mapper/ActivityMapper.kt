@@ -7,9 +7,6 @@ import com.example.havetime.data.model.activity.LocationDto
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun ActivityEntity.toDomain(): Activity {
     return Activity(
@@ -17,19 +14,16 @@ fun ActivityEntity.toDomain(): Activity {
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.startTime), ZoneId.systemDefault()),
-            endTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.endTime), ZoneId.systemDefault())
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             Location(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                geocodedAddress = it.geocodedAddress
+                latitude = location.latitude,
+                longitude = location.longitude,
+                geocodedAddress = location.geocodedAddress
             )
-        },
-        offsetX = offsetX,
-        widthPx = widthPx,
-        paddingEnd = paddingEnd
+        }
     )
 }
 
@@ -39,19 +33,16 @@ fun Activity.toEntity(): ActivityEntity {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-            endTime = timeInterval.endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             LocationDto(
-                latitude = it.latitude,
-                longitude = it.longitude,
-                geocodedAddress = it.geocodedAddress
+                latitude = location.latitude,
+                longitude = location.longitude,
+                geocodedAddress = location.geocodedAddress
             )
-        },
-        offsetX = offsetX,
-        widthPx = widthPx,
-        paddingEnd = paddingEnd
+        }
     )
 }
 
@@ -71,8 +62,8 @@ fun ActivityDto.toDomain(): Activity {
         title = title,
         color = color,
         timeInterval = TimeInterval(
-            startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.startTime), ZoneId.systemDefault()),
-            endTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeInterval.endTime), ZoneId.systemDefault())
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             Location(
@@ -90,8 +81,8 @@ fun Activity.toDto(): ActivityDto {
         title = title,
         color = color,
         timeInterval = TimeIntervalDto(
-            startTime = timeInterval.startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-            endTime = timeInterval.endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            startTime = timeInterval.startTime,
+            endTime = timeInterval.endTime
         ),
         location = location?.let {
             LocationDto(

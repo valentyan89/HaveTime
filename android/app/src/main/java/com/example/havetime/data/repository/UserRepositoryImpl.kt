@@ -15,7 +15,7 @@ class UserRepositoryImpl(
     private val userDao: UserDao,
     private val api: AuthApi,
     private val tokenManager: TokenManager
-) : UserRepository {
+) : UserRepository{
     override suspend fun login(login: String, password: String): Result<Unit> = runCatching {
         val response: LoginResponse = api.login(login, password)
 
@@ -24,13 +24,14 @@ class UserRepositoryImpl(
 
         userDao.insert(
             UserEntity(
-                serverId = response.id.toIntOrNull() ?: 0,
+                serverId = response.id,
                 login = response.login,
                 token = response.token,
                 createdAt = System.currentTimeMillis(),
                 lastSyncAt = System.currentTimeMillis()
             )
         )
+        response.token
     }
 
     override suspend fun register(login: String, password: String): Result<Unit> = runCatching {
@@ -41,19 +42,19 @@ class UserRepositoryImpl(
 
         userDao.insert(
             UserEntity(
-                serverId = response.id.toIntOrNull() ?: 0,
+                serverId = response.id,
                 login = response.login,
                 token = response.token,
                 createdAt = System.currentTimeMillis(),
                 lastSyncAt = System.currentTimeMillis()
             )
         )
+        response.token
     }
 
     override suspend fun logout() {
         tokenManager.clearToken()
         KtorClient.clearToken()
-        userDao.logout()
     }
 
     override fun getUser(): Flow<User?> {
