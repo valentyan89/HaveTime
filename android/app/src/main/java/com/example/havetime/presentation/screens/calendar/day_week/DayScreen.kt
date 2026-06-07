@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -68,6 +69,7 @@ fun DayScreen(
     sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = viewModel(factory = WeekDayViewModel.Factory),
     onAvatarClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
 ) {
     LaunchedEffect(initialDate) {
         viewModel.selectDate(initialDate)
@@ -77,6 +79,11 @@ fun DayScreen(
     val currentTime by viewModel.currentTime.collectAsState()
     val events by viewModel.activityForDate.collectAsState()
     val calendarMode by viewModel.calendarMode.collectAsState()
+    
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val searchResults by viewModel.searchResults.collectAsState()
+    var isSearchActive by remember { mutableStateOf(false) }
+
     var showEventDialog by remember { mutableStateOf(false) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
 
@@ -161,154 +168,182 @@ fun DayScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column {
-                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        // Левая часть
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterStart),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { /* Меню */ }) {
-                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-                            }
-                            
-                            Spacer(modifier = Modifier.width(4.dp))
-
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer)
-                                    .clickable { viewModel.go2Today() },
-                                contentAlignment = Alignment.Center
+                        if (!isSearchActive) {
+                            Row(
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(onClick = onMenuClick) {
+                                    Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                                }
+                                
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .clickable { viewModel.go2Today() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            imageVector = Icons.Default.CalendarToday,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                        Text(
+                                            text = today.dayOfMonth.toString(),
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                            }
+
+                            Text(
+                                text = "${
+                                    date.month.getDisplayName(
+                                        TextStyle.FULL_STANDALONE,
+                                        Locale("ru")
+                                    ).replaceFirstChar { it.uppercase() }
+                                } ${date.year}",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20),
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .clickable { navController.navigate(Screen.Month.route) }
+                            )
+
+                            Row(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(onClick = { isSearchActive = true }) {
+                                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                                }
+                                IconButton(onClick = onAvatarClick) {
                                     Icon(
-                                        imageVector = Icons.Default.CalendarToday,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                    Text(
-                                        text = today.dayOfMonth.toString(),
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        imageVector = Icons.Default.AccountCircle,
+                                        contentDescription = stringResource(R.string.profile)
                                     )
                                 }
                             }
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(onClick = { 
+                                    isSearchActive = false
+                                    viewModel.onSearchQueryChanged("")
+                                }) {
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                }
+                                OutlinedTextField(
+                                    value = searchQuery,
+                                    onValueChange = { viewModel.onSearchQueryChanged(it) },
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text("Поиск...") },
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = Color(0xFF1B5E20),
+                                        unfocusedBorderColor = Color.LightGray
+                                    )
+                                )
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                        Icon(Icons.Default.Close, contentDescription = null)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (!isSearchActive) {
+                        val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
+                        val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
+                        
+                        LaunchedEffect(date) {
+                            val mondayOfDate = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                            val mondayOfToday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                            val weeksDiff = ChronoUnit.WEEKS.between(mondayOfToday, mondayOfDate).toInt()
+                            val target = 5000 + weeksDiff
+                            if (pagerState.firstVisibleItemIndex != target) {
+                                pagerState.animateScrollToItem(target)
+                            }
                         }
 
-                        // Центральная часть (Заголовок)
-                        Text(
-                            text = "${
-                                date.month.getDisplayName(
-                                    TextStyle.FULL_STANDALONE,
-                                    Locale("ru")
-                                ).replaceFirstChar { it.uppercase() }
-                            } ${date.year}",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20),
+                        LazyRow(
+                            state = pagerState,
+                            flingBehavior = snapFlingBehavior,
                             modifier = Modifier
-                                .align(Alignment.Center)
-                                .clickable { navController.navigate(Screen.Month.route) }
-                        )
-
-                        // Правая часть
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterEnd),
+                                .fillMaxWidth()
+                                .height(70.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { /* Поиск */ }) {
-                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
-                            }
-                            IconButton(onClick = onAvatarClick) {
-                                Icon(
-                                    imageVector = Icons.Default.AccountCircle,
-                                    contentDescription = stringResource(R.string.profile)
-                                )
-                            }
-                        }
-                    }
+                            items(10000) { weekIndex ->
+                                val startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                                    .plusWeeks((weekIndex - 5000).toLong())
+                                
+                                Row(modifier = Modifier.fillParentMaxWidth()) {
+                                    (0..6).forEach { dayOffset ->
+                                        val itemDate = startOfWeek.plusDays(dayOffset.toLong())
+                                        val isSelected = itemDate == date
+                                        val isTodayItem = itemDate == today
+                                        val dayOfWeekName = getShortDayOfWeekName(itemDate)
 
-                    // Лента недель
-                    val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
-                    val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
-                    
-                    LaunchedEffect(date) {
-                        val mondayOfDate = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                        val mondayOfToday = LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                        val weeksDiff = ChronoUnit.WEEKS.between(mondayOfToday, mondayOfDate).toInt()
-                        val target = 5000 + weeksDiff
-                        if (pagerState.firstVisibleItemIndex != target) {
-                            pagerState.animateScrollToItem(target)
-                        }
-                    }
-
-                    LazyRow(
-                        state = pagerState,
-                        flingBehavior = snapFlingBehavior,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(70.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        items(10000) { weekIndex ->
-                            val startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                                .plusWeeks((weekIndex - 5000).toLong())
-                            
-                            Row(modifier = Modifier.fillParentMaxWidth()) {
-                                (0..6).forEach { dayOffset ->
-                                    val itemDate = startOfWeek.plusDays(dayOffset.toLong())
-                                    val isSelected = itemDate == date
-                                    val isTodayItem = itemDate == today
-                                    val dayOfWeekName = getShortDayOfWeekName(itemDate)
-
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .clickable { viewModel.selectDate(itemDate) }
-                                            .padding(vertical = 4.dp)
-                                    ) {
-                                        Text(
-                                            text = dayOfWeekName,
-                                            fontSize = 12.sp,
-                                            color = if (isSelected) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
-
-                                        Spacer(modifier = Modifier.height(4.dp))
-
-                                        Box(
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
                                             modifier = Modifier
-                                                .size(38.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    when {
-                                                        isSelected -> Color(0xFF1B5E20)
-                                                        isTodayItem -> Color(0xFF1B5E20).copy(alpha = 0.15f)
-                                                        else -> Color.Transparent
-                                                    }
-                                                ),
-                                            contentAlignment = Alignment.Center
+                                                .weight(1f)
+                                                .clickable { viewModel.selectDate(itemDate) }
+                                                .padding(vertical = 4.dp)
                                         ) {
                                             Text(
-                                                text = itemDate.dayOfMonth.toString(),
-                                                fontSize = 16.sp,
-                                                fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
-                                                color = when {
-                                                    isSelected -> Color.White
-                                                    isTodayItem -> Color(0xFF1B5E20)
-                                                    else -> MaterialTheme.colorScheme.onSurface
-                                                }
+                                                text = dayOfWeekName,
+                                                fontSize = 12.sp,
+                                                color = if (isSelected) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                             )
+
+                                            Spacer(modifier = Modifier.height(4.dp))
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(38.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        when {
+                                                            isSelected -> Color(0xFF1B5E20)
+                                                            isTodayItem -> Color(0xFF1B5E20).copy(alpha = 0.15f)
+                                                            else -> Color.Transparent
+                                                        }
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = itemDate.dayOfMonth.toString(),
+                                                    fontSize = 16.sp,
+                                                    fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
+                                                    color = when {
+                                                        isSelected -> Color.White
+                                                        isTodayItem -> Color(0xFF1B5E20)
+                                                        else -> MaterialTheme.colorScheme.onSurface
+                                                    }
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -318,27 +353,62 @@ fun DayScreen(
                 }
             }
 
-            DayTimeline(
-                events = events,
-                currentDateTime = currentTime,
-                selectedDate = date,
-                onEventClick = { activity ->
-                    editingActivity = activity
-                    showEventDialog = true
-                },
-                onAddActivity = { startTime, endTime ->
-                    draftStartTime = startTime
-                    draftEndTime = endTime
-                    editingActivity = null
-                    showEventDialog = true
-                },
-                onUpdateActivity = { activity ->
-                    viewModel.updateActivity(activity)
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isSearchActive && searchQuery.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .zIndex(100f)
+                    ) {
+                        items(searchResults) { activity ->
+                            ListItem(
+                                headlineContent = { Text(activity.title) },
+                                supportingContent = { 
+                                    val start = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                                    Text(String.format(Locale("ru"), "%d %s %d:%02d", start.dayOfMonth, start.month.getDisplayName(TextStyle.SHORT, Locale("ru")), start.hour, start.minute))
+                                },
+                                leadingContent = {
+                                    Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
+                                },
+                                modifier = Modifier.clickable {
+                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+                                    viewModel.selectDate(activityDate)
+                                    isSearchActive = false
+                                }
+                            )
+                            HorizontalDivider()
+                        }
+                        if (searchResults.isEmpty()) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                    Text("Ничего не найдено", color = Color.Gray)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                DayTimeline(
+                    events = events,
+                    currentDateTime = currentTime,
+                    selectedDate = date,
+                    onEventClick = { activity ->
+                        editingActivity = activity
+                        showEventDialog = true
+                    },
+                    onAddActivity = { startTime, endTime ->
+                        draftStartTime = startTime
+                        draftEndTime = endTime
+                        editingActivity = null
+                        showEventDialog = true
+                    },
+                    onUpdateActivity = { activity ->
+                        viewModel.updateActivity(activity)
+                    },
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
         }
     }
 
@@ -411,7 +481,6 @@ fun DayTimeline(
     LaunchedEffect(selectedDate) {
         if (isTodaySelected) {
             val currentHour = currentDateTime.hour
-            // Прокрутка так, чтобы текущий час был в верхней трети экрана
             val targetHour = (currentHour - 2).coerceAtLeast(0)
             val targetOffsetPx = targetHour * hourHeightPx
             lazyListState.scrollToItem(0, targetOffsetPx.toInt())
@@ -439,7 +508,6 @@ fun DayTimeline(
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
-                                
                                 if (change.position.y < 50f) {
                                     scope.launch { lazyListState.animateScrollBy(-30f) }
                                 } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
@@ -470,7 +538,6 @@ fun DayTimeline(
             ) {
                 repeat(24) { hour ->
                     val topOffsetDp = (hour * HOUR_HEIGHT_DP).dp
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -485,7 +552,6 @@ fun DayTimeline(
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-
                         HorizontalDivider(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -500,17 +566,13 @@ fun DayTimeline(
                 creatingActivityStart?.let { s -> creatingActivityEnd?.let { e ->
                     val start = if (s < e) s else e
                     val end = if (s < e) e else s
-                    
                     val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                     val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
                     if (start < dayEnd && end > dayStart) {
                         val drawStart = if (start < dayStart) dayStart else start
                         val drawEnd = if (end > dayEnd) dayEnd else end
-                        
                         val offMin = (drawStart - dayStart) / 60000f
                         val durMin = (drawEnd - drawStart) / 60000f
-                        
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -524,10 +586,8 @@ fun DayTimeline(
                     }
                 } }
 
-                // ЛОГИКА НАСЛОЕНИЯ И КОЛОНОК (как в референсе)
                 val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
                 val dayVisibleIntervals = events.filter { 
                     it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart 
                 }.sortedBy { it.timeInterval.startTime }
@@ -535,19 +595,13 @@ fun DayTimeline(
                 dayVisibleIntervals.forEachIndexed { idx, event ->
                     var currentStart by remember(event.id, event.timeInterval.startTime) { mutableStateOf(event.timeInterval.startTime) }
                     var currentEnd by remember(event.id, event.timeInterval.endTime) { mutableStateOf(event.timeInterval.endTime) }
-
-                    // Ищем пересекающиеся активности
                     val overlapping = dayVisibleIntervals.filter { 
                         it.timeInterval.startTime < event.timeInterval.endTime && 
                         it.timeInterval.endTime > event.timeInterval.startTime
                     }
-                    
-                    // Активности, начинающиеся ОДНОВРЕМЕННО
                     val simultaneous = overlapping.filter { it.timeInterval.startTime == event.timeInterval.startTime }
-                    
                     val widthFactor: Float
                     val horizontalOffsetFactor: Float
-                    
                     if (simultaneous.size > 1) {
                         widthFactor = 1f / simultaneous.size
                         val pos = simultaneous.indexOf(event)
@@ -556,27 +610,21 @@ fun DayTimeline(
                         widthFactor = 1f
                         horizontalOffsetFactor = 0f
                     }
-
                     val displayStart = if (currentStart < dayStart) dayStart else currentStart
                     val displayEnd = if (currentEnd > dayEnd) dayEnd else currentEnd
-                    
                     val startMin = (displayStart - dayStart) / 60000f
                     val durMin = (displayEnd - displayStart) / 60000f
-
                     if (durMin > 0) {
                         val eventColor = Color(event.color)
-                        
                         Card(
                             modifier = Modifier
                                 .graphicsLayer { 
                                     translationY = startMin * minuteHeightPx 
-                                    // Смещение по горизонтали для одновременных активностей
                                     translationX = horizontalOffsetFactor * (with(density) { (400.dp.toPx()) }) * widthFactor
                                 }
                                 .fillMaxWidth(widthFactor)
                                 .padding(start = TIME_COLUMN_WIDTH_DP.dp + 4.dp, end = 4.dp)
                                 .height(with(density) { (durMin * minuteHeightPx).toDp() })
-                                // Тот кто начался позже - слоем выше (idx выше, так как отсортировано по startTime)
                                 .zIndex(if (activeId == event.id) 1000f else 10f + idx)
                                 .pointerInput(event.id, selectedDate) {
                                     detectDragGesturesAfterLongPress(
@@ -584,11 +632,9 @@ fun DayTimeline(
                                         onDrag = { change, dragAmount ->
                                             change.consume()
                                             val dMin = (dragAmount.y / minuteHeightPx).toLong()
-                                            
                                             val duration = currentEnd - currentStart
                                             currentStart += dMin * 60000
                                             currentEnd = currentStart + duration
-
                                             if (change.position.y < 50f) {
                                                 scope.launch { lazyListState.animateScrollBy(-30f) }
                                             } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
@@ -598,7 +644,6 @@ fun DayTimeline(
                                         onDragEnd = {
                                             val updatedEvent = event.copy(timeInterval = TimeInterval(currentStart, currentEnd), lastTimeModified = System.currentTimeMillis())
                                             onUpdateActivity(updatedEvent)
-                                            
                                             if (currentStart < dayStart || currentEnd > dayEnd) {
                                                 onEventClick(updatedEvent)
                                             }

@@ -38,16 +38,19 @@ import java.util.Locale
 fun MonthScreen(
     navController: NavController,
     initialDate: LocalDate = LocalDate.now(),
-    viewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory),
+    sharedViewModel: MonthViewModel,
     onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
-    onYearClick: (Int) -> Unit = {}
+    onYearClick: (Int) -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
     LaunchedEffect(initialDate) {
-        viewModel.setMonth(YearMonth.from(initialDate))
+        if (sharedViewModel.currentMonth.value == null){
+            sharedViewModel.setMonth(YearMonth.from(initialDate))
+        }
     }
-    val currentMonth by viewModel.currentMonth.collectAsState()
-    val intensityMap by viewModel.intensityMap.collectAsState()
+    val currentMonth by sharedViewModel.currentMonth.collectAsState()
+    val intensityMap by sharedViewModel.intensityMap.collectAsState()
     val intensityHigh = colorResource(R.color.intensity_high)
     val intensityMedium = colorResource(R.color.intensity_medium)
     val intensityLow = colorResource(R.color.intensity_low)
@@ -72,7 +75,7 @@ fun MonthScreen(
     )
     val visibleMonth = state.firstVisibleMonth.yearMonth
     LaunchedEffect(visibleMonth) {
-        viewModel.setMonth(visibleMonth)
+        sharedViewModel.setMonth(visibleMonth)
     }
 
     val today = LocalDate.now()
@@ -121,12 +124,11 @@ fun MonthScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        // Левая часть
                         Row(
                             modifier = Modifier.align(Alignment.CenterStart),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { /* Меню */ }) {
+                            IconButton(onClick = onMenuClick) {
                                 Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                             }
                             
@@ -137,7 +139,7 @@ fun MonthScreen(
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(MaterialTheme.colorScheme.primaryContainer)
-                                    .clickable { viewModel.go2Today() },
+                                    .clickable { sharedViewModel.go2Today() },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -157,7 +159,7 @@ fun MonthScreen(
                             }
                         }
 
-                        // Центральная часть (Заголовок)
+                        // Центральный заголовок: Месяц и Год
                         Text(
                             text = "${visibleMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${visibleMonth.year}",
                             fontSize = 20.sp,
@@ -168,7 +170,6 @@ fun MonthScreen(
                                 .clickable { onYearClick(visibleMonth.year) }
                         )
 
-                        // Правая часть
                         Row(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             verticalAlignment = Alignment.CenterVertically

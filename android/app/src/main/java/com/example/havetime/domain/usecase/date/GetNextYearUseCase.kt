@@ -1,10 +1,11 @@
 package com.example.havetime.domain.usecase.date
 
 import com.example.havetime.domain.repository.DateRepository
-import kotlinx.coroutines.flow.Flow
 
-class GetCurrentYearUseCase(
+class GetNextYearUseCase(
     private val dateRepository: DateRepository
 ) {
-    operator fun invoke(): Flow<Int> = dateRepository.getCurrentYear()
+    suspend operator fun invoke(currentYear: Int): Int {
+        return dateRepository.getNextYear(currentYear)
+    }
 }

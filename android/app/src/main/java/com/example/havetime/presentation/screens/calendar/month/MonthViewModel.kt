@@ -92,25 +92,25 @@ class MonthViewModel(
         return intensityMap.value[date] ?: 0
     }
 
-    val searchQuery = MutableStateFlow("")
+    fun selectMonth(yearMonth: YearMonth) {
+        _currentMonth.value = yearMonth
+    }
 
-    val searchResults: StateFlow<List<Activity>> = searchQuery
-        .debounce(300)
-        .distinctUntilChanged()
+    val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    val searchResults: StateFlow<List<Activity>> = _searchQuery
         .flatMapLatest { query ->
-            if (query.isBlank()) {
-                flowOf(emptyList())
-            } else {
-                searchUseCase(query)
-            }
+            if (query.isBlank()) flowOf(emptyList())
+            else searchUseCase(query)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    fun onSearchQueryChanged(newQuery: String) {
-        searchQuery.value = newQuery
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
     }
 
     companion object {

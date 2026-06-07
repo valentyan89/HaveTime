@@ -22,8 +22,12 @@
     <string name="selected_point">Выбранное место</string>
     <string name="apply_button">Применить</string>
     <string name="event_color">Цвет события</string>
+    <string name="year_screen_title">Год</string>
+    <string name="retry">Повторить</string>
+    <string name="day_screen">День</string>
+    <string name="month_screen">Месяц</string>
     <string name="search_placeholder">Поиск...</string>
-    <string name="add_button_content_description">Добавить задачу</string>
+    <string name="add_button_content_description">Добавить активность</string>
     <string name="map_toggle_calendar">Перейти к календарю</string>
     <string name="map_toggle_map">Перейти к карте</string>
 </resources>
