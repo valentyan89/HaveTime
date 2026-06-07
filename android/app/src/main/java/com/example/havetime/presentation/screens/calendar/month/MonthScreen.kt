@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -38,16 +37,19 @@ import java.util.Locale
 fun MonthScreen(
     navController: NavController,
     initialDate: LocalDate = LocalDate.now(),
-    viewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory),
+    sharedViewModel: MonthViewModel,
     onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
-    onYearClick: (Int) -> Unit = {}
+    onYearClick: (Int) -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
     LaunchedEffect(initialDate) {
-        viewModel.setMonth(YearMonth.from(initialDate))
+        if (sharedViewModel.currentMonth.value == null){
+            sharedViewModel.setMonth(YearMonth.from(initialDate))
+        }
     }
-    val currentMonth by viewModel.currentMonth.collectAsState()
-    val intensityMap by viewModel.intensityMap.collectAsState()
+    val currentMonth by sharedViewModel.currentMonth.collectAsState()
+    val intensityMap by sharedViewModel.intensityMap.collectAsState()
     val intensityHigh = colorResource(R.color.intensity_high)
     val intensityMedium = colorResource(R.color.intensity_medium)
     val intensityLow = colorResource(R.color.intensity_low)
@@ -60,8 +62,8 @@ fun MonthScreen(
     }
 
     val month = currentMonth!!
-    val startMonth = remember(month) { YearMonth.of(month.year - 10, 1) }
-    val endMonth = remember(month) { YearMonth.of(month.year + 10, 12) }
+    val startMonth = remember(month) { month.minusYears(50) }
+    val endMonth = remember(month) { month.plusYears(50) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
 
     val state = rememberCalendarState(
@@ -72,14 +74,30 @@ fun MonthScreen(
     )
     val visibleMonth = state.firstVisibleMonth.yearMonth
     LaunchedEffect(visibleMonth) {
-        viewModel.setMonth(visibleMonth)
+        sharedViewModel.setMonth(visibleMonth)
     }
-
-    val today = LocalDate.now()
 
     Scaffold(
         topBar = {
-            Spacer(modifier = Modifier.statusBarsPadding())
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                    }
+                    IconButton(onClick = onAvatarClick) {
+                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            )
         },
         bottomBar = {
             Column(
@@ -108,100 +126,40 @@ fun MonthScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 8.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Column {
-                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 8.dp)
-                    ) {
-                        // Левая часть
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterStart),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { /* Меню */ }) {
-                                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-                            }
-                            
-                            Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = visibleMonth.year.toString(),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable { onYearClick(visibleMonth.year) }
+                )
+            }
 
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer)
-                                    .clickable { viewModel.go2Today() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        imageVector = Icons.Default.CalendarToday,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                    Text(
-                                        text = today.dayOfMonth.toString(),
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            }
-                        }
-
-                        // Центральная часть (Заголовок)
-                        Text(
-                            text = "${visibleMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${visibleMonth.year}",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20),
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .clickable { onYearClick(visibleMonth.year) }
-                        )
-
-                        // Правая часть
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { /* Поиск */ }) {
-                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
-                            }
-                            IconButton(onClick = onAvatarClick) {
-                                Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
-                            }
-                        }
-                    }
-
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                        daysOfWeek.forEach { dayOfWeek ->
-                            Text(
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center,
-                                text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
+            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                daysOfWeek.forEach { dayOfWeek ->
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
 
             VerticalCalendar(
                 state = state,
-                modifier = Modifier.padding(horizontal = 8.dp),
                 dayContent = { day ->
-                    val isToday = day.date == today
+                    val isToday = day.date == LocalDate.now()
                     val isCurrentMonth = day.position == DayPosition.MonthDate
 
                     val intensity = if (isCurrentMonth) {
@@ -216,6 +174,7 @@ fun MonthScreen(
                         else -> Color.Transparent
                     }
 
+
                     val textColor = when {
                         !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         isToday -> MaterialTheme.colorScheme.onPrimary
@@ -229,7 +188,7 @@ fun MonthScreen(
                             .clip(CircleShape)
                             .background(
                                 if (isToday && isCurrentMonth) {
-                                    Color(0xFF1B5E20)
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                                 } else {
                                     backgroundColor
                                 }
@@ -248,20 +207,17 @@ fun MonthScreen(
                     }
                 },
                 monthHeader = { monthData ->
-                    Column(
+                    Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 24.dp, bottom = 12.dp, start = 8.dp)
-                    ) {
-                        Text(
-                            text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru"))
-                                .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20)
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(top = 4.dp, end = 16.dp))
-                    }
+                            .padding(vertical = 20.dp, horizontal = 8.dp),
+                        textAlign = TextAlign.Start,
+                        text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru"))
+                            .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             )
         }
