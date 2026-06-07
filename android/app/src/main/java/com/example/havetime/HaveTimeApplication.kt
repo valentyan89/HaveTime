@@ -44,6 +44,7 @@ class HaveTimeApplication : Application(), Configuration.Provider {
     val userRepository: UserRepository by lazy {
         UserRepositoryImpl(
             userDao = database.userDao(),
+            todoDao = database.todoDao(),
             api = authApi,
             tokenManager = tokenManager
         )

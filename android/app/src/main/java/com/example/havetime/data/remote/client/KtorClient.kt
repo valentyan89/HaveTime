@@ -1,6 +1,7 @@
 package com.example.havetime.data.remote.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -48,6 +49,11 @@ object KtorClient{
                     currentAccessToken?.let { BearerTokens(it, "") }
                 }
             }
+        }
+
+        install(HttpTimeout){
+            requestTimeoutMillis = 10000
+            connectTimeoutMillis = 10000
         }
 
         defaultRequest {
