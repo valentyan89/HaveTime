@@ -3,12 +3,10 @@ package com.example.havetime.presentation.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +23,8 @@ fun BottomControlBar(
     onSearchChange: (String) -> Unit,
     onAddClick: () -> Unit,
     onMapClick: () -> Unit,
+    onMapStyleClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     isMapScreen: Boolean = false
 ) {
     Surface(
@@ -65,6 +65,21 @@ fun BottomControlBar(
                         tint = Color.White
                     )
                 }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF664FA3).copy(alpha = 0.8f))
+                        .clickable { onMapStyleClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Layers, 
+                        contentDescription = "Map Style", 
+                        tint = Color.White
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -81,6 +96,22 @@ fun BottomControlBar(
                     imageVector = if (isMapScreen) Icons.Default.DateRange else Icons.Default.LocationOn,
                     contentDescription = stringResource(if (isMapScreen) R.string.map_toggle_calendar else R.string.map_toggle_map),
                     tint = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .clickable { onProfileClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person, 
+                    contentDescription = "Profile",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }
