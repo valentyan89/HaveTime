@@ -33,10 +33,14 @@ class MonthViewModel(
     private val _currentMonth = MutableStateFlow<YearMonth?>(null)
     val currentMonth: StateFlow<YearMonth?> = _currentMonth.asStateFlow()
 
+    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
+    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
+
     init {
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
             _currentMonth.value = YearMonth.from(today)
+            _selectedDate.value = today
         }
     }
 

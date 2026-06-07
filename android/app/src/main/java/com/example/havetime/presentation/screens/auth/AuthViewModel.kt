@@ -11,7 +11,6 @@ import com.example.havetime.domain.usecase.auth.GetUserUseCase
 import com.example.havetime.domain.usecase.auth.LoginUseCase
 import com.example.havetime.domain.usecase.auth.LogoutUseCase
 import com.example.havetime.domain.usecase.auth.RegisterUseCase
-import com.example.havetime.domain.usecase.auth.IsAuthorizedUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +23,7 @@ class AuthViewModel(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val logoutUseCase: LogoutUseCase,
-    private val getUserUseCase: GetUserUseCase,
-    private val isAuthorizedUseCase: IsAuthorizedUseCase
+    private val getUserUseCase: GetUserUseCase
 ) : ViewModel(){
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -35,13 +33,6 @@ class AuthViewModel(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null
-        )
-
-    val isAuthorized: StateFlow<Boolean> = isAuthorizedUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
         )
 
     fun login(login: String, password: String){
@@ -89,8 +80,7 @@ class AuthViewModel(
                     loginUseCase = LoginUseCase(repo),
                     registerUseCase = RegisterUseCase(repo),
                     logoutUseCase = LogoutUseCase(repo),
-                    getUserUseCase = GetUserUseCase(repo),
-                    isAuthorizedUseCase = IsAuthorizedUseCase(repo)
+                    getUserUseCase = GetUserUseCase(repo)
                 )
             }
         }

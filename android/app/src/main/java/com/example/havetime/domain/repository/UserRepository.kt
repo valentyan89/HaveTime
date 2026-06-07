@@ -8,5 +8,4 @@ interface UserRepository {
     suspend fun register(login: String, password: String): Result<Unit>
     suspend fun logout()
     fun getUser(): Flow<User?>
-    fun isAuthorized(): Flow<Boolean>
 }

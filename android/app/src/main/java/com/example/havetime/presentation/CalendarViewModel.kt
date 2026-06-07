@@ -116,14 +116,15 @@ class CalendarViewModel(
                 val application = (this[APPLICATION_KEY] as HaveTimeApplication)
                 val activityRepo = application.todoRepository
                 val dateRepo = application.dateRepository
+                val manager = application.remindManager
 
                 CalendarViewModel(
-                    addTodoUseCase = AddTodoUseCase(activityRepo),
-                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo),
+                    addTodoUseCase = AddTodoUseCase(activityRepo, manager),
+                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo, manager),
                     getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
                     getTodosUseCase = GetTodosUseCase(activityRepo),
                     syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
-                    updateActivityUseCase = UpdateActivityUseCase(activityRepo),
+                    updateActivityUseCase = UpdateActivityUseCase(activityRepo, manager),
                     getCurrentTimeUseCase = GetCurrentTimeUseCase(dateRepo),
                     getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
                     getCurrentYearUseCase = GetCurrentYearUseCase(dateRepo),
