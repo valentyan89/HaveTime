@@ -10,6 +10,6 @@ interface ActivityRepository {
     fun getIntervalsForDate(date: LocalDate): Flow<List<Activity>>
     fun addTodo(todo: Activity): Flow<Unit>
     fun deleteTodo(id: Int): Flow<Unit>
-    fun syncWithServer(): Flow<Unit>
+    suspend fun syncWithServer(): Result<Unit>
     fun updateActivity(activity: Activity): Flow<Unit>
 }

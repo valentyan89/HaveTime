@@ -55,6 +55,7 @@ class UserRepositoryImpl(
     override suspend fun logout() {
         tokenManager.clearToken()
         KtorClient.clearToken()
+        userDao.logout()
     }
 
     override fun getUser(): Flow<User?> {

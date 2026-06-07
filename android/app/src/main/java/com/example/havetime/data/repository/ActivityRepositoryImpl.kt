@@ -1,19 +1,25 @@
 package com.example.havetime.data.repository
 
+import android.util.Log
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.dao.TodoDao
 import com.example.havetime.data.local.dao.UserDao
+import com.example.havetime.data.mapper.toClientDto
 import com.example.havetime.data.mapper.toDomain
 import com.example.havetime.data.mapper.toDto
 import com.example.havetime.data.mapper.toEntity
+import com.example.havetime.data.mapper.toNetworkDto
 import com.example.havetime.data.remote.api.ActivityApi
+import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.remote.response.SyncRequest
 import com.example.havetime.domain.model.Activity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 
 class ActivityRepositoryImpl(
     private val todoDao: TodoDao,
@@ -22,48 +28,84 @@ class ActivityRepositoryImpl(
 ) : ActivityRepository{
     override fun getTodos(): Flow<List<Activity>> {
         return todoDao.getAllTodos().map { entities ->
-            entities.map { it.toDomain() }
+            entities
+                .map { it.toDomain() }
         }
     }
 
     override fun getIntervalsForDate(date: LocalDate): Flow<List<Activity>> {
-        val startOfDay = date.atStartOfDay()
-        val endOfDay = date.atTime(LocalTime.MAX)
-        return todoDao.getTodosByDate(startOfDay, endOfDay).map { entities ->
-            entities.map { it.toDomain() }
+        val dayStart = date.atStartOfDay()
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+
+        val dayEnd = date.plusDays(1).atStartOfDay()
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
+        return todoDao.getTodosByDate(dayStart, dayEnd).map { entities ->
+            entities
+                .map { it.toDomain() }
         }
     }
 
     override fun addTodo(todo: Activity): Flow<Unit> = flow{
-        todoDao.insert(todo.toEntity().copy(id = 0))
+        val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
+        val entity = todo.toEntity().copy(
+            userId = userServerId,
+            isSynced = false,
+            lastTimeModified = System.currentTimeMillis()
+        )
+        todoDao.insert(entity)
         emit(Unit)
     }
 
     override fun deleteTodo(id: Int): Flow<Unit> = flow{
-        todoDao.delete(id)
+        val activity = todoDao.getTodoById(id)
+        activity?.let {
+            todoDao.update(
+                it.copy(
+                    isSynced = false,
+                    isDeleted = true,
+                    lastTimeModified = System.currentTimeMillis()
+                )
+            )
+        }
         emit(Unit)
     }
 
-    override fun syncWithServer(): Flow<Unit> = flow{
-        val user = userDao.getSyncUser()
+    override suspend fun syncWithServer(): Result<Unit> {
+        return try {
+            val user = userDao.getSyncUser()
+            user?.let { userRoom ->
+                KtorClient.updateToken(userRoom.token)
+                val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
 
-        user?.let { userRoom ->
-            val roomActivities = todoDao.getAllActivitiesSync().map {it.toDomain().toDto()}
-            val request = SyncRequest(
-                activities = roomActivities,
-                lastSync = userRoom.lastSyncAt
-            )
-
-            val freshDtos = api.sync(request).map { it.toEntity() }
-            todoDao.insertAll(freshDtos)
-            userDao.insert(userRoom.copy(lastSyncAt = System.currentTimeMillis()))
+                val unsynced = todoDao.getUnsyncedEvents()
+                val roomActivities = unsynced.map {it.toDomain().toDto().toNetworkDto()}
+                val request = SyncRequest(
+                    activities = roomActivities,
+                    lastSync = lastSyncTime
+                )
+                Log.d("RRR", "JSON $request")
+                val ids = unsynced.map { it.id }
+                val response = api.sync(request)
+                val freshDtos = response.map { it.toClientDto().toEntity() }
+                todoDao.updateDataAfterSync(freshDtos, ids)
+                userDao.insert(
+                    user.copy(lastSyncAt = System.currentTimeMillis())
+                )
+                Result.success(Unit)
+            } ?: Result.failure(Exception("User not found"))
+        } catch (e: Exception){
+            Result.failure(e)
         }
-
-        emit(Unit)
     }
 
     override fun updateActivity(activity: Activity): Flow<Unit> = flow {
-        todoDao.update(activity.toEntity())
+        val entity = activity.toEntity().copy(
+            isSynced = false,
+            lastTimeModified = System.currentTimeMillis()
+        )
+        todoDao.update(entity)
         emit(Unit)
     }
 }

@@ -4,5 +4,5 @@ import com.example.calendar.domain.repository.ActivityRepository
 import kotlinx.coroutines.flow.Flow
 
 class SyncWithServerUseCase(private val repository: ActivityRepository) {
-    operator fun invoke(): Flow<Unit> = repository.syncWithServer()
+    suspend operator fun invoke(): Result<Unit> = repository.syncWithServer()
 }
