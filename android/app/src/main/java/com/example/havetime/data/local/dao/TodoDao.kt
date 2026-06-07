@@ -30,7 +30,7 @@ interface TodoDao {
     @Query("SELECT * FROM activity WHERE id = :id AND isDeleted = 0")
     suspend fun getTodoById(id: Int): ActivityEntity?
 
-    @Query("SELECT * FROM activity WHERE startTime >= :dayStart AND startTime <= :dayEnd AND isDeleted = 0 ORDER BY startTime ASC")
+    @Query("SELECT * FROM activity WHERE startTime < :dayEnd AND endTime > :dayStart AND isDeleted = 0 ORDER BY startTime ASC")
     fun getTodosByDate(dayStart: Long, dayEnd: Long): Flow<List<ActivityEntity>>
 
     @Update

@@ -54,24 +54,34 @@ class MonthViewModel(
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
             _currentMonth.value = YearMonth.from(today)
+            _selectedDate.value = today
         }
     }
 
     fun go2NextMonth() {
         _currentMonth.value?.let { month ->
-            _currentMonth.value = getNextMonthUseCase(month)
+            viewModelScope.launch {
+                _currentMonth.value = getNextMonthUseCase(month)
+            }
         }
     }
 
     fun go2PrevMonth() {
         _currentMonth.value?.let { month ->
-            _currentMonth.value = getPreviousMonthUseCase(month)
+            viewModelScope.launch {
+                _currentMonth.value = getPreviousMonthUseCase(month)
+            }
         }
     }
+
     fun setMonth(month: YearMonth) {
         if (_currentMonth.value != month) {
             _currentMonth.value = month
         }
+    }
+
+    fun selectDate(date: LocalDate) {
+        _selectedDate.value = date
     }
 
     fun getIntensityForDate(date: LocalDate): Int {

@@ -45,17 +45,19 @@ fun TestMapScreen(
                     onClick = {
                         val activityWithLocation = Activity(
                             id = 0,
+                            userId = 1,
                             title = "Задача на карте",
                             timeInterval = TimeInterval(
-                                startTime = LocalDateTime.now(),
-                                endTime = LocalDateTime.now().plusHours(1),
+                                startTime = System.currentTimeMillis(),
+                                endTime = System.currentTimeMillis() + 3600000,
                             ),
                             color = 200,
                             location = Location(
                                 latitude = selectedGeoPoint!!.latitude,
                                 longitude = selectedGeoPoint!!.longitude,
                                 geocodedAddress = "Координаты: ${selectedGeoPoint!!.latitude}"
-                            )
+                            ),
+                            lastTimeModified = System.currentTimeMillis()
                         )
                         viewModel.addActivity(activityWithLocation)
                         selectedGeoPoint = null

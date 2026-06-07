@@ -1,73 +1,161 @@
 package com.example.havetime.presentation.common
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 @Composable
 fun CalendarHeader(
     selectedDate: LocalDate,
+    todayDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    onWeekClick: () -> Unit,
+    onTodayClick: () -> Unit,
     onMonthClick: () -> Unit,
-    onYearClick: () -> Unit,
-    onDayClick: () -> Unit,
     currentDestination: String?
 ) {
-    val today = LocalDate.now()
-    val locale = Locale.getDefault()
-    val handleNavigationClick = { targetRoute: String, action: () -> Unit ->
-        if (currentDestination == targetRoute) {
-            if (selectedDate != today) onDateSelected(today)
-        } else {
-            action()
+    val locale = Locale("ru")
+    val monthYearText = remember(selectedDate) {
+        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
+        selectedDate.format(formatter).replaceFirstChar { it.uppercase() }
+    }
+
+    val initialIndex = 500
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+    val snapBehavior = rememberSnapFlingBehavior(listState)
+
+    LaunchedEffect(selectedDate) {
+        val startOfSelectedWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val weeksDiff = ChronoUnit.WEEKS.between(startOfCurrentWeek, startOfSelectedWeek).toInt()
+        val targetIndex = initialIndex + weeksDiff
+        
+        if (listState.firstVisibleItemIndex != targetIndex) {
+            listState.animateScrollToItem(targetIndex)
         }
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 50.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (!listState.isScrollInProgress) {
+            val weekOffset = listState.firstVisibleItemIndex - initialIndex
+            val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val targetWeekStart = startOfCurrentWeek.plusWeeks(weekOffset.toLong())
+            
+            val weekEnd = targetWeekStart.plusDays(6)
+            if (selectedDate.isBefore(targetWeekStart) || selectedDate.isAfter(weekEnd)) {
+                onDateSelected(targetWeekStart)
+            }
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
+        color = MaterialTheme.colorScheme.surface
     ) {
-        Button(
-            onClick = { handleNavigationClick("day", onDayClick) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(82.dp),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(selectedDate.dayOfMonth.toString())
-        }
-        Button(
-            onClick = { handleNavigationClick("week", onWeekClick) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(120.dp),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
-        }
-        Button(
-            onClick = { handleNavigationClick("month", onMonthClick) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(120.dp),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(selectedDate.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() })
-        }
-        Button(
-            onClick = { handleNavigationClick("year", onYearClick) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(82.dp),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Text(selectedDate.year.toString())
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF00796B).copy(alpha = 0.1f))
+                        .clickable { onTodayClick() }
+                ) {
+                    Text(
+                        text = todayDate.dayOfMonth.toString(),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF00796B)
+                    )
+                }
+                
+                Spacer(Modifier.width(16.dp))
+
+                Text(
+                    text = monthYearText,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0D6A57),
+                    modifier = Modifier.clickable { onMonthClick() }
+                )
+            }
+
+            LazyRow(
+                state = listState,
+                flingBehavior = snapBehavior,
+                modifier = Modifier.fillMaxWidth().height(70.dp)
+            ) {
+                items(1000) { index ->
+                    val weekOffset = index - initialIndex
+                    val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    val weekStart = startOfCurrentWeek.plusWeeks(weekOffset.toLong())
+                    
+                    Row(
+                        modifier = Modifier.fillParentMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        (0..6).forEach { dayIdx ->
+                            val date = weekStart.plusDays(dayIdx.toLong())
+                            val isSelected = date == selectedDate
+                            val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale).uppercase()
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onDateSelected(date) }
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = dayName,
+                                    fontSize = 11.sp,
+                                    color = if (isSelected) Color(0xFF00796B) else Color.Gray,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isSelected) Color(0xFF00796B) else Color.Transparent)
+                                ) {
+                                    Text(
+                                        text = date.dayOfMonth.toString(),
+                                        fontSize = 14.sp,
+                                        color = if (isSelected) Color.White else Color.Black,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

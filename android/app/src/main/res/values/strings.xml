@@ -2,7 +2,6 @@
     <string name="app_name">HaveTime</string>
     <string name="menu">Меню</string>
     <string name="search">Поиск</string>
-    <string name="more">Ещё</string>
     <string name="calendar">Календарь</string>
     <string name="map">Карта</string>
     <string name="add_event">Добавить событие</string>
@@ -17,4 +16,14 @@
     <string name="hour_label">ч</string>
     <string name="minute_label">м</string>
     <string name="no_location_events">Нет событий с локацией</string>
+    <string name="profile">Профиль</string>
+    <string name="select_location">Выбрать место на карте</string>
+    <string name="location_selected">Место выбрано</string>
+    <string name="selected_point">Выбранное место</string>
+    <string name="apply_button">Применить</string>
+    <string name="event_color">Цвет события</string>
+    <string name="search_placeholder">Поиск...</string>
+    <string name="add_button_content_description">Добавить задачу</string>
+    <string name="map_toggle_calendar">Перейти к календарю</string>
+    <string name="map_toggle_map">Перейти к карте</string>
 </resources>
