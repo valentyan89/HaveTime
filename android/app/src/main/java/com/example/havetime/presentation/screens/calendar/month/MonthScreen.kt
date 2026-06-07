@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -59,8 +60,8 @@ fun MonthScreen(
     }
 
     val month = currentMonth!!
-    val startMonth = remember(month) { month.minusYears(50) }
-    val endMonth = remember(month) { month.plusYears(50) }
+    val startMonth = remember(month) { YearMonth.of(month.year - 10, 1) }
+    val endMonth = remember(month) { YearMonth.of(month.year + 10, 12) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
 
     val state = rememberCalendarState(
@@ -73,6 +74,8 @@ fun MonthScreen(
     LaunchedEffect(visibleMonth) {
         viewModel.setMonth(visibleMonth)
     }
+
+    val today = LocalDate.now()
 
     Scaffold(
         topBar = {
@@ -125,13 +128,38 @@ fun MonthScreen(
                 .padding(paddingValues)
                 .padding(horizontal = 8.dp)
         ) {
-            // Заголовок с годом (кликабельный)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .clickable { viewModel.go2Today() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = today.dayOfMonth.toString(),
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+
                 Text(
                     text = visibleMonth.year.toString(),
                     fontSize = 24.sp,
@@ -157,25 +185,23 @@ fun MonthScreen(
             VerticalCalendar(
                 state = state,
                 dayContent = { day ->
-                    val isToday = day.date == LocalDate.now()
+                    val isToday = day.date == today
                     val isCurrentMonth = day.position == DayPosition.MonthDate
 
                     val intensity = if (isCurrentMonth) {
                         intensityMap[day.date] ?: 0
                     } else 0
 
-                    // Цвет фона для дней текущего месяца (с интенсивностью)
                     val backgroundColor = when {
-                        !isCurrentMonth -> Color.Transparent  // ← дни из соседних месяцев без фона
+                        !isCurrentMonth -> Color.Transparent
                         intensity >= 8 -> intensityHigh.copy(alpha = 0.4f)
                         intensity >= 4 -> intensityMedium.copy(alpha = 0.3f)
                         intensity > 0 -> intensityLow.copy(alpha = 0.2f)
                         else -> Color.Transparent
                     }
 
-                    // Цвет текста для дней из соседних месяцев (потемнее)
                     val textColor = when {
-                        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)  // ← потемнее
+                        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                         isToday -> MaterialTheme.colorScheme.onPrimary
                         else -> MaterialTheme.colorScheme.onSurface
                     }
@@ -187,12 +213,12 @@ fun MonthScreen(
                             .clip(CircleShape)
                             .background(
                                 if (isToday && isCurrentMonth) {
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    MaterialTheme.colorScheme.primary
                                 } else {
                                     backgroundColor
                                 }
                             )
-                            .clickable(enabled = true) {  // ← enabled = true для всех дней
+                            .clickable(enabled = true) {
                                 onDayClick(day.date)
                             },
                         contentAlignment = Alignment.Center
@@ -206,17 +232,20 @@ fun MonthScreen(
                     }
                 },
                 monthHeader = { monthData ->
-                    Text(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 8.dp),
-                        textAlign = TextAlign.Start,
-                        text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru"))
-                            .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                            .padding(top = 24.dp, bottom = 12.dp, start = 8.dp)
+                    ) {
+                        Text(
+                            text = monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru"))
+                                .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(top = 4.dp, end = 16.dp))
+                    }
                 }
             )
         }

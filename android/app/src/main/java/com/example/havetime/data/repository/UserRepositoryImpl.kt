@@ -9,6 +9,7 @@ import com.example.havetime.data.remote.response.LoginResponse
 import com.example.havetime.domain.model.User
 import com.example.havetime.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class UserRepositoryImpl(
@@ -31,7 +32,6 @@ class UserRepositoryImpl(
                 lastSyncAt = System.currentTimeMillis()
             )
         )
-        response.token
     }
 
     override suspend fun register(login: String, password: String): Result<Unit> = runCatching {
@@ -49,7 +49,6 @@ class UserRepositoryImpl(
                 lastSyncAt = System.currentTimeMillis()
             )
         )
-        response.token
     }
 
     override suspend fun logout() {
@@ -68,6 +67,12 @@ class UserRepositoryImpl(
                     createdAt = it.createdAt
                 )
             }
+        }
+    }
+
+    override fun isAuthorized(): Flow<Boolean> {
+        return combine(userDao.getUser(), tokenManager.tokenFlow) { entity, token ->
+            entity != null && token != null
         }
     }
 }

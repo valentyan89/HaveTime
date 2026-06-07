@@ -22,4 +22,8 @@
     <string name="selected_point">Выбранное место</string>
     <string name="apply_button">Применить</string>
     <string name="event_color">Цвет события</string>
+    <string name="search_placeholder">Поиск...</string>
+    <string name="add_button_content_description">Добавить задачу</string>
+    <string name="map_toggle_calendar">Перейти к календарю</string>
+    <string name="map_toggle_map">Перейти к карте</string>
 </resources>

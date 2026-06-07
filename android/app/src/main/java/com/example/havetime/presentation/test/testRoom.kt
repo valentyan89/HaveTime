@@ -29,13 +29,15 @@ fun TestScreen(
                 onClick = {
                     val testTodo = Activity(
                         id = 0,
+                        userId = 1,
                         title = "Тестовая задача ${System.currentTimeMillis()}",
                         timeInterval = TimeInterval(
-                            startTime = LocalDateTime.now(),
-                            endTime = LocalDateTime.now().plusHours(1),
+                            startTime = System.currentTimeMillis(),
+                            endTime = System.currentTimeMillis() + 3600000,
                         ),
                         color = 100,
-                        location = null
+                        location = null,
+                        lastTimeModified = System.currentTimeMillis()
                     )
                     viewModel.addActivity(testTodo)
                 }

@@ -51,7 +51,6 @@ fun BottomControlBar(
             Spacer(modifier = Modifier.width(12.dp))
 
             if (!isMapScreen) {
-                // Кнопка добавления активности диалоговое окно
                 Box(
                     modifier = Modifier
                         .size(56.dp)
@@ -70,7 +69,6 @@ fun BottomControlBar(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Кнопка переключения между экранами карты и календжаря
             Box(
                 modifier = Modifier
                     .size(56.dp)
