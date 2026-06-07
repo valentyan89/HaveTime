@@ -7,8 +7,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import com.example.havetime.HaveTimeApplication
+import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
+import com.example.havetime.domain.usecase.activity.GetTodosUseCase
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
@@ -22,7 +25,9 @@ class MonthViewModel(
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextMonthUseCase: GetNextMonthUseCase,
     private val getPreviousMonthUseCase: GetPreviousMonthUseCase,
-    private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase
+    private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
+    private val getTodosUseCase: GetTodosUseCase,
+    private val searchUseCase: SearchUseCase
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow<YearMonth?>(null)
@@ -35,30 +40,15 @@ class MonthViewModel(
         }
     }
 
-    val intensityMap: StateFlow<Map<LocalDate, Int>> = _currentMonth
-        .flatMapLatest { month ->
-            if (month == null) {
-                flowOf(emptyMap())
-            } else {
-                flow {
-                    val result = mutableMapOf<LocalDate, Int>()
-                    var date = dateRepository.getFirstDayOfMonth(month)
-                    val lastDate = dateRepository.getLastDayOfMonth(month)
-
-                    while (!date.isAfter(lastDate)) {
-                        val activities = getIntervalsForDateUseCase(date).first()
-                        result[date] = activities.size
-                        date = dateRepository.getNextDay(date)
-                    }
-                    emit(result)
-                }
-            }
-        }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = emptyMap()
-            )
+    val intensityMap: StateFlow<Map<LocalDate, Int>> = getTodosUseCase().map { activities ->
+            activities.groupBy { activity ->
+                    java.time.Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(java.time.ZoneOffset.UTC).toLocalDate()
+                }.mapValues { entry -> entry.value.size }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
 
     fun go2Today() {
         viewModelScope.launch {
@@ -88,6 +78,27 @@ class MonthViewModel(
         return intensityMap.value[date] ?: 0
     }
 
+    val searchQuery = MutableStateFlow("")
+
+    val searchResults: StateFlow<List<Activity>> = searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isBlank()) {
+                flowOf(emptyList())
+            } else {
+                searchUseCase(query)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    fun onSearchQueryChanged(newQuery: String) {
+        searchQuery.value = newQuery
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -100,7 +111,9 @@ class MonthViewModel(
                     getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
                     getNextMonthUseCase = GetNextMonthUseCase(dateRepo),
                     getPreviousMonthUseCase = GetPreviousMonthUseCase(dateRepo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo)
+                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
+                    getTodosUseCase = GetTodosUseCase(activityRepo),
+                    searchUseCase = SearchUseCase(activityRepo)
                 )
             }
         }

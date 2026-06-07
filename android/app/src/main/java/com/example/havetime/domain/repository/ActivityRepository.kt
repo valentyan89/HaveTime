@@ -12,4 +12,5 @@ interface ActivityRepository {
     fun deleteTodo(id: Int): Flow<Unit>
     suspend fun syncWithServer(): Result<Unit>
     fun updateActivity(activity: Activity): Flow<Unit>
+    fun searchActivities(query: String): Flow<List<Activity>>
 }

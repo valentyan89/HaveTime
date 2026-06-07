@@ -28,8 +28,7 @@ class ActivityRepositoryImpl(
 ) : ActivityRepository{
     override fun getTodos(): Flow<List<Activity>> {
         return todoDao.getAllTodos().map { entities ->
-            entities
-                .map { it.toDomain() }
+            entities.map { it.toDomain() }
         }
     }
 
@@ -42,8 +41,7 @@ class ActivityRepositoryImpl(
             .toInstant(ZoneOffset.UTC)
             .toEpochMilli()
         return todoDao.getTodosByDate(dayStart, dayEnd).map { entities ->
-            entities
-                .map { it.toDomain() }
+            entities.map { it.toDomain() }
         }
     }
 
@@ -107,5 +105,12 @@ class ActivityRepositoryImpl(
         )
         todoDao.update(entity)
         emit(Unit)
+    }
+
+    override fun searchActivities(query: String): Flow<List<Activity>> {
+        val formattedQuery = "%$query%"
+        return todoDao.searchActivities(formattedQuery).map { entities ->
+                entities.map { it.toDomain() }
+            }
     }
 }

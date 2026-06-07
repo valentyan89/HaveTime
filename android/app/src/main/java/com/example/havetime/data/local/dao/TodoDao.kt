@@ -54,4 +54,7 @@ interface TodoDao {
         markEventsSynced(syncedIds)
         insertAll(freshActivities)
     }
+
+    @Query("SELECT * FROM activity WHERE title LIKE :searchQuery AND isDeleted = 0")
+    fun searchActivities(searchQuery: String): Flow<List<ActivityEntity>>
 }
