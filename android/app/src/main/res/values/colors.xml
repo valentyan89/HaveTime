@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="event_red">#C73937</color>
+    <color name="event_blue">#42A5F5</color>
+    <color name="event_green">#4CAF50</color>
+    <color name="event_purple">#854CE5</color>
+    <color name="event_yellow">#FFCA31</color>
+    <color name="intensity_high">#EF5350</color>
+    <color name="intensity_medium">#FFA726</color>
+    <color name="intensity_low">#66BB6A</color>
 </resources>
