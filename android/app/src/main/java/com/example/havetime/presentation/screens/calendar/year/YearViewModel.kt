@@ -31,7 +31,7 @@ class YearViewModel(
     private val _state = MutableStateFlow<YearState>(YearState.Loading)
     val state: StateFlow<YearState> = _state.asStateFlow()
 
-    private var currentYearValue: Int = 0
+    private var currentYearValue: Int = 2026
 
     init {
         loadCurrentYear()

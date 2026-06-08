@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -163,11 +164,9 @@ fun DayScreen(
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column {
-                    // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -209,21 +208,20 @@ fun DayScreen(
                                 }
                             }
 
-                        // Центральная часть (Заголовок)
-                        Text(
-                            text = "${
-                                date.month.getDisplayName(
-                                    TextStyle.FULL_STANDALONE,
-                                    Locale("ru")
-                                ).replaceFirstChar { it.uppercase() }
-                            } ${date.year}",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .clickable { navController.navigate(Screen.Month.route) }
-                        )
+                            Text(
+                                text = "${
+                                    date.month.getDisplayName(
+                                        TextStyle.FULL_STANDALONE,
+                                        Locale("ru")
+                                    ).replaceFirstChar { it.uppercase() }
+                                } ${date.year}",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .clickable { navController.navigate(Screen.Month.route) }
+                            )
 
                             Row(
                                 modifier = Modifier.align(Alignment.CenterEnd),
@@ -248,7 +246,7 @@ fun DayScreen(
                                     isSearchActive = false
                                     viewModel.onSearchQueryChanged("")
                                 }) {
-                                    Icon(Icons.Default.ArrowBack, contentDescription = null)
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                                 }
                                 OutlinedTextField(
                                     value = searchQuery,
@@ -258,7 +256,7 @@ fun DayScreen(
                                     singleLine = true,
                                     shape = RoundedCornerShape(24.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF1B5E20),
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
                                         unfocusedBorderColor = Color.LightGray
                                     )
                                 )
@@ -305,45 +303,46 @@ fun DayScreen(
                                         val isTodayItem = itemDate == today
                                         val dayOfWeekName = getShortDayOfWeekName(itemDate)
 
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .clickable { viewModel.selectDate(itemDate) }
-                                            .padding(vertical = 4.dp)
-                                    ) {
-                                        Text(
-                                            text = dayOfWeekName,
-                                            fontSize = 12.sp,
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                        )
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clickable { viewModel.selectDate(itemDate) }
+                                                .padding(vertical = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = dayOfWeekName,
+                                                fontSize = 12.sp,
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                            )
 
                                             Spacer(modifier = Modifier.height(4.dp))
 
-                                        Box(
-                                            modifier = Modifier
-                                                .size(38.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    when {
-                                                        isSelected -> MaterialTheme.colorScheme.primary
-                                                        isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                                        else -> Color.Transparent
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(38.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        when {
+                                                            isSelected -> MaterialTheme.colorScheme.primary
+                                                            isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                                            else -> Color.Transparent
+                                                        }
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = itemDate.dayOfMonth.toString(),
+                                                    fontSize = 16.sp,
+                                                    fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
+                                                    color = when {
+                                                        isSelected -> Color.White
+                                                        isTodayItem -> MaterialTheme.colorScheme.primary
+                                                        else -> MaterialTheme.colorScheme.onSurface
                                                     }
-                                                ),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = itemDate.dayOfMonth.toString(),
-                                                fontSize = 16.sp,
-                                                fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
-                                                color = when {
-                                                    isSelected -> Color.White
-                                                    isTodayItem -> MaterialTheme.colorScheme.primary
-                                                    else -> MaterialTheme.colorScheme.onSurface
-                                                }
-                                            )
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -352,6 +351,42 @@ fun DayScreen(
                     }
                 }
             }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isSearchActive && searchQuery.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .zIndex(100f)
+                    ) {
+                        items(searchResults) { activity ->
+                            ListItem(
+                                headlineContent = { Text(activity.title) },
+                                supportingContent = {
+                                    val start = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                                    Text(String.format(Locale("ru"), "%d %s %d:%02d", start.dayOfMonth, start.month.getDisplayName(TextStyle.SHORT, Locale("ru")), start.hour, start.minute))
+                                },
+                                leadingContent = {
+                                    Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
+                                },
+                                modifier = Modifier.clickable {
+                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+                                    viewModel.selectDate(activityDate)
+                                    isSearchActive = false
+                                }
+                            )
+                            HorizontalDivider()
+                        }
+                        if (searchResults.isEmpty()) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                    Text("Ничего не найдено", color = Color.Gray)
+                                }
+                            }
+                        }
+                    }
+                }
 
                 DayTimeline(
                     events = events,
@@ -439,13 +474,12 @@ fun DayTimeline(
 
     var creatingActivityStart by remember { mutableStateOf<Long?>(null) }
     var creatingActivityEnd by remember { mutableStateOf<Long?>(null) }
-    
+
     var activeId by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(selectedDate) {
         if (isTodaySelected) {
             val currentHour = currentDateTime.hour
-            // Прокрутка так, чтобы текущий час был в верхней трети экрана
             val targetHour = (currentHour - 2).coerceAtLeast(0)
             val targetOffsetPx = targetHour * hourHeightPx
             lazyListState.scrollToItem(0, targetOffsetPx.toInt())
@@ -503,7 +537,6 @@ fun DayTimeline(
             ) {
                 repeat(24) { hour ->
                     val topOffsetDp = (hour * HOUR_HEIGHT_DP).dp
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -518,7 +551,6 @@ fun DayTimeline(
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-
                         HorizontalDivider(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -555,16 +587,16 @@ fun DayTimeline(
 
                 val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                val dayVisibleIntervals = events.filter { 
-                    it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart 
+                val dayVisibleIntervals = events.filter {
+                    it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart
                 }.sortedBy { it.timeInterval.startTime }
 
                 dayVisibleIntervals.forEachIndexed { idx, event ->
                     var currentStart by remember(event.id, event.timeInterval.startTime) { mutableStateOf(event.timeInterval.startTime) }
                     var currentEnd by remember(event.id, event.timeInterval.endTime) { mutableStateOf(event.timeInterval.endTime) }
-                    val overlapping = dayVisibleIntervals.filter { 
-                        it.timeInterval.startTime < event.timeInterval.endTime && 
-                        it.timeInterval.endTime > event.timeInterval.startTime
+                    val overlapping = dayVisibleIntervals.filter {
+                        it.timeInterval.startTime < event.timeInterval.endTime &&
+                                it.timeInterval.endTime > event.timeInterval.startTime
                     }
                     val simultaneous = overlapping.filter { it.timeInterval.startTime == event.timeInterval.startTime }
                     val widthFactor: Float
@@ -585,7 +617,7 @@ fun DayTimeline(
                         val eventColor = Color(event.color)
                         Card(
                             modifier = Modifier
-                                .graphicsLayer { 
+                                .graphicsLayer {
                                     translationY = startMin * minuteHeightPx
                                     translationX = horizontalOffsetFactor * (with(density) { (400.dp.toPx()) }) * widthFactor
                                 }
@@ -633,15 +665,15 @@ fun DayTimeline(
                     }
                 }
 
-
-                val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
-                val yPos = currentMinutes * minuteHeightPx
-                Box(modifier = Modifier.fillMaxWidth().graphicsLayer { translationY = yPos }.zIndex(600f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.primary)
+                if (isTodaySelected) {
+                    val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
+                    val yPos = currentMinutes * minuteHeightPx
+                    Box(modifier = Modifier.fillMaxWidth().graphicsLayer { translationY = yPos }.zIndex(600f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.inversePrimary)
+                        }
                     }
                 }
-
             }
         }
     }

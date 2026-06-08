@@ -114,8 +114,7 @@ fun MonthScreen(
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column {
                     // ОБЪЕДИНЕННАЯ ШАПКА С ЦЕНТРИРОВАННЫМ ЗАГОЛОВКОМ

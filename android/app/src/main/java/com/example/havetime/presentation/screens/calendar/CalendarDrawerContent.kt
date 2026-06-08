@@ -5,10 +5,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.navigation.Screen
@@ -31,12 +34,28 @@ fun CalendarDrawerContent(
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            Text(
-                text = "HaveTime",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 24.dp, top = 12.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "HaveTime",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+
+                IconButton(onClick = onCloseDrawer) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Закрыть меню",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             NavigationDrawerItem(
                 icon = {

@@ -94,10 +94,8 @@ fun YearScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column {
-                            // ОБЪЕДИНЕННАЯ ШАПКА
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -141,19 +139,11 @@ fun YearScreen(
                                     }
                                 }
 
-                                Text(
-                                    text = yearState.currentYear.toString(),
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1B5E20),
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-
                                 Row(
                                     modifier = Modifier.align(Alignment.CenterEnd),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    IconButton(onClick = { /* Поиск */ }) {
+                                    IconButton(onClick = { }) {
                                         Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                                     }
                                     IconButton(onClick = onAvatarClick) {
@@ -162,7 +152,6 @@ fun YearScreen(
                                 }
                             }
 
-                            // Переключатель года
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                                 horizontalArrangement = Arrangement.Center,
@@ -173,8 +162,9 @@ fun YearScreen(
                                 }
                                 Text(
                                     text = yearState.currentYear.toString(),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
                                 )
                                 IconButton(onClick = { viewModel.goToNextYear() }) {
                                     Icon(Icons.Default.ChevronRight, contentDescription = null)
@@ -227,7 +217,7 @@ fun MonthItem(
         Text(
             text = monthName,
             style = MaterialTheme.typography.labelLarge,
-            color = if (isCurrentMonth) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurface,
+            color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (isCurrentMonth) FontWeight.Bold else FontWeight.Normal
         )
         
@@ -238,12 +228,12 @@ fun MonthItem(
                 .size(60.dp)
                 .clip(CircleShape)
                 .background(
-                    if (monthData.daysWithActivities > 0) Color(0xFF1B5E20).copy(alpha = 0.1f)
+                    if (monthData.daysWithActivities > 0) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                     else MaterialTheme.colorScheme.surfaceVariant
                 )
                 .border(
                     width = if (isCurrentMonth) 2.dp else 0.dp,
-                    color = if (isCurrentMonth) Color(0xFF1B5E20) else Color.Transparent,
+                    color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else Color.Transparent,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -252,7 +242,7 @@ fun MonthItem(
                 Text(
                     text = monthData.daysWithActivities.toString(),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF1B5E20),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
             }
