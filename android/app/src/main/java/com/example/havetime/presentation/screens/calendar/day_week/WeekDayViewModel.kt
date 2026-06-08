@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
-import com.example.havetime.presentation.screens.calendar.CalendarMode
+import com.example.havetime.presentation.screens.CalendarMode
 import java.time.LocalDateTime
 
 class WeekDayViewModel(

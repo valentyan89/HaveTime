@@ -12,13 +12,8 @@ import org.osmdroid.config.Configuration
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val ctx = applicationContext
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
-        // 2. Устанавливаем User Agent (без этого сервер OSM не отдаст карту)
-        SyncDataWorker.plannedSyncWorker(ctx)
-        Configuration.getInstance().userAgentValue = packageName
         setContent {
-            HaveTimeTheme(dynamicColor = false)  {
+            HaveTimeTheme(dynamicColor = true)  {
                 CalendarNavHost()
             }
         }

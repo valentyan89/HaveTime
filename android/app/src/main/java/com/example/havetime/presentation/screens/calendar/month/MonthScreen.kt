@@ -164,7 +164,7 @@ fun MonthScreen(
                             text = "${visibleMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${visibleMonth.year}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .clickable { onYearClick(visibleMonth.year) }
@@ -230,7 +230,7 @@ fun MonthScreen(
                             .clip(CircleShape)
                             .background(
                                 if (isToday && isCurrentMonth) {
-                                    Color(0xFF1B5E20)
+                                    MaterialTheme.colorScheme.primary
                                 } else {
                                     backgroundColor
                                 }
@@ -259,7 +259,7 @@ fun MonthScreen(
                                 .replaceFirstChar { it.uppercase() } + " ${monthData.yearMonth.year}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B5E20)
+                            color = MaterialTheme.colorScheme.primary
                         )
                         HorizontalDivider(modifier = Modifier.padding(top = 4.dp, end = 16.dp))
                     }

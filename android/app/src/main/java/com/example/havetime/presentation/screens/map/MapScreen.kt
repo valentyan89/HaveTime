@@ -37,6 +37,7 @@ import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.screens.calendar.day_week.getShortDayOfWeekName
 import com.example.havetime.presentation.screens.calendar.day_week.getWeekDays
 import com.example.havetime.presentation.navigation.Screen
+import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -218,7 +219,7 @@ fun MapScreen(
                                 text = "${date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${date.year}",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1B5E20),
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .align(Alignment.Center)
                                     .clickable { 
@@ -256,7 +257,7 @@ fun MapScreen(
                                     singleLine = true,
                                     shape = RoundedCornerShape(24.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF1B5E20),
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
                                         unfocusedBorderColor = Color.LightGray
                                     )
                                 )
@@ -313,7 +314,7 @@ fun MapScreen(
                                             Text(
                                                 text = dayOfWeekName,
                                                 fontSize = 12.sp,
-                                                color = if (isSelected) Color(0xFF1B5E20) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                             )
 
@@ -325,8 +326,8 @@ fun MapScreen(
                                                     .clip(CircleShape)
                                                     .background(
                                                         when {
-                                                            isSelected -> Color(0xFF1B5E20)
-                                                            isTodayItem -> Color(0xFF1B5E20).copy(alpha = 0.15f)
+                                                            isSelected -> MaterialTheme.colorScheme.primary
+                                                            isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                                             else -> Color.Transparent
                                                         }
                                                     ),
@@ -338,7 +339,7 @@ fun MapScreen(
                                                     fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
                                                     color = when {
                                                         isSelected -> Color.White
-                                                        isTodayItem -> Color(0xFF1B5E20)
+                                                        isTodayItem -> MaterialTheme.colorScheme.primary
                                                         else -> MaterialTheme.colorScheme.onSurface
                                                     }
                                                 )
@@ -434,7 +435,7 @@ fun MapScreen(
     }
 
     if (showEventDialog) {
-        com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog(
+        AddActivityDialog(
             editingActivity = editingActivity,
             initialDate = date,
             initialStartTime = LocalTime.now(),

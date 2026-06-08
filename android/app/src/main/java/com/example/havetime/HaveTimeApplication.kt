@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.preference.PreferenceManager
 import android.util.Log
 import androidx.room.Room
 import androidx.work.Configuration
@@ -22,6 +23,7 @@ import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.RemindManager
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
+import com.example.havetime.presentation.worker.SyncDataWorker
 import com.example.havetime.presentation.worker.SyncWorkerFactory
 
 class HaveTimeApplication : Application(), Configuration.Provider {
@@ -83,9 +85,16 @@ class HaveTimeApplication : Application(), Configuration.Provider {
         }
     }
 
+    private fun initOsmdroid() {
+        org.osmdroid.config.Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
+        org.osmdroid.config.Configuration.getInstance().userAgentValue = packageName
+    }
+
     override fun onCreate() {
         super.onCreate()
+        initOsmdroid()
         createNotificationChannel()
+        SyncDataWorker.plannedSyncWorker(this)
     }
 
     override val workManagerConfiguration: Configuration

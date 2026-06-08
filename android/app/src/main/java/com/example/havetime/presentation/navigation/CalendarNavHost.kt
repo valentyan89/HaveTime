@@ -32,7 +32,7 @@ fun CalendarNavHost() {
     val scope = rememberCoroutineScope()
 
     val sharedViewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory)
-    val selectedDate by sharedViewModel.selectedDate.collectAsState()
+    val selectedDate by sharedViewModel.selectedDate.collectAsState()!!
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
