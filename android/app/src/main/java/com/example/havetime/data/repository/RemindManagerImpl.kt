@@ -6,17 +6,22 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import com.example.havetime.data.broadcast_receiver.RemindReceiver
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class RemindManagerImpl(
-    private val context: Context
+@Singleton
+class RemindManagerImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val alarmManager: AlarmManager
 ) : RemindManager {
-    private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
     override fun scheduleRemind(
         taskId: Int,
         taskTitle: String,
         startTimeMillis: Long
     ) {
+        if (startTimeMillis - System.currentTimeMillis() < 60 * 60 * 1000) return
+
         val remindTime = startTimeMillis - 60*60*1000
 
         val intent = Intent(context, RemindReceiver::class.java).apply {

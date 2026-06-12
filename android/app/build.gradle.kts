@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.0.0"
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -100,4 +101,10 @@ dependencies {
     val work_version = "2.11.2" // используйте последнюю актуальную версию
     implementation("androidx.work:work-runtime:$work_version")
     implementation("androidx.work:work-runtime-ktx:${work_version}")
+
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 }

@@ -16,8 +16,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
 import kotlinx.serialization.SerializationException
+import javax.inject.Inject
 
-class UserRepositoryImpl(
+
+class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val todoDao: TodoDao,
     private val api: AuthApi,

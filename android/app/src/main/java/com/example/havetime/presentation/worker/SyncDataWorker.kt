@@ -2,6 +2,7 @@ package com.example.havetime.presentation.worker
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import java.util.concurrent.TimeUnit
 import androidx.work.CoroutineWorker
@@ -12,12 +13,16 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class SyncDataWorker(
-    context: Context,
-    params: WorkerParameters,
+@HiltWorker
+class SyncDataWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
     private val syncWithServerUseCase: SyncWithServerUseCase
 ) : CoroutineWorker(context, params){
+
     override suspend fun doWork(): Result {
         Log.d("RRR", "воркер")
         return try{
@@ -53,7 +58,7 @@ class SyncDataWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 uniqueWorkName = WORKER_NAME,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.REPLACE,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
                 request = syncWork
             )
         }

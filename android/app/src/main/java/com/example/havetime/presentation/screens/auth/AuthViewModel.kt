@@ -1,25 +1,23 @@
 package com.example.havetime.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.model.User
 import com.example.havetime.domain.usecase.auth.GetUserUseCase
 import com.example.havetime.domain.usecase.auth.LoginUseCase
 import com.example.havetime.domain.usecase.auth.LogoutUseCase
 import com.example.havetime.domain.usecase.auth.RegisterUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import javax.inject.Inject
 
-class AuthViewModel(
+@HiltViewModel
+class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val logoutUseCase: LogoutUseCase,
@@ -68,21 +66,5 @@ class AuthViewModel(
 
     fun resetState() {
         _authState.value = AuthState.Idle
-    }
-
-    companion object{
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-                val repo = application.userRepository
-
-                AuthViewModel(
-                    loginUseCase = LoginUseCase(repo),
-                    registerUseCase = RegisterUseCase(repo),
-                    logoutUseCase = LogoutUseCase(repo),
-                    getUserUseCase = GetUserUseCase(repo)
-                )
-            }
-        }
     }
 }

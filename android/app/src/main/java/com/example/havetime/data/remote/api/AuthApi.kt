@@ -11,8 +11,11 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthApi(private val client: HttpClient) {
+@Singleton
+class AuthApi @Inject constructor(private val client: HttpClient) {
     suspend fun login(login: String, password: String): LoginResponse{
         val response =  client.post("/login"){
             contentType(io.ktor.http.ContentType.Application.Json)

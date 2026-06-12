@@ -32,8 +32,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MapViewModel(
+@HiltViewModel
+class MapViewModel @Inject constructor(
     private val addTodoUseCase: AddTodoUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val updateActivityUseCase: UpdateActivityUseCase,
@@ -157,31 +160,5 @@ class MapViewModel(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-                val activityRepo = application.todoRepository
-                val dateRepo = application.dateRepository
-                val manager = application.remindManager
-
-                MapViewModel(
-                    addTodoUseCase = AddTodoUseCase(activityRepo, manager),
-                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo, manager),
-                    updateActivityUseCase = UpdateActivityUseCase(activityRepo, manager),
-                    getTodosUseCase = GetTodosUseCase(activityRepo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
-                    syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
-                    getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
-                    getNextWeekUseCase = GetNextWeekUseCase(dateRepo),
-                    getPreviousWeekUseCase = GetPreviousWeekUseCase(dateRepo),
-                    getNextDayUseCase = GetNextDayUseCase(dateRepo),
-                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo),
-                    searchUseCase = SearchUseCase(activityRepo)
-                )
-            }
-        }
     }
 }

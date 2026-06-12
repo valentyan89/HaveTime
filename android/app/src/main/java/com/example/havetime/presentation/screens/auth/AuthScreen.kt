@@ -34,14 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AuthScreen(
     onAuthSuccess: () -> Unit,
     onBackClick: () -> Unit = { },
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsState()

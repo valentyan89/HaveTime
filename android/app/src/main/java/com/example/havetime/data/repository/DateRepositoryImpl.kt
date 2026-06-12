@@ -13,8 +13,9 @@ import java.time.LocalTime
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
+import javax.inject.Inject
 
-class DateRepositoryImpl : DateRepository {
+class DateRepositoryImpl @Inject constructor() : DateRepository {
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
         while (true) {
             emit(LocalDateTime.now())

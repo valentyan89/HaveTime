@@ -15,12 +15,15 @@ import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
+import javax.inject.Inject
 
-class MonthViewModel(
+@HiltViewModel
+class MonthViewModel @Inject constructor(
     private val dateRepository: DateRepository,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextMonthUseCase: GetNextMonthUseCase,
@@ -111,25 +114,5 @@ class MonthViewModel(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = this[APPLICATION_KEY] as HaveTimeApplication
-                val dateRepo = application.dateRepository
-                val activityRepo = application.todoRepository
-
-                MonthViewModel(
-                    dateRepository = dateRepo,
-                    getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
-                    getNextMonthUseCase = GetNextMonthUseCase(dateRepo),
-                    getPreviousMonthUseCase = GetPreviousMonthUseCase(dateRepo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
-                    getTodosUseCase = GetTodosUseCase(activityRepo),
-                    searchUseCase = SearchUseCase(activityRepo)
-                )
-            }
-        }
     }
 }

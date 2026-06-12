@@ -20,8 +20,11 @@ import java.time.Month
 import java.time.YearMonth
 import java.time.ZoneOffset
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class YearViewModel(
+@HiltViewModel
+class YearViewModel @Inject constructor(
     private val getCurrentYearUseCase: GetCurrentYearUseCase,
     private val getNextYearUseCase: GetNextYearUseCase,
     private val getPreviousYearUseCase: GetPreviousYearUseCase,
@@ -106,22 +109,5 @@ class YearViewModel(
         val previousYear = currentYearValue - 1
         currentYearValue = previousYear
         loadYearData(previousYear)
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-                val activityRepo = application.todoRepository
-                val dateRepo = application.dateRepository
-
-                YearViewModel(
-                    getCurrentYearUseCase = GetCurrentYearUseCase(dateRepo),
-                    getNextYearUseCase = GetNextYearUseCase(dateRepo),
-                    getPreviousYearUseCase = GetPreviousYearUseCase(dateRepo),
-                    getActivitiesForMonthUseCase = GetActivitiesForMonthUseCase(activityRepo)
-                )
-            }
-        }
     }
 }

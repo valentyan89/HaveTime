@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RemindReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getIntExtra("TASK_ID", 0)

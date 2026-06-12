@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -34,7 +35,7 @@ fun CalendarNavHost() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val sharedViewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory)
+    val sharedViewModel: MonthViewModel = hiltViewModel()
     val selectedDate by sharedViewModel.selectedDate.collectAsState()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()

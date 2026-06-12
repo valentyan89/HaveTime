@@ -21,8 +21,9 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.YearMonth
+import javax.inject.Inject
 
-class ActivityRepositoryImpl(
+class ActivityRepositoryImpl @Inject constructor(
     private val todoDao: TodoDao,
     private val userDao: UserDao,
     private val api: ActivityApi

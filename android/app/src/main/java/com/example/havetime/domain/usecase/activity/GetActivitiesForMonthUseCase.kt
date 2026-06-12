@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import java.time.YearMonth
 
 class GetActivitiesForMonthUseCase(
-    private val activityRepository: ActivityRepository
+    private val repository: ActivityRepository
 ) {
     operator fun invoke(yearMonth: YearMonth): Flow<List<Activity>> {
-        return activityRepository.getActivitiesForMonth(yearMonth)
+        return repository.getActivitiesForMonth(yearMonth)
     }
 }
