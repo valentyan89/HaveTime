@@ -96,7 +96,10 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
     implementation("io.ktor:ktor-client-auth:${ktorVersion}")
 
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    val osm = "6.1.18"
+    val bonusPackVersion = "6.9.0"
+    implementation("org.osmdroid:osmdroid-android:$osm")
+    implementation("com.github.MKergall:osmbonuspack:$bonusPackVersion")
 
     val work_version = "2.11.2" // используйте последнюю актуальную версию
     implementation("androidx.work:work-runtime:$work_version")

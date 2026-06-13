@@ -16,7 +16,7 @@ interface TodoDao {
     suspend fun insertAll(activities: List<ActivityEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(todo: ActivityEntity)
+    suspend fun insert(todo: ActivityEntity): Long
 
     @Query("DELETE FROM activity WHERE id = :id")
     suspend fun delete(id: Int)

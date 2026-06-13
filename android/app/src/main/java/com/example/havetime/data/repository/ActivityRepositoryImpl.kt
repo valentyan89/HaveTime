@@ -48,15 +48,15 @@ class ActivityRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun addTodo(todo: Activity): Flow<Unit> = flow {
+    override fun addTodo(todo: Activity): Flow<Int> = flow {
         val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
         val entity = todo.toEntity().copy(
             userId = userServerId,
             isSynced = false,
             lastTimeModified = System.currentTimeMillis()
         )
-        todoDao.insert(entity)
-        emit(Unit)
+        val id = todoDao.insert(entity).toInt()
+        emit(id)
     }
 
     override fun deleteTodo(id: Int): Flow<Unit> = flow {
@@ -133,5 +133,10 @@ class ActivityRepositoryImpl @Inject constructor(
             entities.filter { it.title.contains(query, ignoreCase = true) }
                 .map { it.toDomain() }
         }
+    }
+
+    override suspend fun getActivityById(id: Int): Activity? {
+        val entity = todoDao.getTodoById(id)
+        return entity?.toDomain()
     }
 }
