@@ -16,6 +16,10 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 class DateRepositoryImpl @Inject constructor() : DateRepository {
+    override fun getInitialDate(): LocalDate {
+        return LocalDate.now()
+    }
+
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
         while (true) {
             emit(LocalDateTime.now())

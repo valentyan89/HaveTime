@@ -23,6 +23,7 @@ import com.example.havetime.domain.usecase.auth.RegisterUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentYearUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextDayUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetNextWeekUseCase
@@ -135,4 +136,8 @@ object UseCaseModule {
     @Provides
     fun provideGetPreviousYearUseCase(repository: DateRepository): GetPreviousYearUseCase =
         GetPreviousYearUseCase(repository)
+
+    @Provides
+    fun getInitialDateUseCase(repository: DateRepository): GetInitialDateUseCase =
+        GetInitialDateUseCase(repository)
 }
