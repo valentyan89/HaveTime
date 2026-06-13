@@ -20,6 +20,10 @@ class DateRepositoryImpl @Inject constructor() : DateRepository {
         return LocalDate.now()
     }
 
+    override fun getInitialDateTime(): LocalDateTime {
+        return LocalDateTime.now()
+    }
+
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
         while (true) {
             emit(LocalDateTime.now())

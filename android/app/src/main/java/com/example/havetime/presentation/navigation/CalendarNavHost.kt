@@ -79,7 +79,7 @@ fun CalendarNavHost() {
                 MonthScreen(
                     navController = navController,
                     initialDate = safeDate,
-                    sharedViewModel = sharedViewModel,
+                    monthViewModel = sharedViewModel,
                     onAvatarClick = {
                         navController.navigate(Screen.Auth.route)
                     },

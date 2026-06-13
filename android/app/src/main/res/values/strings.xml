@@ -29,5 +29,22 @@
     <string name="search_placeholder">Search...</string>
     <string name="add_button_content_description">Add activity</string>
     <string name="map_toggle_calendar">Go to calendar</string>
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="delete">Delete</string>
     <string name="map_toggle_map">Go to map</string>
+    <string name="back">Back</string>
+    <string name="auth_success">Login Successful!</string>
+    <string name="authorization">Authorization</string>
+    <string name="login_label">Login</string>
+    <string name="password_label">Password</string>
+    <string name="registration">Registration</string>
+    <string name="login_button">Login</string>
+    <string name="logout">Logout</string>
+    <string name="token">Token</string>
+    <string name="welcome_user">Welcome, %1$s!</string>
+    <string name="close_menu">Close menu</string>
+    <string name="go_to_today">Go to today</string>
+    <string name="clear_text">Clear text</string>
+    <string name="nothing_found">Nothing found</string>
 </resources>

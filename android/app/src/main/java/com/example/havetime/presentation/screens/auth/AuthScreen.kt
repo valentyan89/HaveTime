@@ -32,9 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.havetime.R
 
 @Composable
 fun AuthScreen(
@@ -49,11 +53,12 @@ fun AuthScreen(
 
     var loginInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
+    val successMessage = stringResource(R.string.auth_success)
 
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Success -> {
-                Toast.makeText(context, "Успешный вход!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
                 onAuthSuccess()
                 viewModel.resetState()
             }
@@ -85,10 +90,9 @@ fun AuthScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад"
+                    contentDescription = stringResource(R.string.back)
                 )
             }
-
 
             currentUser?.let { user ->
                 Column(
@@ -96,18 +100,18 @@ fun AuthScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Добро пожаловать, ${user.login}!",
+                        text = stringResource(R.string.welcome_user, user.login),
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Токен: ${user.token.take(10)}...",
+                        text = "${stringResource(R.string.token)}: ${user.token.take(10)}...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(onClick = { viewModel.logout() }) {
-                        Text("Выйти из аккаунта")
+                        Text(stringResource(R.string.logout))
                     }
                 }
             } ?: run {
@@ -119,8 +123,9 @@ fun AuthScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Авторизация",
-                        style = MaterialTheme.typography.headlineLarge,
+                        text = stringResource(R.string.authorization),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
 
@@ -129,7 +134,7 @@ fun AuthScreen(
                     OutlinedTextField(
                         value = loginInput,
                         onValueChange = { loginInput = it },
-                        label = { Text("Логин") },
+                        label = { Text(stringResource(R.string.login_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = authState !is AuthState.Loading
@@ -140,7 +145,7 @@ fun AuthScreen(
                     OutlinedTextField(
                         value = passwordInput,
                         onValueChange = { passwordInput = it },
-                        label = { Text("Пароль") },
+                        label = { Text(stringResource(R.string.password_label)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
@@ -158,7 +163,7 @@ fun AuthScreen(
                             modifier = Modifier.weight(1f),
                             enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
                         ) {
-                            Text("Регистрация")
+                            Text(stringResource(R.string.registration))
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -168,7 +173,7 @@ fun AuthScreen(
                             modifier = Modifier.weight(1f),
                             enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
                         ) {
-                            Text("Войти")
+                            Text(stringResource(R.string.login_button))
                         }
                     }
                 }

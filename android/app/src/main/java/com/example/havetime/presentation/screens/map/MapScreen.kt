@@ -71,9 +71,9 @@ import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
+import com.example.havetime.presentation.common.AddActivityDialog
+import com.example.havetime.presentation.common.getShortDayOfWeekName
 import com.example.havetime.presentation.navigation.Screen
-import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
-import com.example.havetime.presentation.screens.calendar.day_week.getShortDayOfWeekName
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
@@ -86,6 +86,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
@@ -106,7 +108,7 @@ fun MapScreen(
     val context = LocalContext.current
     val geoMarks by viewModel.geoMarksForDate.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
-    
+
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     var isSearchActive by remember { mutableStateOf(false) }
@@ -116,9 +118,14 @@ fun MapScreen(
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
 
+    val currentLocale = Locale.getDefault()
+    val searchItemFormatter = remember(currentLocale) {
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(currentLocale)
+    }
+
     LaunchedEffect(geoMarks, currentDate) {
         mapView.overlays.removeAll { it is Marker || it is MapEventsOverlay }
-        
+
         val mapEventsReceiver = object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                 selectedLocation = Location(p.latitude, p.longitude, null)
@@ -136,7 +143,7 @@ fun MapScreen(
                     position = GeoPoint(location.latitude, location.longitude)
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                     title = activity.title
-                    
+
                     val drawable = GradientDrawable().apply {
                         shape = GradientDrawable.OVAL
                         setColor(activity.color)
@@ -144,7 +151,7 @@ fun MapScreen(
                         setStroke(4, android.graphics.Color.WHITE)
                     }
                     icon = drawable
-                    
+
                     setOnMarkerClickListener { _, _ ->
                         editingActivity = activity
                         showEventDialog = true
@@ -154,7 +161,7 @@ fun MapScreen(
                 mapView.overlays.add(marker)
             }
         }
-        
+
         mapView.invalidate()
     }
 
@@ -176,12 +183,8 @@ fun MapScreen(
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
                         label = { Text(stringResource(R.string.calendar)) },
@@ -221,7 +224,7 @@ fun MapScreen(
                                 IconButton(onClick = onMenuClick) {
                                     Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                                 }
-                                
+
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Box(
@@ -235,7 +238,7 @@ fun MapScreen(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Icon(
                                             imageVector = Icons.Default.CalendarToday,
-                                            contentDescription = null,
+                                            contentDescription = stringResource(R.string.go_to_today),
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
@@ -249,16 +252,17 @@ fun MapScreen(
                                 }
                             }
 
+                            val monthName = date.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
+
                             Text(
-                                text = "${date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${date.year}",
+                                text = "$monthName ${date.year}",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .clickable { 
-                                        navController.navigate(Screen.Month.route) 
-                                    }
+                                    .clickable { navController.navigate(Screen.Month.route) }
                             )
 
                             Row(
@@ -277,17 +281,17 @@ fun MapScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     isSearchActive = false
                                     viewModel.onSearchQueryChanged("")
                                 }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                                 }
                                 OutlinedTextField(
                                     value = searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChanged(it) },
                                     modifier = Modifier.weight(1f),
-                                    placeholder = { Text("Поиск...") },
+                                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(24.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -297,7 +301,7 @@ fun MapScreen(
                                 )
                                 if (searchQuery.isNotEmpty()) {
                                     IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                        Icon(Icons.Default.Close, contentDescription = null)
+                                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_text))
                                     }
                                 }
                             }
@@ -307,7 +311,7 @@ fun MapScreen(
                     if (!isSearchActive) {
                         val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
                         val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
-                        
+
                         LaunchedEffect(date) {
                             val mondayOfDate = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                             val mondayOfToday = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
@@ -330,7 +334,7 @@ fun MapScreen(
                             items(10000) { weekIndex ->
                                 val startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                                     .plusWeeks((weekIndex - 5000).toLong())
-                                
+
                                 Row(modifier = Modifier.fillParentMaxWidth()) {
                                     (0..6).forEach { dayOffset ->
                                         val itemDate = startOfWeek.plusDays(dayOffset.toLong())
@@ -398,15 +402,17 @@ fun MapScreen(
                         items(searchResults) { activity ->
                             ListItem(
                                 headlineContent = { Text(activity.title) },
-                                supportingContent = { 
-                                    val start = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault())
-                                    Text(String.format(Locale("ru"), "%d %s %d:%02d", start.dayOfMonth, start.month.getDisplayName(TextStyle.SHORT, Locale("ru")), start.hour, start.minute))
+                                supportingContent = {
+                                    val startDateTime = Instant.ofEpochMilli(activity.timeInterval.startTime)
+                                        .atZone(ZoneId.systemDefault())
+                                    Text(startDateTime.format(searchItemFormatter))
                                 },
                                 leadingContent = {
                                     Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
                                 },
                                 modifier = Modifier.clickable {
-                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime)
+                                        .atZone(ZoneId.systemDefault()).toLocalDate()
                                     viewModel.selectDate(activityDate)
                                     isSearchActive = false
                                 }
@@ -416,7 +422,7 @@ fun MapScreen(
                         if (searchResults.isEmpty()) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                    Text("Ничего не найдено", color = Color.Gray)
+                                    Text(stringResource(R.string.nothing_found), color = Color.Gray)
                                 }
                             }
                         }
@@ -431,9 +437,7 @@ fun MapScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         AndroidView(
                             factory = {
                                 mapView.apply {

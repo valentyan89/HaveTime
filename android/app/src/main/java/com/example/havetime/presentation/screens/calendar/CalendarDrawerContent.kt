@@ -40,7 +40,7 @@ fun CalendarDrawerContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "HaveTime",
+                    text = stringResource(R.string.app_name),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -49,7 +49,7 @@ fun CalendarDrawerContent(
                 IconButton(onClick = onCloseDrawer) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Закрыть меню",
+                        contentDescription = stringResource(R.string.close_menu),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -130,12 +130,12 @@ fun CalendarDrawerContent(
                 },
                 label = {
                     Text(
-                        text = "Год",
+                        text = stringResource(R.string.year_screen_title),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 },
-                selected = currentRoute == Screen.Year.route,
+                selected = currentRoute.startsWith(Screen.Year.route),
                 onClick = {
                     val currentYear = java.time.Year.now().value
                     navController.navigate("${Screen.Year.route}/$currentYear") {
@@ -151,7 +151,7 @@ fun CalendarDrawerContent(
                 )
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 color = MaterialTheme.colorScheme.outlineVariant
             )

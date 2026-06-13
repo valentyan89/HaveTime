@@ -8,6 +8,7 @@ import java.time.YearMonth
 
 interface DateRepository {
     fun getInitialDate(): LocalDate
+    fun getInitialDateTime(): LocalDateTime
     fun getCurrentTime(): Flow<LocalDateTime>
     fun getCurrentDate(): Flow<LocalDate>
     fun getCurrentYear(): Flow<Int>

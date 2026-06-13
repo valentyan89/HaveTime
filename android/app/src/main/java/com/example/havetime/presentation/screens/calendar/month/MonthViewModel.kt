@@ -13,6 +13,7 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,14 +31,15 @@ class MonthViewModel @Inject constructor(
     private val getPreviousMonthUseCase: GetPreviousMonthUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val searchUseCase: SearchUseCase
+    private val searchUseCase: SearchUseCase,
+    private val getInitialDateUseCase: GetInitialDateUseCase
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow<YearMonth?>(null)
     val currentMonth: StateFlow<YearMonth?> = _currentMonth.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
-    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
+    private val _selectedDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
+    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
     init {
         viewModelScope.launch {
