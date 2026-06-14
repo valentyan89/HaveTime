@@ -43,6 +43,7 @@ object ApplicationModule {
             .fallbackToDestructiveMigration()
             // .addMigrations(...)
             // .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            // .enableMultiInstanceInvalidation()
             .build()
 
     @Provides

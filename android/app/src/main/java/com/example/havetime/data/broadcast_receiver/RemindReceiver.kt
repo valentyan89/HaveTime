@@ -5,7 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.glance.appwidget.updateAll
+import com.example.havetime.presentation.widget.HaveTimeWidget
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RemindReceiver : BroadcastReceiver() {
@@ -25,5 +30,17 @@ class RemindReceiver : BroadcastReceiver() {
             .build()
 
         notificationManager.notify(taskId, notification)
+
+        val pendingResult = goAsync()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                HaveTimeWidget().updateAll(context.applicationContext)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                pendingResult.finish()
+            }
+        }
     }
 }

@@ -6,10 +6,12 @@ import com.example.havetime.data.repository.DateRepositoryImpl
 import com.example.havetime.data.repository.GeocodingRepositoryImpl
 import com.example.havetime.data.repository.RemindManagerImpl
 import com.example.havetime.data.repository.UserRepositoryImpl
+import com.example.havetime.data.repository.WidgetRepositoryImpl
 import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.GeocodingRepository
 import com.example.havetime.domain.repository.RemindManager
 import com.example.havetime.domain.repository.UserRepository
+import com.example.havetime.domain.repository.WidgetRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -38,4 +40,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGeocodingRepository(impl: GeocodingRepositoryImpl): GeocodingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWidgetRepository(impl: WidgetRepositoryImpl): WidgetRepository
 }

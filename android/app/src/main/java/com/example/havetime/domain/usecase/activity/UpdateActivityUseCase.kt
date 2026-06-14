@@ -1,16 +1,23 @@
 package com.example.havetime.domain.usecase.activity
 
+import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.repository.RemindManager
+import com.example.havetime.domain.repository.WidgetRepository
 import com.example.havetime.presentation.worker.GeocodingWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 
-class UpdateActivityUseCase(private val repository: ActivityRepository, private val remindManager: RemindManager, private val worker: WorkManager) {
+class UpdateActivityUseCase(
+    private val repository: ActivityRepository,
+    private val remindManager: RemindManager,
+    private val worker: WorkManager,
+    private val widgetRepository: WidgetRepository
+) {
     operator fun invoke(activity: Activity): Flow<Unit> {
         return repository.updateActivity(activity).onEach {
             remindManager.cancelRemind(activity.id)
@@ -34,6 +41,8 @@ class UpdateActivityUseCase(private val repository: ActivityRepository, private 
 
                 worker.enqueue(geocodingWorkRequest)
             }
+            Log.d("RRR", "edit")
+            widgetRepository.updateWidget()
         }
     }
 }

@@ -15,4 +15,5 @@ interface ActivityRepository {
     fun updateActivity(activity: Activity): Flow<Unit>
     fun searchActivities(query: String): Flow<List<Activity>>
     suspend fun getActivityById(id: Int): Activity?
+    suspend fun getUpcomingActivities(limit: Int): List<Activity>
 }

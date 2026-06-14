@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.example.havetime.presentation.worker.SyncDataWorker
+import com.example.havetime.presentation.worker.WidgetUpdateWorker
 import dagger.hilt.android.HiltAndroidApp
 import org.osmdroid.config.IConfigurationProvider
 import javax.inject.Inject
@@ -20,6 +21,7 @@ class HaveTimeApplication : Application(), Configuration.Provider {
     lateinit var osmConfig: IConfigurationProvider
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -47,5 +49,6 @@ class HaveTimeApplication : Application(), Configuration.Provider {
         super.onCreate()
         createNotificationChannel()
         SyncDataWorker.plannedSyncWorker(this)
+        WidgetUpdateWorker.scheduleBackgroundUpdate(this)
     }
 }

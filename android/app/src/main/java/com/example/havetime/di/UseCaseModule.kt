@@ -10,12 +10,14 @@ import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.GeocodingRepository
 import com.example.havetime.domain.repository.RemindManager
 import com.example.havetime.domain.repository.UserRepository
+import com.example.havetime.domain.repository.WidgetRepository
 import com.example.havetime.domain.usecase.GetAndSaveAddressUseCase
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
 import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetActivitiesForMonthUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
+import com.example.havetime.domain.usecase.activity.GetUpcomingActivitiesUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
@@ -64,24 +66,27 @@ object UseCaseModule {
     fun provideAddTodoUseCase(
         repository: ActivityRepository,
         remindManager: RemindManager,
-        worker: WorkManager
+        worker: WorkManager,
+        widgetRepository: WidgetRepository
     ): AddTodoUseCase =
-        AddTodoUseCase(repository, remindManager, worker)
+        AddTodoUseCase(repository, remindManager, worker, widgetRepository)
 
     @Provides
     fun provideDeleteTodoUseCase(
         repository: ActivityRepository,
-        remindManager: RemindManager
+        remindManager: RemindManager,
+        widgetRepository: WidgetRepository
     ): DeleteTodoUseCase =
-        DeleteTodoUseCase(repository, remindManager)
+        DeleteTodoUseCase(repository, remindManager, widgetRepository)
 
     @Provides
     fun provideUpdateActivityUseCase(
         repository: ActivityRepository,
         remindManager: RemindManager,
-        worker: WorkManager
+        worker: WorkManager,
+        widgetRepository: WidgetRepository
     ): UpdateActivityUseCase =
-        UpdateActivityUseCase(repository, remindManager, worker)
+        UpdateActivityUseCase(repository, remindManager, worker, widgetRepository)
 
     @Provides
     fun provideGetTodosUseCase(repository: ActivityRepository): GetTodosUseCase =
@@ -151,4 +156,8 @@ object UseCaseModule {
     @Provides
     fun getInitialDateTimeUseCase(repository: DateRepository): GetInitialDateTimeUseCase =
         GetInitialDateTimeUseCase(repository)
+
+    @Provides
+    fun getUpcomingActivitiesUseCase(repository: ActivityRepository): GetUpcomingActivitiesUseCase =
+        GetUpcomingActivitiesUseCase(repository)
 }

@@ -139,4 +139,9 @@ class ActivityRepositoryImpl @Inject constructor(
         val entity = todoDao.getTodoById(id)
         return entity?.toDomain()
     }
+
+    override suspend fun getUpcomingActivities(limit: Int): List<Activity> {
+        return todoDao.getActivitiesForWidget(limit, System.currentTimeMillis()).map { entities ->
+            entities.toDomain() }
+    }
 }

@@ -60,4 +60,7 @@ interface TodoDao {
 
     @Query("UPDATE activity SET userId = :userId WHERE userId = 0 AND isDeleted = 0")
     suspend fun setTasksBeforeLogin(userId: Int)
+
+    @Query("SELECT * FROM activity WHERE startTime > :currentTime AND isDeleted = 0 ORDER BY startTime ASC LIMIT :limit")
+    suspend fun getActivitiesForWidget(limit: Int, currentTime: Long): List<ActivityEntity>
 }
