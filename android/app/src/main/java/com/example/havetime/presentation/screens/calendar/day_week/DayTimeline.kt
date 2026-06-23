@@ -296,13 +296,11 @@ fun DayTimeline(
                     }
                 }
 
-                if (isTodaySelected) {
-                    val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
-                    val yPos = currentMinutes * minuteHeightPx
-                    Box(modifier = Modifier.fillMaxWidth().graphicsLayer { translationY = yPos }.zIndex(600f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.inversePrimary)
-                        }
+                val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
+                val yPos = currentMinutes * minuteHeightPx
+                Box(modifier = Modifier.fillMaxWidth().graphicsLayer { translationY = yPos }.zIndex(600f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.inversePrimary)
                     }
                 }
             }

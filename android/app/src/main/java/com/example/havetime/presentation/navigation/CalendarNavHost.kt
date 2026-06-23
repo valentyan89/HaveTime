@@ -1,8 +1,5 @@
 package com.example.havetime.presentation.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
@@ -11,15 +8,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.havetime.presentation.common.CalendarDrawerContent
 import com.example.havetime.presentation.screens.auth.AuthScreen
-import com.example.havetime.presentation.screens.calendar.CalendarDrawerContent
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
@@ -41,17 +37,11 @@ fun CalendarNavHost() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
 
-    if (selectedDate == null) {
-        Box(modifier = androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-    val safeDate: LocalDate = selectedDate!!
+    val safeDate: LocalDate = selectedDate
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = false,
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             CalendarDrawerContent(
                 navController = navController,

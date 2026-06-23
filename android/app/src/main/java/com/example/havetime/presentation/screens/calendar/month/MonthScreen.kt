@@ -52,6 +52,7 @@ fun MonthScreen(
         firstVisibleMonth = month,
         firstDayOfWeek = daysOfWeek.first()
     )
+
     val visibleMonth = state.firstVisibleMonth.yearMonth
     LaunchedEffect(visibleMonth) {
         monthViewModel.setMonth(visibleMonth)

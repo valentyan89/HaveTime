@@ -6,9 +6,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.osmdroid.bonuspack.location.GeocoderNominatim
-import android.location.Geocoder as AndroidGeocoder
 import java.util.Locale
 import javax.inject.Inject
+import android.location.Geocoder as AndroidGeocoder
 
 
 class GeocodingRepositoryImpl @Inject constructor(

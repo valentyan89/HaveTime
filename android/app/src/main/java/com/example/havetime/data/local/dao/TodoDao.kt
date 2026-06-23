@@ -8,7 +8,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.havetime.data.local.entity.ActivityEntity
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
 
 @Dao
 interface TodoDao {

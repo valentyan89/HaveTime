@@ -3,7 +3,6 @@ package com.example.havetime.data.mapper
 import com.example.havetime.data.local.entity.UserEntity
 import com.example.havetime.data.model.UserDto
 import com.example.havetime.domain.model.User
-import java.time.LocalDateTime
 
 fun UserEntity.toDomain(): User {
     return User(

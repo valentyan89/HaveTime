@@ -18,9 +18,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
 import java.time.YearMonth
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 class ActivityRepositoryImpl @Inject constructor(
@@ -110,7 +109,6 @@ class ActivityRepositoryImpl @Inject constructor(
         emit(Unit)
     }
 
-
     override fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>> {
         val monthStart = yearMonth.atDay(1)
             .atStartOfDay()
@@ -141,6 +139,7 @@ class ActivityRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUpcomingActivities(limit: Int): List<Activity> {
+        Log.d("RRR", "активности для виджета")
         return todoDao.getActivitiesForWidget(limit, System.currentTimeMillis()).map { entities ->
             entities.toDomain() }
     }

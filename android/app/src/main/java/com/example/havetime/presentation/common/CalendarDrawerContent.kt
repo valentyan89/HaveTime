@@ -1,4 +1,4 @@
-package com.example.havetime.presentation.screens.calendar
+package com.example.havetime.presentation.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.navigation.Screen
+import java.time.Year
 
 @Composable
 fun CalendarDrawerContent(
@@ -137,7 +138,7 @@ fun CalendarDrawerContent(
                 },
                 selected = currentRoute.startsWith(Screen.Year.route),
                 onClick = {
-                    val currentYear = java.time.Year.now().value
+                    val currentYear = Year.now().value
                     navController.navigate("${Screen.Year.route}/$currentYear") {
                         popUpTo(0) { inclusive = false }
                         launchSingleTop = true

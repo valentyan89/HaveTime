@@ -33,7 +33,7 @@ fun CalendarHeader(
     onMonthClick: () -> Unit,
     currentDestination: String?
 ) {
-    val locale = Locale("ru")
+    val locale = Locale.getDefault()
     val monthYearText = remember(selectedDate) {
         val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
         selectedDate.format(formatter).replaceFirstChar { it.uppercase() }

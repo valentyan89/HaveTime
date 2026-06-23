@@ -4,17 +4,16 @@ import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
-import java.util.concurrent.TimeUnit
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class SyncDataWorker @AssistedInject constructor(
@@ -30,11 +29,10 @@ class SyncDataWorker @AssistedInject constructor(
             if (result.isSuccess){
                 Result.success()
             } else {
-                val error = result.exceptionOrNull()
-                Result.retry()
+                Result.success()
             }
         } catch (e: Throwable){
-            Result.retry()
+            Result.success()
         }
     }
 

@@ -15,7 +15,6 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.io.IOException
-import kotlinx.serialization.SerializationException
 import javax.inject.Inject
 
 
