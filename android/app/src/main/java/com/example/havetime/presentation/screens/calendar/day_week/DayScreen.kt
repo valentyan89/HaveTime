@@ -21,15 +21,11 @@ private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 @Composable
 fun DayScreen(
     navController: NavController,
-    initialDate: LocalDate,
     sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
 ) {
-    LaunchedEffect(initialDate) {
-        viewModel.selectDate(initialDate)
-    }
 
     val currentDate by viewModel.currentDate.collectAsState()
     val currentTimeState by viewModel.currentTime.collectAsState()

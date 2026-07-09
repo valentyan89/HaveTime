@@ -32,7 +32,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,28 +44,27 @@ class MapViewModel @Inject constructor(
     private val updateActivityUseCase: UpdateActivityUseCase,
     private val getTodosUseCase: GetTodosUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
-    private val syncWithServerUseCase: SyncWithServerUseCase,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextWeekUseCase: GetNextWeekUseCase,
     private val getPreviousWeekUseCase: GetPreviousWeekUseCase,
     private val getNextDayUseCase: GetNextDayUseCase,
     private val getPreviousDayUseCase: GetPreviousDayUseCase,
-    private val searchUseCase: SearchUseCase
+    private val searchUseCase: SearchUseCase,
+    private val getInitialDateUseCase: GetInitialDateUseCase
 ) : ViewModel() {
-    private val _currentDate = MutableStateFlow<LocalDate?>(null)
-    val currentDate: StateFlow<LocalDate?> = _currentDate.asStateFlow()
+    private val _currentDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
+    val currentDate: StateFlow<LocalDate> = _currentDate.asStateFlow()
 
     init {
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
-            _currentDate.value = today
+            _currentDate.update { today }
         }
     }
 
     val activityForDate: StateFlow<List<Activity>> = _currentDate
         .flatMapLatest { date ->
-            if (date != null) getIntervalsForDateUseCase(date)
-            else flowOf(emptyList())
+            getIntervalsForDateUseCase(date)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -87,13 +88,13 @@ class MapViewModel @Inject constructor(
         )
 
     fun selectDate(date: LocalDate) {
-        _currentDate.value = date
+        _currentDate.update { date }
     }
 
     fun go2Today(){
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
-            _currentDate.value = today
+            _currentDate.update { today }
         }
     }
 
@@ -101,7 +102,7 @@ class MapViewModel @Inject constructor(
         _currentDate.value?.let { currentDate ->
             viewModelScope.launch {
                 val nextDay = getNextDayUseCase(currentDate)
-                _currentDate.value = nextDay
+                _currentDate.update { nextDay }
             }
         }
     }
@@ -110,7 +111,7 @@ class MapViewModel @Inject constructor(
         _currentDate.value?.let { currentDate ->
             viewModelScope.launch {
                 val previousDay = getPreviousDayUseCase(currentDate)
-                _currentDate.value = previousDay
+                _currentDate.update { previousDay }
             }
         }
     }
@@ -119,7 +120,7 @@ class MapViewModel @Inject constructor(
         _currentDate.value?.let { currentDate ->
             viewModelScope.launch {
                 val nextWeek = getNextWeekUseCase(currentDate)
-                _currentDate.value = nextWeek
+                _currentDate.update { nextWeek }
             }
         }
     }
@@ -128,7 +129,7 @@ class MapViewModel @Inject constructor(
         _currentDate.value?.let { currentDate ->
             viewModelScope.launch {
                 val previousWeek = getPreviousWeekUseCase(currentDate)
-                _currentDate.value = previousWeek
+                _currentDate.update { previousWeek }
             }
         }
     }

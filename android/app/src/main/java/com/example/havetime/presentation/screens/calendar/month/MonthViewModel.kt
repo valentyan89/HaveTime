@@ -16,7 +16,9 @@ import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
+import com.kizitonwose.calendar.core.yearMonth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -25,7 +27,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MonthViewModel @Inject constructor(
-    private val dateRepository: DateRepository,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextMonthUseCase: GetNextMonthUseCase,
     private val getPreviousMonthUseCase: GetPreviousMonthUseCase,
@@ -35,8 +36,8 @@ class MonthViewModel @Inject constructor(
     private val getInitialDateUseCase: GetInitialDateUseCase
 ) : ViewModel() {
 
-    private val _currentMonth = MutableStateFlow<YearMonth?>(null)
-    val currentMonth: StateFlow<YearMonth?> = _currentMonth.asStateFlow()
+    private val _currentMonth = MutableStateFlow<YearMonth>(getInitialDateUseCase().yearMonth)
+    val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
@@ -53,7 +54,10 @@ class MonthViewModel @Inject constructor(
             activities.groupBy { activity ->
                     java.time.Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(java.time.ZoneOffset.UTC).toLocalDate()
                 }.mapValues { entry -> entry.value.size }
-        }.stateIn(
+        }
+        .flowOn(Dispatchers.Default)
+        .distinctUntilChanged()
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyMap()
@@ -105,6 +109,8 @@ class MonthViewModel @Inject constructor(
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val searchResults: StateFlow<List<Activity>> = _searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
         .flatMapLatest { query ->
             if (query.isBlank()) flowOf(emptyList())
             else searchUseCase(query)

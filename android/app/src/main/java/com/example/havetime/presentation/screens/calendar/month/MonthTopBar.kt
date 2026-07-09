@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.example.havetime.R
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -86,8 +87,9 @@ fun MonthTopBar(
         }
 
         val monthName = remember(visibleMonth, currentLocale) {
-            visibleMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
-                .replaceFirstChar { it.uppercase() }
+            val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
+            visibleMonth.format(formatter)
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
         }
 
         Text(

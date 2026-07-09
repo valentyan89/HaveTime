@@ -19,29 +19,16 @@ import java.util.Locale
 @Composable
 fun MonthScreen(
     navController: NavController,
-    initialDate: LocalDate = LocalDate.now(),
     monthViewModel: MonthViewModel,
     onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
     onYearClick: (Int) -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
-    LaunchedEffect(initialDate) {
-        if (monthViewModel.currentMonth.value == null) {
-            monthViewModel.setMonth(YearMonth.from(initialDate))
-        }
-    }
     val currentMonth by monthViewModel.currentMonth.collectAsState()
     val intensityMap by monthViewModel.intensityMap.collectAsState()
 
-    if (currentMonth == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    val month = currentMonth!!
+    val month = currentMonth
     val startMonth = remember(month) { YearMonth.of(month.year - 10, 1) }
     val endMonth = remember(month) { YearMonth.of(month.year + 10, 12) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }

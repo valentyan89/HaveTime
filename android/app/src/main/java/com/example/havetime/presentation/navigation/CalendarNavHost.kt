@@ -37,7 +37,7 @@ fun CalendarNavHost() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
 
-    val safeDate: LocalDate = selectedDate
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -59,7 +59,6 @@ fun CalendarNavHost() {
                 DayScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialDate = safeDate,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -68,7 +67,6 @@ fun CalendarNavHost() {
             composable(Screen.Month.route) {
                 MonthScreen(
                     navController = navController,
-                    initialDate = safeDate,
                     monthViewModel = sharedViewModel,
                     onAvatarClick = {
                         navController.navigate(Screen.Auth.route)
@@ -88,7 +86,6 @@ fun CalendarNavHost() {
                 MapScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialDate = safeDate,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -98,11 +95,10 @@ fun CalendarNavHost() {
                 route = "${Screen.Year.route}/{year}",
                 arguments = listOf(navArgument("year") { type = NavType.IntType })
             ) { backStackEntry ->
-                val year = backStackEntry.arguments?.getInt("year") ?: safeDate.year
+
                 YearScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialYear = year,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )

@@ -5,7 +5,7 @@ import com.example.havetime.domain.repository.DateRepository
 class GetNextYearUseCase(
     private val dateRepository: DateRepository
 ) {
-    suspend operator fun invoke(currentYear: Int): Int {
+    operator fun invoke(currentYear: Int): Int {
         return dateRepository.getNextYear(currentYear)
     }
 }

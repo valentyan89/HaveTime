@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,17 +68,15 @@ import java.util.Locale
 fun YearScreen(
     navController: NavController,
     sharedViewModel: MonthViewModel,
-    initialYear: Int = LocalDate.now().year,
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     viewModel: YearViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(initialYear) {
-        viewModel.setYear(initialYear)
-    }
 
     val state by viewModel.state.collectAsState()
-    val today = LocalDate.now()
+    val today by viewModel.today.collectAsState()
+
+    val currentLocale = remember { Locale.getDefault() }
 
     Scaffold(
         topBar = {
@@ -217,7 +216,8 @@ fun YearScreen(
                                 onClick = {
                                     sharedViewModel.setMonth(monthData.yearMonth)
                                     navController.navigate(Screen.Month.route)
-                                }
+                                },
+                                locale = currentLocale
                             )
                         }
                     }
@@ -231,10 +231,11 @@ fun YearScreen(
 fun MonthItem(
     monthData: YearMonthData,
     isCurrentMonth: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    locale: Locale
 ) {
-    val monthName = monthData.month.getDisplayName(TextStyle.FULL, Locale("ru")).replaceFirstChar { it.uppercase() }
-    
+    val monthName = monthData.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() }
+
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -269,9 +270,9 @@ fun MonthItem(
             if (monthData.daysWithActivities > 0) {
                 Text(
                     text = monthData.daysWithActivities.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

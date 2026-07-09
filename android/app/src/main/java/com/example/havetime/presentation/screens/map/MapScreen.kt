@@ -96,15 +96,11 @@ import java.util.Locale
 @Composable
 fun MapScreen(
     navController: NavController,
-    initialDate: LocalDate,
     sharedViewModel: MonthViewModel,
     viewModel: MapViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
-    LaunchedEffect(initialDate) {
-        viewModel.selectDate(initialDate)
-    }
     val context = LocalContext.current
     val geoMarks by viewModel.geoMarksForDate.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
@@ -165,18 +161,12 @@ fun MapScreen(
         mapView.invalidate()
     }
 
-    if (currentDate == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
     LaunchedEffect(currentDate) {
-        currentDate?.let { sharedViewModel.selectDate(it) }
+        currentDate.let { sharedViewModel.selectDate(it) }
     }
 
-    val date = currentDate!!
-    val today = LocalDate.now()
+    val date = currentDate
+    val today = currentDate
 
     Scaffold(
         topBar = {

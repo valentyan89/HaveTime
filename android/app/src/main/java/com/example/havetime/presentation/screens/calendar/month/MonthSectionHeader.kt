@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kizitonwose.calendar.core.CalendarMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -27,8 +28,9 @@ fun MonthSectionHeader(
             .padding(top = 24.dp, bottom = 12.dp, start = 8.dp)
     ) {
         val headerMonthName = remember(monthData, currentLocale) {
-            monthData.yearMonth.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
-                .replaceFirstChar { it.uppercase() }
+            val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
+            monthData.yearMonth.format(formatter)
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
         }
 
         Text(

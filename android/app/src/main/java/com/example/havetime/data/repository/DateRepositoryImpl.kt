@@ -103,11 +103,11 @@ class DateRepositoryImpl @Inject constructor() : DateRepository {
         return yearMonth.minusMonths(1)
     }
 
-    override suspend fun getNextYear(currentYear: Int): Int {
+    override fun getNextYear(currentYear: Int): Int {
         return currentYear + 1
     }
 
-    override suspend fun getPreviousYear(currentYear: Int): Int {
+    override fun getPreviousYear(currentYear: Int): Int {
         return currentYear - 1
     }
 }

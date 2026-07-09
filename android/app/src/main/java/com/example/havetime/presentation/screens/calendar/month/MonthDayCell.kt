@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +23,10 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import java.time.LocalDate
 
+private val intensityHigh = R.color.intensity_high
+private val intensityMedium = R.color.intensity_medium
+private val intensityLow = R.color.intensity_low
+
 @Composable
 fun MonthDayCell(
     day: CalendarDay,
@@ -29,21 +34,24 @@ fun MonthDayCell(
     intensityMap: Map<LocalDate, Int>,
     onDayClick: (LocalDate) -> Unit
 ) {
-    val intensityHigh = colorResource(R.color.intensity_high)
-    val intensityMedium = colorResource(R.color.intensity_medium)
-    val intensityLow = colorResource(R.color.intensity_low)
+    val colorHigh = colorResource(intensityHigh).copy(alpha = 0.4f)
+    val colorMedium = colorResource(intensityMedium).copy(alpha = 0.3f)
+    val colorLow = colorResource(intensityLow).copy(alpha = 0.2f)
 
-    val isToday = day.date == today
     val isCurrentMonth = day.position == DayPosition.MonthDate
+    val isToday = day.date == today
 
-    val intensity = if (isCurrentMonth) intensityMap[day.date] ?: 0 else 0
+    val intensity = remember(day.date, intensityMap) {
+        if (isCurrentMonth) intensityMap[day.date] ?: 0 else 0
+    }
 
-    val backgroundColor = when {
-        !isCurrentMonth -> Color.Transparent
-        intensity >= 8 -> intensityHigh.copy(alpha = 0.4f)
-        intensity >= 4 -> intensityMedium.copy(alpha = 0.3f)
-        intensity > 0 -> intensityLow.copy(alpha = 0.2f)
-        else -> Color.Transparent
+    val backgroundColor = remember(intensity, isCurrentMonth, isToday) {
+        when {
+            !isCurrentMonth || intensity == 0 -> Color.Transparent
+            intensity >= 8 -> colorHigh
+            intensity >= 4 -> colorMedium
+            else -> colorLow
+        }
     }
 
     val textColor = when {

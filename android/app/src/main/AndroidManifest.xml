@@ -50,10 +50,6 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
-            android:name=".data.broadcast_receiver.RemindReceiver"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver
             android:name=".presentation.widget.HaveTimeWidgetReceiver"
             android:exported="true">
             <intent-filter>
