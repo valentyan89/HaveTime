@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +48,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -67,6 +67,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
@@ -75,7 +78,9 @@ import com.example.havetime.presentation.common.AddActivityDialog
 import com.example.havetime.presentation.common.getShortDayOfWeekName
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
+import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -83,7 +88,6 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import java.time.DayOfWeek
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -104,12 +108,40 @@ fun MapScreen(
     val context = LocalContext.current
     val geoMarks by viewModel.geoMarksForDate.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
+    val today by viewModel.today.collectAsState()
 
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     var isSearchActive by remember { mutableStateOf(false) }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    remember {
+        Configuration.getInstance().userAgentValue = "HaveTimeCalendarApp/1.0 (Android; contact: dreminvalentin32@gmail.com)"
+        Configuration.getInstance().load(
+            context,
+            context.getSharedPreferences("osmdroid_pref", android.content.Context.MODE_PRIVATE)
+        )
+        true
+    }
+
     val mapView = remember { MapView(context) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            mapView.onDetach()
+        }
+    }
+
     var selectedLocation by remember { mutableStateOf<Location?>(null) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
@@ -166,7 +198,6 @@ fun MapScreen(
     }
 
     val date = currentDate
-    val today = currentDate
 
     Scaffold(
         topBar = {
@@ -431,6 +462,7 @@ fun MapScreen(
                         AndroidView(
                             factory = {
                                 mapView.apply {
+                                    setTileSource(TileSourceFactory.MAPNIK)
                                     setMultiTouchControls(true)
                                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
                                     controller.setZoom(15.0)

@@ -62,6 +62,13 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    val today: StateFlow<LocalDate> = getCurrentDateUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = getInitialDateUseCase()
+        )
+
     val activityForDate: StateFlow<List<Activity>> = _currentDate
         .flatMapLatest { date ->
             getIntervalsForDateUseCase(date)

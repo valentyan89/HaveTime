@@ -12,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.havetime"
+        applicationId = "com.havetime.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -100,6 +100,7 @@ dependencies {
     val bonusPackVersion = "6.9.0"
     implementation("org.osmdroid:osmdroid-android:$osm")
     implementation("com.github.MKergall:osmbonuspack:$bonusPackVersion")
+    
 
     val work_version = "2.11.2" // используйте последнюю актуальную версию
     implementation("androidx.work:work-runtime:$work_version")

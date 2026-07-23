@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HaveTimeTheme(dynamicColor = true)  {
+            HaveTimeTheme(dynamicColor = false)  {
                 CalendarNavHost()
             }
         }

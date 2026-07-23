@@ -27,7 +27,7 @@
     <string name="retry">Повторить</string>
     <string name="day_screen">День</string>
     <string name="month_screen">Месяц</string>
-    <string name="search_placeholder">Поиск...</string>
+    <string name="search_placeholder">Поиск…</string>
     <string name="add_button_content_description">Добавить активность</string>
     <string name="map_toggle_calendar">Перейти к календарю</string>
     <string name="start_time">Время начала</string>

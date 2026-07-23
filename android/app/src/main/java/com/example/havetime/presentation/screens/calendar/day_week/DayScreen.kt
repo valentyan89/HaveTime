@@ -35,14 +35,16 @@ fun DayScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
 
+    val sharedSelectedDate by sharedViewModel.selectedDate.collectAsState()
+
+    LaunchedEffect(sharedSelectedDate) {
+        viewModel.selectDate(sharedSelectedDate)
+    }
+
     LaunchedEffect(Unit) {
         if (calendarMode != CalendarMode.WEEK_DAY) {
             viewModel.setCalendarMode(CalendarMode.WEEK_DAY)
         }
-    }
-
-    LaunchedEffect(currentDate) {
-        sharedViewModel.selectDate(currentDate)
     }
 
     DayScreenContent(

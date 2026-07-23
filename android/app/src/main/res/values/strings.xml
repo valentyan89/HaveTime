@@ -4,7 +4,7 @@
     <string name="search">Search</string>
     <string name="calendar">Calendar</string>
     <string name="map">Map</string>
-    <string name="add_event">Add event</string>
+    <string name="add_event">Add activity</string>
     <string name="new_activity">New activity</string>
     <string name="edit_activity">Edit activity</string>
     <string name="title">Title</string>
@@ -26,7 +26,7 @@
     <string name="retry">Retry</string>
     <string name="day_screen">Day</string>
     <string name="month_screen">Month</string>
-    <string name="search_placeholder">Search...</string>
+    <string name="search_placeholder">Search…</string>
     <string name="add_button_content_description">Add activity</string>
     <string name="map_toggle_calendar">Go to calendar</string>
     <string name="start_time">Start time</string>
