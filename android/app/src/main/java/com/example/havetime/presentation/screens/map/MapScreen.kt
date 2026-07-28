@@ -75,10 +75,12 @@ import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.common.AddActivityDialog
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.example.havetime.presentation.common.getShortDayOfWeekName
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
-import org.osmdroid.config.Configuration
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -116,16 +118,9 @@ fun MapScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    remember {
-        Configuration.getInstance().userAgentValue = "HaveTimeCalendarApp/1.0 (Android; contact: dreminvalentin32@gmail.com)"
-        Configuration.getInstance().load(
-            context,
-            context.getSharedPreferences("osmdroid_pref", android.content.Context.MODE_PRIVATE)
-        )
-        true
-    }
-
     val mapView = remember { MapView(context) }
+
+    val hazeState = remember { HazeState() }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -204,28 +199,22 @@ fun MapScreen(
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                        label = { Text(stringResource(R.string.calendar)) },
-                        selected = false,
-                        onClick = { navController.popBackStack() }
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
-                        label = { Text(stringResource(R.string.map)) },
-                        selected = true,
-                        onClick = { }
-                    )
-                }
-            }
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .haze(
+                    hazeState,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = Color.Black.copy(alpha = .2f),
+                    blurRadius = 30.dp,
+                )
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -478,13 +467,15 @@ fun MapScreen(
                                     .fillMaxWidth()
                                     .wrapContentHeight()
                                     .align(Alignment.BottomCenter)
-                                    .padding(16.dp),
+                                    .padding(16.dp)
+                                    .padding(bottom = paddingValues.calculateBottomPadding()),
                                 shape = MaterialTheme.shapes.medium,
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Text(
                                     text = stringResource(R.string.no_location_events),
-                                    modifier = Modifier.padding(12.dp)
+                                    modifier = Modifier
+                                        .padding(12.dp)
                                 )
                             }
                         }

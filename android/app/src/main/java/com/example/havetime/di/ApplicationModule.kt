@@ -67,8 +67,10 @@ object ApplicationModule {
     @Singleton
     fun provideOsmdroidConfiguration(@ApplicationContext context: Context): IConfigurationProvider {
         val osmConfig = Configuration.getInstance()
-        osmConfig.load(context, PreferenceManager.getDefaultSharedPreferences(context))
-        osmConfig.userAgentValue = context.packageName
+        val sharedPrefs = context.getSharedPreferences("osmdroid_pref", Context.MODE_PRIVATE)
+        osmConfig.load(context, sharedPrefs)
+
+        osmConfig.userAgentValue = "HaveTimeCalendarApp/1.0 (Android; contact: dreminvalentin32@gmail.com)"
 
         return osmConfig
     }

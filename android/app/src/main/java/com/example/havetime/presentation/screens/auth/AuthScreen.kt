@@ -38,12 +38,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.havetime.R
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import dev.chrisbanes.haze.HazeState
 
 @Composable
 fun AuthScreen(
     onAuthSuccess: () -> Unit,
     onBackClick: () -> Unit = { },
+    navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -54,6 +58,8 @@ fun AuthScreen(
     var loginInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
     val successMessage = stringResource(R.string.auth_success)
+
+    val hazeState = remember { HazeState() }
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -72,7 +78,13 @@ fun AuthScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        bottomBar = {
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
+        }
     ) { paddingValues ->
 
         Box(
@@ -103,13 +115,17 @@ fun AuthScreen(
                         text = stringResource(R.string.welcome_user, user.login),
                         style = MaterialTheme.typography.headlineMedium
                     )
+
                     Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
                         text = "${stringResource(R.string.token)}: ${user.token.take(10)}...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
+
                     Button(onClick = { viewModel.logout() }) {
                         Text(stringResource(R.string.logout))
                     }

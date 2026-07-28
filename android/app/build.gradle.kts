@@ -116,6 +116,8 @@ dependencies {
     implementation("androidx.glance:glance-appwidget:1.1.1")
     // For interop APIs with Material 3
     implementation("androidx.glance:glance-material3:1.1.1")
+
+    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
 }
 
 configurations.all {

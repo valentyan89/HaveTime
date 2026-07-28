@@ -1,24 +1,21 @@
 package com.example.havetime.presentation.screens.map
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
 import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
-import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
-import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
+import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextDayUseCase
 import com.example.havetime.domain.usecase.date.GetNextWeekUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousDayUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousWeekUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,12 +26,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import java.time.LocalDate
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.osmdroid.config.IConfigurationProvider
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,7 +45,8 @@ class MapViewModel @Inject constructor(
     private val getNextDayUseCase: GetNextDayUseCase,
     private val getPreviousDayUseCase: GetPreviousDayUseCase,
     private val searchUseCase: SearchUseCase,
-    private val getInitialDateUseCase: GetInitialDateUseCase
+    private val getInitialDateUseCase: GetInitialDateUseCase,
+    private val osmdroidConfiguration: IConfigurationProvider,
 ) : ViewModel() {
     private val _currentDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
     val currentDate: StateFlow<LocalDate> = _currentDate.asStateFlow()

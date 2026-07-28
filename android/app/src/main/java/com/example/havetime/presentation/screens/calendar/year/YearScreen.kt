@@ -57,8 +57,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
+import dev.chrisbanes.haze.HazeState
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -78,27 +80,17 @@ fun YearScreen(
 
     val currentLocale = remember { Locale.getDefault() }
 
+    val hazeState = remember { HazeState() }
+
     Scaffold(
         topBar = {
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                    label = { Text(stringResource(R.string.calendar)) },
-                    selected = true,
-                    onClick = { navController.navigate(Screen.Month.route) }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
-                    label = { Text(stringResource(R.string.map)) },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.Map.route) }
-                )
-            }
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
         }
     ) { paddingValues ->
         when (val yearState = state) {

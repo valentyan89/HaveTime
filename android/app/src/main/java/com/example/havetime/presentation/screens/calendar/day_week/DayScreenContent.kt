@@ -1,12 +1,21 @@
 package com.example.havetime.presentation.screens.calendar.day_week
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -23,22 +32,45 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.common.AddActivityDialog
+import com.example.havetime.presentation.common.bottom_bar_tab.BottomBarTabs
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import com.example.havetime.presentation.common.bottom_bar_tab.tabs
 import com.example.havetime.presentation.navigation.Screen
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Locale
+import kotlin.io.path.Path
 
 private const val INFINITE_PAGER_ITEMS = 10_000
 private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
@@ -70,6 +102,8 @@ fun DayScreenContent(
 
     val currentLocale = remember { Locale.getDefault() }
 
+    val hazeState = remember { HazeState() }
+
     Scaffold(
         topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
         floatingActionButton = {
@@ -81,26 +115,22 @@ fun DayScreenContent(
             }
         },
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                    label = { Text(stringResource(R.string.calendar)) },
-                    selected = true,
-                    onClick = { }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
-                    label = { Text(stringResource(R.string.map)) },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.Map.route) }
-                )
-            }
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .haze(
+                    hazeState,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = Color.Black.copy(alpha = .2f),
+                    blurRadius = 30.dp,
+                )
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),

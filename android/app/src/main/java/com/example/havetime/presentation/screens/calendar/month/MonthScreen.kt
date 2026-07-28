@@ -5,11 +5,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.daysOfWeek
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -33,6 +37,8 @@ fun MonthScreen(
     val endMonth = remember(month) { YearMonth.of(month.year + 10, 12) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
 
+    val hazeState = remember { HazeState() }
+
     val state = rememberCalendarState(
         startMonth = startMonth,
         endMonth = endMonth,
@@ -51,16 +57,22 @@ fun MonthScreen(
     Scaffold(
         topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
-            MonthBottomNavigationBar(
+            GlassyBottomBar(
                 navController = navController,
-                onCalendarClick = {}
+                hazeState = hazeState
             )
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .haze(
+                    hazeState,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = Color.Black.copy(alpha = .2f),
+                    blurRadius = 30.dp,
+                )
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             Card(
                 modifier = Modifier

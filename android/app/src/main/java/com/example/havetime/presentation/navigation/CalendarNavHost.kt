@@ -107,7 +107,8 @@ fun CalendarNavHost() {
             composable(Screen.Auth.route) {
                 AuthScreen(
                     onAuthSuccess = { },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    navController = navController
                 )
             }
         }
