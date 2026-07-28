@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.0.0"
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -11,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.havetime"
+        applicationId = "com.havetime.app"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -95,9 +96,33 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
     implementation("io.ktor:ktor-client-auth:${ktorVersion}")
 
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    val osm = "6.1.18"
+    val bonusPackVersion = "6.9.0"
+    implementation("org.osmdroid:osmdroid-android:$osm")
+    implementation("com.github.MKergall:osmbonuspack:$bonusPackVersion")
+    
 
     val work_version = "2.11.2" // используйте последнюю актуальную версию
     implementation("androidx.work:work-runtime:$work_version")
     implementation("androidx.work:work-runtime-ktx:${work_version}")
+
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // For AppWidgets support
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+    // For interop APIs with Material 3
+    implementation("androidx.glance:glance-material3:1.1.1")
+
+    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.concurrent:concurrent-futures:1.2.0")
+        force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    }
 }

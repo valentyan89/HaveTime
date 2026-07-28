@@ -7,6 +7,8 @@ import java.time.LocalTime
 import java.time.YearMonth
 
 interface DateRepository {
+    fun getInitialDate(): LocalDate
+    fun getInitialDateTime(): LocalDateTime
     fun getCurrentTime(): Flow<LocalDateTime>
     fun getCurrentDate(): Flow<LocalDate>
     fun getCurrentYear(): Flow<Int>
@@ -28,6 +30,6 @@ interface DateRepository {
     fun getPreviousWeek(date: LocalDate): LocalDate
     fun getNextMonth(yearMonth: YearMonth): YearMonth
     fun getPreviousMonth(yearMonth: YearMonth): YearMonth
-    suspend fun getNextYear(currentYear: Int): Int
-    suspend fun getPreviousYear(currentYear: Int): Int
+    fun getNextYear(currentYear: Int): Int
+    fun getPreviousYear(currentYear: Int): Int
 }

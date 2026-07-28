@@ -1,8 +1,5 @@
 package com.example.havetime.presentation.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
@@ -10,15 +7,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.havetime.presentation.common.CalendarDrawerContent
 import com.example.havetime.presentation.screens.auth.AuthScreen
-import com.example.havetime.presentation.screens.calendar.CalendarDrawerContent
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
@@ -34,23 +31,17 @@ fun CalendarNavHost() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val sharedViewModel: MonthViewModel = viewModel(factory = MonthViewModel.Factory)
+    val sharedViewModel: MonthViewModel = hiltViewModel()
     val selectedDate by sharedViewModel.selectedDate.collectAsState()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
 
-    if (selectedDate == null) {
-        Box(modifier = androidx.compose.ui.Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-    val safeDate: LocalDate = selectedDate!!
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = false,
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             CalendarDrawerContent(
                 navController = navController,
@@ -68,7 +59,6 @@ fun CalendarNavHost() {
                 DayScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialDate = safeDate,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -77,8 +67,7 @@ fun CalendarNavHost() {
             composable(Screen.Month.route) {
                 MonthScreen(
                     navController = navController,
-                    initialDate = safeDate,
-                    sharedViewModel = sharedViewModel,
+                    monthViewModel = sharedViewModel,
                     onAvatarClick = {
                         navController.navigate(Screen.Auth.route)
                     },
@@ -97,7 +86,6 @@ fun CalendarNavHost() {
                 MapScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialDate = safeDate,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -107,11 +95,10 @@ fun CalendarNavHost() {
                 route = "${Screen.Year.route}/{year}",
                 arguments = listOf(navArgument("year") { type = NavType.IntType })
             ) { backStackEntry ->
-                val year = backStackEntry.arguments?.getInt("year") ?: safeDate.year
+
                 YearScreen(
                     navController = navController,
                     sharedViewModel = sharedViewModel,
-                    initialYear = year,
                     onAvatarClick = { navController.navigate(Screen.Auth.route) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -120,7 +107,8 @@ fun CalendarNavHost() {
             composable(Screen.Auth.route) {
                 AuthScreen(
                     onAuthSuccess = { },
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    navController = navController
                 )
             }
         }

@@ -3,34 +3,65 @@ package com.example.havetime.presentation.screens.calendar.year
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
+import dev.chrisbanes.haze.HazeState
 import java.time.LocalDate
-import java.time.Month
-import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -39,39 +70,27 @@ import java.util.Locale
 fun YearScreen(
     navController: NavController,
     sharedViewModel: MonthViewModel,
-    initialYear: Int = LocalDate.now().year,
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    viewModel: YearViewModel = viewModel(factory = YearViewModel.Factory)
+    viewModel: YearViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(initialYear) {
-        viewModel.setYear(initialYear)
-    }
 
     val state by viewModel.state.collectAsState()
-    val today = LocalDate.now()
+    val today by viewModel.today.collectAsState()
+
+    val currentLocale = remember { Locale.getDefault() }
+
+    val hazeState = remember { HazeState() }
 
     Scaffold(
         topBar = {
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                    label = { Text(stringResource(R.string.calendar)) },
-                    selected = true,
-                    onClick = { navController.navigate(Screen.Month.route) }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
-                    label = { Text(stringResource(R.string.map)) },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.Map.route) }
-                )
-            }
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
         }
     ) { paddingValues ->
         when (val yearState = state) {
@@ -189,7 +208,8 @@ fun YearScreen(
                                 onClick = {
                                     sharedViewModel.setMonth(monthData.yearMonth)
                                     navController.navigate(Screen.Month.route)
-                                }
+                                },
+                                locale = currentLocale
                             )
                         }
                     }
@@ -203,10 +223,11 @@ fun YearScreen(
 fun MonthItem(
     monthData: YearMonthData,
     isCurrentMonth: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    locale: Locale
 ) {
-    val monthName = monthData.month.getDisplayName(TextStyle.FULL, Locale("ru")).replaceFirstChar { it.uppercase() }
-    
+    val monthName = monthData.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() }
+
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -241,9 +262,9 @@ fun MonthItem(
             if (monthData.daysWithActivities > 0) {
                 Text(
                     text = monthData.daysWithActivities.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

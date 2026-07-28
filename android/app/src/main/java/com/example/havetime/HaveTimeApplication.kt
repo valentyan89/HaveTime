@@ -5,70 +5,29 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import android.preference.PreferenceManager
 import android.util.Log
-import androidx.room.Room
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.example.calendar.domain.repository.ActivityRepository
-import com.example.havetime.data.local.ActivityDataBase
-import com.example.havetime.data.local.TokenManager
-import com.example.havetime.data.remote.api.ActivityApi
-import com.example.havetime.data.remote.api.AuthApi
-import com.example.havetime.data.remote.client.KtorClient
-import com.example.havetime.data.repository.ActivityRepositoryImpl
-import com.example.havetime.data.repository.DateRepositoryImpl
-import com.example.havetime.data.repository.RemindManagerImpl
-import com.example.havetime.data.repository.UserRepositoryImpl
-import com.example.havetime.domain.repository.DateRepository
-import com.example.havetime.domain.repository.RemindManager
-import com.example.havetime.domain.repository.UserRepository
-import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.presentation.worker.SyncDataWorker
-import com.example.havetime.presentation.worker.SyncWorkerFactory
+import com.example.havetime.presentation.worker.WidgetUpdateWorker
+import dagger.hilt.android.HiltAndroidApp
+import org.osmdroid.config.IConfigurationProvider
+import javax.inject.Inject
 
+@HiltAndroidApp
 class HaveTimeApplication : Application(), Configuration.Provider {
-    val tokenManager by lazy { TokenManager(this) }
 
-    private val database by lazy {
-        Room.databaseBuilder(
-            this,
-            ActivityDataBase::class.java,
-            "havetime_database"
-        ).build()
-    }
+    @Inject
+    lateinit var osmConfig: IConfigurationProvider
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
-    private val httpClient by lazy { KtorClient.client }
-    private val authApi by lazy { AuthApi(httpClient) }
-    private val activityApi by lazy { ActivityApi(httpClient) }
 
-    val remindManager: RemindManager by lazy {
-        RemindManagerImpl(this)
-    }
-
-    val todoRepository: ActivityRepository by lazy {
-        ActivityRepositoryImpl(
-            todoDao = database.todoDao(),
-            userDao = database.userDao(),
-            api = activityApi
-        )
-    }
-
-    val userRepository: UserRepository by lazy {
-        UserRepositoryImpl(
-            userDao = database.userDao(),
-            todoDao = database.todoDao(),
-            api = authApi,
-            tokenManager = tokenManager
-        )
-    }
-
-    val dateRepository: DateRepository by lazy {
-        DateRepositoryImpl()
-    }
-
-    val syncUseCase by lazy {
-        SyncWithServerUseCase(todoRepository)
-    }
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setMinimumLoggingLevel(Log.DEBUG)
+            .setWorkerFactory(workerFactory)
+            .build()
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -80,26 +39,16 @@ class HaveTimeApplication : Application(), Configuration.Provider {
                 description = "Уведомления за час до активности"
             }
 
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
 
-    private fun initOsmdroid() {
-        org.osmdroid.config.Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-        org.osmdroid.config.Configuration.getInstance().userAgentValue = packageName
-    }
-
     override fun onCreate() {
         super.onCreate()
-        initOsmdroid()
         createNotificationChannel()
         SyncDataWorker.plannedSyncWorker(this)
+        WidgetUpdateWorker.scheduleBackgroundUpdate(this)
     }
-
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setWorkerFactory(SyncWorkerFactory(syncUseCase))
-            .build()
 }

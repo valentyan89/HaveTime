@@ -8,7 +8,6 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.havetime.data.local.entity.ActivityEntity
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
 
 @Dao
 interface TodoDao {
@@ -16,7 +15,7 @@ interface TodoDao {
     suspend fun insertAll(activities: List<ActivityEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(todo: ActivityEntity)
+    suspend fun insert(todo: ActivityEntity): Long
 
     @Query("DELETE FROM activity WHERE id = :id")
     suspend fun delete(id: Int)
@@ -60,4 +59,7 @@ interface TodoDao {
 
     @Query("UPDATE activity SET userId = :userId WHERE userId = 0 AND isDeleted = 0")
     suspend fun setTasksBeforeLogin(userId: Int)
+
+    @Query("SELECT * FROM activity WHERE startTime > :currentTime AND isDeleted = 0 ORDER BY startTime ASC LIMIT :limit")
+    suspend fun getActivitiesForWidget(limit: Int, currentTime: Long): List<ActivityEntity>
 }

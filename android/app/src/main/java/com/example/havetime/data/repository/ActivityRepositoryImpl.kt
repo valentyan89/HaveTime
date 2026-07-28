@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneOffset
 import java.time.YearMonth
+import java.time.ZoneOffset
+import javax.inject.Inject
 
-class ActivityRepositoryImpl(
+class ActivityRepositoryImpl @Inject constructor(
     private val todoDao: TodoDao,
     private val userDao: UserDao,
     private val api: ActivityApi
@@ -47,15 +47,15 @@ class ActivityRepositoryImpl(
         }
     }
 
-    override fun addTodo(todo: Activity): Flow<Unit> = flow {
+    override fun addTodo(todo: Activity): Flow<Int> = flow {
         val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
         val entity = todo.toEntity().copy(
             userId = userServerId,
             isSynced = false,
             lastTimeModified = System.currentTimeMillis()
         )
-        todoDao.insert(entity)
-        emit(Unit)
+        val id = todoDao.insert(entity).toInt()
+        emit(id)
     }
 
     override fun deleteTodo(id: Int): Flow<Unit> = flow {
@@ -109,7 +109,6 @@ class ActivityRepositoryImpl(
         emit(Unit)
     }
 
-
     override fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>> {
         val monthStart = yearMonth.atDay(1)
             .atStartOfDay()
@@ -132,5 +131,16 @@ class ActivityRepositoryImpl(
             entities.filter { it.title.contains(query, ignoreCase = true) }
                 .map { it.toDomain() }
         }
+    }
+
+    override suspend fun getActivityById(id: Int): Activity? {
+        val entity = todoDao.getTodoById(id)
+        return entity?.toDomain()
+    }
+
+    override suspend fun getUpcomingActivities(limit: Int): List<Activity> {
+        Log.d("RRR", "активности для виджета")
+        return todoDao.getActivitiesForWidget(limit, System.currentTimeMillis()).map { entities ->
+            entities.toDomain() }
     }
 }

@@ -13,28 +13,34 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
+import com.kizitonwose.calendar.core.yearMonth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
+import javax.inject.Inject
 
-class MonthViewModel(
-    private val dateRepository: DateRepository,
+@HiltViewModel
+class MonthViewModel @Inject constructor(
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextMonthUseCase: GetNextMonthUseCase,
     private val getPreviousMonthUseCase: GetPreviousMonthUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
     private val getTodosUseCase: GetTodosUseCase,
-    private val searchUseCase: SearchUseCase
+    private val searchUseCase: SearchUseCase,
+    private val getInitialDateUseCase: GetInitialDateUseCase
 ) : ViewModel() {
 
-    private val _currentMonth = MutableStateFlow<YearMonth?>(null)
-    val currentMonth: StateFlow<YearMonth?> = _currentMonth.asStateFlow()
+    private val _currentMonth = MutableStateFlow<YearMonth>(getInitialDateUseCase().yearMonth)
+    val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
-    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
+    private val _selectedDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
+    val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -48,7 +54,10 @@ class MonthViewModel(
             activities.groupBy { activity ->
                     java.time.Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(java.time.ZoneOffset.UTC).toLocalDate()
                 }.mapValues { entry -> entry.value.size }
-        }.stateIn(
+        }
+        .flowOn(Dispatchers.Default)
+        .distinctUntilChanged()
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyMap()
@@ -100,6 +109,8 @@ class MonthViewModel(
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     val searchResults: StateFlow<List<Activity>> = _searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
         .flatMapLatest { query ->
             if (query.isBlank()) flowOf(emptyList())
             else searchUseCase(query)
@@ -111,25 +122,5 @@ class MonthViewModel(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = this[APPLICATION_KEY] as HaveTimeApplication
-                val dateRepo = application.dateRepository
-                val activityRepo = application.todoRepository
-
-                MonthViewModel(
-                    dateRepository = dateRepo,
-                    getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
-                    getNextMonthUseCase = GetNextMonthUseCase(dateRepo),
-                    getPreviousMonthUseCase = GetPreviousMonthUseCase(dateRepo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
-                    getTodosUseCase = GetTodosUseCase(activityRepo),
-                    searchUseCase = SearchUseCase(activityRepo)
-                )
-            }
-        }
     }
 }

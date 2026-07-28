@@ -1,24 +1,25 @@
 package com.example.havetime.presentation.screens.calendar.day_week
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.havetime.HaveTimeApplication
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
 import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
+import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
-import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
+import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateTimeUseCase
+import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextDayUseCase
 import com.example.havetime.domain.usecase.date.GetNextWeekUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousDayUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousWeekUseCase
+import com.example.havetime.presentation.screens.CalendarMode
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,12 +31,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
-import com.example.havetime.presentation.screens.CalendarMode
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class WeekDayViewModel(
+@HiltViewModel
+class WeekDayViewModel @Inject constructor(
     private val addTodoUseCase: AddTodoUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase,
     private val updateActivityUseCase: UpdateActivityUseCase,
@@ -48,18 +48,23 @@ class WeekDayViewModel(
     private val getPreviousWeekUseCase: GetPreviousWeekUseCase,
     private val getNextDayUseCase: GetNextDayUseCase,
     private val getPreviousDayUseCase: GetPreviousDayUseCase,
-    private val searchUseCase: SearchUseCase
+    private val searchUseCase: SearchUseCase,
+    private val getInitialDateUseCase: GetInitialDateUseCase,
+    private val getInitialDateTimeUseCase: GetInitialDateTimeUseCase
 ) : ViewModel() {
-    private val _currentDate = MutableStateFlow<LocalDate?>(null)
-    val currentDate: StateFlow<LocalDate?> = _currentDate.asStateFlow()
+    private val _currentDate = MutableStateFlow<LocalDate>(getInitialDateUseCase())
+    val currentDate: StateFlow<LocalDate> = _currentDate.asStateFlow()
 
     private val _calendarMode = MutableStateFlow<CalendarMode>(CalendarMode.WEEK_DAY)
     val calendarMode: StateFlow<CalendarMode> = _calendarMode.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val today = getCurrentDateUseCase().first()
-            _currentDate.value = today
+            getCurrentDateUseCase().collect { realToday ->
+                if (_currentDate.value == realToday.minusDays(1)) {
+                    _currentDate.value = realToday
+                }
+            }
         }
     }
 
@@ -67,7 +72,14 @@ class WeekDayViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LocalDateTime.now()
+            initialValue = getInitialDateTimeUseCase()
+        )
+
+    val today: StateFlow<LocalDate> = getCurrentDateUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = getInitialDateUseCase()
         )
 
     fun setCalendarMode(mode: CalendarMode) {
@@ -76,8 +88,7 @@ class WeekDayViewModel(
 
     val activityForDate: StateFlow<List<Activity>> = _currentDate
         .flatMapLatest { date ->
-            if (date != null) getIntervalsForDateUseCase(date)
-            else flowOf(emptyList())
+            getIntervalsForDateUseCase(date)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -165,32 +176,5 @@ class WeekDayViewModel(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as HaveTimeApplication)
-                val activityRepo = application.todoRepository
-                val dateRepo = application.dateRepository
-                val manager = application.remindManager
-
-                WeekDayViewModel(
-                    addTodoUseCase = AddTodoUseCase(activityRepo, manager),
-                    deleteTodoUseCase = DeleteTodoUseCase(activityRepo, manager),
-                    updateActivityUseCase = UpdateActivityUseCase(activityRepo, manager),
-                    getTodosUseCase = GetTodosUseCase(activityRepo),
-                    getIntervalsForDateUseCase = GetIntervalsForDateUseCase(activityRepo),
-                    syncWithServerUseCase = SyncWithServerUseCase(activityRepo),
-                    getCurrentTimeUseCase = GetCurrentTimeUseCase(dateRepo),
-                    getCurrentDateUseCase = GetCurrentDateUseCase(dateRepo),
-                    getNextWeekUseCase = GetNextWeekUseCase(dateRepo),
-                    getPreviousWeekUseCase = GetPreviousWeekUseCase(dateRepo),
-                    getNextDayUseCase = GetNextDayUseCase(dateRepo),
-                    getPreviousDayUseCase = GetPreviousDayUseCase(dateRepo),
-                    searchUseCase = SearchUseCase(activityRepo)
-                )
-            }
-        }
     }
 }

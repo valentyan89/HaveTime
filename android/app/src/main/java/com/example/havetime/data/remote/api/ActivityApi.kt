@@ -12,8 +12,11 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ActivityApi(private val client: HttpClient) {
+@Singleton
+class ActivityApi @Inject constructor(private val client: HttpClient) {
     suspend fun getActivities(): List<ActivityDto> {
         return client.get("/activities").body()
     }

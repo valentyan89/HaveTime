@@ -1,7 +1,6 @@
 package com.example.havetime.data.repository
 
 import com.example.havetime.domain.repository.DateRepository
-import com.kizitonwose.calendar.core.atStartOfMonth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -9,12 +8,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
+import javax.inject.Inject
 
-class DateRepositoryImpl : DateRepository {
+class DateRepositoryImpl @Inject constructor() : DateRepository {
+    override fun getInitialDate(): LocalDate {
+        return LocalDate.now()
+    }
+
+    override fun getInitialDateTime(): LocalDateTime {
+        return LocalDateTime.now()
+    }
+
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
         while (true) {
             emit(LocalDateTime.now())
@@ -95,11 +103,11 @@ class DateRepositoryImpl : DateRepository {
         return yearMonth.minusMonths(1)
     }
 
-    override suspend fun getNextYear(currentYear: Int): Int {
+    override fun getNextYear(currentYear: Int): Int {
         return currentYear + 1
     }
 
-    override suspend fun getPreviousYear(currentYear: Int): Int {
+    override fun getPreviousYear(currentYear: Int): Int {
         return currentYear - 1
     }
 }

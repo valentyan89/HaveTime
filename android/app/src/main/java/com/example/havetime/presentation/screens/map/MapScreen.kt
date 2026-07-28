@@ -3,9 +3,20 @@ package com.example.havetime.presentation.screens.map
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,14 +25,40 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,61 +66,89 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
-import com.example.havetime.presentation.screens.calendar.day_week.getShortDayOfWeekName
-import com.example.havetime.presentation.screens.calendar.day_week.getWeekDays
+import com.example.havetime.presentation.common.AddActivityDialog
+import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import com.example.havetime.presentation.common.getShortDayOfWeekName
 import com.example.havetime.presentation.navigation.Screen
-import com.example.havetime.presentation.screens.calendar.day_week.AddActivityDialog
+import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.CustomZoomButtonsController
 import java.time.DayOfWeek
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
-import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     navController: NavController,
-    initialDate: LocalDate = LocalDate.now(),
     sharedViewModel: MonthViewModel,
-    viewModel: MapViewModel = viewModel(factory = MapViewModel.Factory),
+    viewModel: MapViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
-    LaunchedEffect(initialDate) {
-        viewModel.selectDate(initialDate)
-    }
     val context = LocalContext.current
     val geoMarks by viewModel.geoMarksForDate.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
-    
+    val today by viewModel.today.collectAsState()
+
     val searchQuery by viewModel.searchQuery.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     var isSearchActive by remember { mutableStateOf(false) }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     val mapView = remember { MapView(context) }
+
+    val hazeState = remember { HazeState() }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            mapView.onDetach()
+        }
+    }
+
     var selectedLocation by remember { mutableStateOf<Location?>(null) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
 
+    val currentLocale = Locale.getDefault()
+    val searchItemFormatter = remember(currentLocale) {
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(currentLocale)
+    }
+
     LaunchedEffect(geoMarks, currentDate) {
         mapView.overlays.removeAll { it is Marker || it is MapEventsOverlay }
-        
+
         val mapEventsReceiver = object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
                 selectedLocation = Location(p.latitude, p.longitude, null)
@@ -101,7 +166,7 @@ fun MapScreen(
                     position = GeoPoint(location.latitude, location.longitude)
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                     title = activity.title
-                    
+
                     val drawable = GradientDrawable().apply {
                         shape = GradientDrawable.OVAL
                         setColor(activity.color)
@@ -109,7 +174,7 @@ fun MapScreen(
                         setStroke(4, android.graphics.Color.WHITE)
                     }
                     icon = drawable
-                    
+
                     setOnMarkerClickListener { _, _ ->
                         editingActivity = activity
                         showEventDialog = true
@@ -119,54 +184,37 @@ fun MapScreen(
                 mapView.overlays.add(marker)
             }
         }
-        
+
         mapView.invalidate()
     }
 
-    if (currentDate == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
     LaunchedEffect(currentDate) {
-        currentDate?.let { sharedViewModel.selectDate(it) }
+        currentDate.let { sharedViewModel.selectDate(it) }
     }
 
-    val date = currentDate!!
-    val today = LocalDate.now()
+    val date = currentDate
 
     Scaffold(
         topBar = {
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ) {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
-                        label = { Text(stringResource(R.string.calendar)) },
-                        selected = false,
-                        onClick = { navController.popBackStack() }
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
-                        label = { Text(stringResource(R.string.map)) },
-                        selected = true,
-                        onClick = { }
-                    )
-                }
-            }
+            GlassyBottomBar(
+                navController = navController,
+                hazeState = hazeState
+            )
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .haze(
+                    hazeState,
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    tint = Color.Black.copy(alpha = .2f),
+                    blurRadius = 30.dp,
+                )
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -186,7 +234,7 @@ fun MapScreen(
                                 IconButton(onClick = onMenuClick) {
                                     Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
                                 }
-                                
+
                                 Spacer(modifier = Modifier.width(4.dp))
 
                                 Box(
@@ -200,7 +248,7 @@ fun MapScreen(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Icon(
                                             imageVector = Icons.Default.CalendarToday,
-                                            contentDescription = null,
+                                            contentDescription = stringResource(R.string.go_to_today),
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
@@ -214,16 +262,17 @@ fun MapScreen(
                                 }
                             }
 
+                            val monthName = date.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
+
                             Text(
-                                text = "${date.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale("ru")).replaceFirstChar { it.uppercase() }} ${date.year}",
+                                text = "$monthName ${date.year}",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .clickable { 
-                                        navController.navigate(Screen.Month.route) 
-                                    }
+                                    .clickable { navController.navigate(Screen.Month.route) }
                             )
 
                             Row(
@@ -242,17 +291,17 @@ fun MapScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     isSearchActive = false
                                     viewModel.onSearchQueryChanged("")
                                 }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                                 }
                                 OutlinedTextField(
                                     value = searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChanged(it) },
                                     modifier = Modifier.weight(1f),
-                                    placeholder = { Text("Поиск...") },
+                                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(24.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -262,7 +311,7 @@ fun MapScreen(
                                 )
                                 if (searchQuery.isNotEmpty()) {
                                     IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                                        Icon(Icons.Default.Close, contentDescription = null)
+                                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear_text))
                                     }
                                 }
                             }
@@ -272,7 +321,7 @@ fun MapScreen(
                     if (!isSearchActive) {
                         val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = 5000)
                         val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
-                        
+
                         LaunchedEffect(date) {
                             val mondayOfDate = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                             val mondayOfToday = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
@@ -295,7 +344,7 @@ fun MapScreen(
                             items(10000) { weekIndex ->
                                 val startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                                     .plusWeeks((weekIndex - 5000).toLong())
-                                
+
                                 Row(modifier = Modifier.fillParentMaxWidth()) {
                                     (0..6).forEach { dayOffset ->
                                         val itemDate = startOfWeek.plusDays(dayOffset.toLong())
@@ -363,15 +412,17 @@ fun MapScreen(
                         items(searchResults) { activity ->
                             ListItem(
                                 headlineContent = { Text(activity.title) },
-                                supportingContent = { 
-                                    val start = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault())
-                                    Text(String.format(Locale("ru"), "%d %s %d:%02d", start.dayOfMonth, start.month.getDisplayName(TextStyle.SHORT, Locale("ru")), start.hour, start.minute))
+                                supportingContent = {
+                                    val startDateTime = Instant.ofEpochMilli(activity.timeInterval.startTime)
+                                        .atZone(ZoneId.systemDefault())
+                                    Text(startDateTime.format(searchItemFormatter))
                                 },
                                 leadingContent = {
                                     Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
                                 },
                                 modifier = Modifier.clickable {
-                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault()).toLocalDate()
+                                    val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime)
+                                        .atZone(ZoneId.systemDefault()).toLocalDate()
                                     viewModel.selectDate(activityDate)
                                     isSearchActive = false
                                 }
@@ -381,7 +432,7 @@ fun MapScreen(
                         if (searchResults.isEmpty()) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                    Text("Ничего не найдено", color = Color.Gray)
+                                    Text(stringResource(R.string.nothing_found), color = Color.Gray)
                                 }
                             }
                         }
@@ -396,12 +447,11 @@ fun MapScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         AndroidView(
                             factory = {
                                 mapView.apply {
+                                    setTileSource(TileSourceFactory.MAPNIK)
                                     setMultiTouchControls(true)
                                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
                                     controller.setZoom(15.0)
@@ -417,13 +467,15 @@ fun MapScreen(
                                     .fillMaxWidth()
                                     .wrapContentHeight()
                                     .align(Alignment.BottomCenter)
-                                    .padding(16.dp),
+                                    .padding(16.dp)
+                                    .padding(bottom = paddingValues.calculateBottomPadding()),
                                 shape = MaterialTheme.shapes.medium,
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Text(
                                     text = stringResource(R.string.no_location_events),
-                                    modifier = Modifier.padding(12.dp)
+                                    modifier = Modifier
+                                        .padding(12.dp)
                                 )
                             }
                         }

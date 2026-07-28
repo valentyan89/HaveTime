@@ -1,4 +1,4 @@
-package com.example.havetime.presentation.screens.calendar
+package com.example.havetime.presentation.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.navigation.Screen
+import java.time.Year
 
 @Composable
 fun CalendarDrawerContent(
@@ -40,7 +41,7 @@ fun CalendarDrawerContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "HaveTime",
+                    text = stringResource(R.string.app_name),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -49,7 +50,7 @@ fun CalendarDrawerContent(
                 IconButton(onClick = onCloseDrawer) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Закрыть меню",
+                        contentDescription = stringResource(R.string.close_menu),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -130,14 +131,14 @@ fun CalendarDrawerContent(
                 },
                 label = {
                     Text(
-                        text = "Год",
+                        text = stringResource(R.string.year_screen_title),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 },
-                selected = currentRoute == Screen.Year.route,
+                selected = currentRoute.startsWith(Screen.Year.route),
                 onClick = {
-                    val currentYear = java.time.Year.now().value
+                    val currentYear = Year.now().value
                     navController.navigate("${Screen.Year.route}/$currentYear") {
                         popUpTo(0) { inclusive = false }
                         launchSingleTop = true
@@ -151,7 +152,7 @@ fun CalendarDrawerContent(
                 )
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 color = MaterialTheme.colorScheme.outlineVariant
             )
