@@ -1,5 +1,6 @@
 package com.example.havetime.presentation.common
 
+import androidx.compose.ui.graphics.lerp
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
@@ -48,10 +49,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -140,10 +141,17 @@ fun AddActivityDialog(
         }
     }
 
+    val filterColor = MaterialTheme.colorScheme.primary
+    val filterIntensity = 0.2f
+
     val colorRows = listOf(
         listOf(Color(0xFFEF5350), Color(0xFFEC407A), Color(0xFFAB47BC), Color(0xFF7E57C2), Color(0xFF5C6BC0)),
         listOf(Color(0xFF42A5F5), Color(0xFF26A69A), Color(0xFF66BB6A), Color(0xFFFFCA28), Color(0xFFFF7043))
-    )
+    ).map { row ->
+        row.map { color ->
+            lerp(color, filterColor, filterIntensity)
+        }
+    }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -353,7 +361,7 @@ fun LocationPickerView(
 ) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val markerTitle = stringResource(R.string.select_location)
 
     DisposableEffect(lifecycleOwner) {

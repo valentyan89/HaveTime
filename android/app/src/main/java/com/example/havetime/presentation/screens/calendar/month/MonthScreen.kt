@@ -54,6 +54,8 @@ fun MonthScreen(
     val today = LocalDate.now()
     val currentLocale = remember { Locale.getDefault() }
 
+    val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
     Scaffold(
         topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
         bottomBar = {
@@ -72,7 +74,10 @@ fun MonthScreen(
                     blurRadius = 30.dp,
                 )
                 .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding())
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = navigationBarsPadding
+                )
         ) {
             Card(
                 modifier = Modifier

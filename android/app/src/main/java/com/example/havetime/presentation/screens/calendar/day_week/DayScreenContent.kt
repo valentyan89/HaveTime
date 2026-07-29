@@ -9,9 +9,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -58,6 +61,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.common.AddActivityDialog
+import com.example.havetime.presentation.common.GlassyFloatingActionButton
 import com.example.havetime.presentation.common.bottom_bar_tab.BottomBarTabs
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.example.havetime.presentation.common.bottom_bar_tab.tabs
@@ -103,15 +107,16 @@ fun DayScreenContent(
     val currentLocale = remember { Locale.getDefault() }
 
     val hazeState = remember { HazeState() }
+    val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
         topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
         floatingActionButton = {
-            FloatingActionButton(
+            GlassyFloatingActionButton(
                 onClick = { showEventDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary
+                hazeState = hazeState
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_event))
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_event), tint = MaterialTheme.colorScheme.onSurface)
             }
         },
         bottomBar = {
@@ -130,7 +135,7 @@ fun DayScreenContent(
                     blurRadius = 30.dp,
                 )
                 .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = navigationBarsPadding)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -148,7 +153,7 @@ fun DayScreenContent(
                         onGo2Today = onGo2Today,
                         onMenuClick = onMenuClick,
                         onAvatarClick = onAvatarClick,
-                        onTitleClick = { navController.navigate(Screen.Month.route) }
+                        onTitleClick = { navController.navigate(Screen.Month.route) },
                     )
 
                     if (!isSearchActive) {

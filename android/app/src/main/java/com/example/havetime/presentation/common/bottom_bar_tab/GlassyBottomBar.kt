@@ -1,11 +1,11 @@
 package com.example.havetime.presentation.common.bottom_bar_tab
 
+import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -86,9 +86,10 @@ fun GlassyBottomBar(
             )
         )
 
+        val isBlurSupported = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.S }
         val targetColor = tabsList.getOrNull(selectedTabIndex)?.color ?: MaterialTheme.colorScheme.primary
         val animatedColor by animateColorAsState(
-            targetValue = targetColor,
+            targetValue = MaterialTheme.colorScheme.primary,
             label = "animatedColor",
             animationSpec = spring(stiffness = Spring.StiffnessLow)
         )
@@ -97,17 +98,40 @@ fun GlassyBottomBar(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
-                .blur(50.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-        ) {
-            val tabWidth = size.width / tabs.size
-            drawCircle(
-                color = animatedColor.copy(alpha = .6f),
-                radius = size.height / 2,
-                center = Offset(
-                    (tabWidth * animatedSelectedTabIndex) + tabWidth / 2,
-                    size.height / 2
+                .then(
+                    if (isBlurSupported) {
+                        Modifier.blur(50.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+                    } else Modifier
                 )
+        ) {
+            val tabWidth = size.width / tabsList.size
+            val centerOffset = Offset(
+                x = (tabWidth * animatedSelectedTabIndex) + tabWidth / 2,
+                y = size.height / 2
             )
+
+            if (isBlurSupported) {
+                drawCircle(
+                    color = animatedColor.copy(alpha = .6f),
+                    radius = size.height / 2,
+                    center = centerOffset
+                )
+            } else {
+                val glowRadius = size.height * 0.9f
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            animatedColor.copy(alpha = 0.4f),
+                            animatedColor.copy(alpha = 0.2f),
+                            Color.Transparent
+                        ),
+                        center = centerOffset,
+                        radius = glowRadius
+                    ),
+                    radius = glowRadius,
+                    center = centerOffset
+                )
+            }
         }
 
         Canvas(
@@ -120,7 +144,7 @@ fun GlassyBottomBar(
             }
             val length = PathMeasure().apply { setPath(path, false) }.length
 
-            val tabWidth = size.width / tabs.size
+            val tabWidth = size.width / tabsList.size
             drawPath(
                 path,
                 brush = Brush.horizontalGradient(
@@ -142,7 +166,6 @@ fun GlassyBottomBar(
             )
         }
 
-        // Вкладки
         BottomBarTabs(
             tabs = tabsList,
             selectedTab = selectedTabIndex,
