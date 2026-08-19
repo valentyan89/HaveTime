@@ -114,7 +114,7 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun go2NextDay() {
-        _currentDate.value?.let { currentDate ->
+        _currentDate.value.let { currentDate ->
             viewModelScope.launch {
                 val nextDay = getNextDayUseCase(currentDate)
                 _currentDate.value = nextDay
@@ -123,7 +123,7 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun go2PrevDay() {
-        _currentDate.value?.let { currentDate ->
+        _currentDate.value.let { currentDate ->
             viewModelScope.launch {
                 val previousDay = getPreviousDayUseCase(currentDate)
                 _currentDate.value = previousDay
@@ -132,7 +132,7 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun go2NextWeek() {
-        _currentDate.value?.let { currentDate ->
+        _currentDate.value.let { currentDate ->
             viewModelScope.launch {
                 val nextWeek = getNextWeekUseCase(currentDate)
                 _currentDate.value = nextWeek
@@ -141,7 +141,7 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun go2PrevWeek() {
-        _currentDate.value?.let { currentDate ->
+        _currentDate.value.let { currentDate ->
             viewModelScope.launch {
                 val previousWeek = getPreviousWeekUseCase(currentDate)
                 _currentDate.value = previousWeek

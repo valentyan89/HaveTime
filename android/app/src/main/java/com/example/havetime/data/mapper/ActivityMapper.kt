@@ -1,10 +1,10 @@
 package com.example.havetime.data.mapper
 
 import com.example.havetime.data.local.entity.ActivityEntity
-import com.example.havetime.data.model.activity.TimeIntervalDto
 import com.example.havetime.data.model.activity.ActivityDto
 import com.example.havetime.data.model.activity.ActivityNetworkDto
 import com.example.havetime.data.model.activity.LocationDto
+import com.example.havetime.data.model.activity.TimeIntervalDto
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval

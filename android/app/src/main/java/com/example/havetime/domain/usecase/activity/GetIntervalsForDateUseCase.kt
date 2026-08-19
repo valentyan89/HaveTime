@@ -1,8 +1,8 @@
 package com.example.havetime.domain.usecase.activity
 
-import kotlinx.coroutines.flow.Flow
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.domain.model.Activity
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 class GetIntervalsForDateUseCase(private val repository: ActivityRepository) {

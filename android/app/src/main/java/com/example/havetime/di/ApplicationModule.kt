@@ -2,7 +2,6 @@ package com.example.havetime.di
 
 import android.app.AlarmManager
 import android.content.Context
-import android.preference.PreferenceManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -10,9 +9,8 @@ import androidx.room.Room
 import androidx.work.WorkManager
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.data.local.ActivityDataBase
-import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.dao.ActivityDao
 import com.example.havetime.data.local.dao.UserDao
-import com.example.havetime.data.repository.GeocodingRepositoryImpl
 import com.example.havetime.domain.repository.GeocodingRepository
 import com.example.havetime.domain.usecase.GetAndSaveAddressUseCase
 import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
@@ -47,7 +45,7 @@ object ApplicationModule {
             .build()
 
     @Provides
-    fun provideTodoDao(db: ActivityDataBase): TodoDao = db.todoDao()
+    fun provideActivityDao(db: ActivityDataBase): ActivityDao = db.activityDao()
 
     @Provides
     fun provideUserDao(db: ActivityDataBase): UserDao = db.userDao()

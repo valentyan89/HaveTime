@@ -2,7 +2,6 @@ package com.example.havetime.data.remote.api
 
 import com.example.havetime.data.remote.response.LoginRequest
 import com.example.havetime.data.remote.response.LoginResponse
-import com.example.havetime.data.remote.client.KtorClient
 import com.example.havetime.data.remote.response.RegisterRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

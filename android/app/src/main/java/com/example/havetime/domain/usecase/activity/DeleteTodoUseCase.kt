@@ -13,7 +13,7 @@ class DeleteTodoUseCase(
     private val widgetRepository: WidgetRepository
 ) {
     operator fun invoke(id: Int): Flow<Unit> {
-        return repository.deleteTodo(id).map {
+        return repository.deleteActivity(id).map {
                 remindManager.cancelRemind(id)
                 Log.d("RRR", "delete")
                 widgetRepository.updateWidget()
