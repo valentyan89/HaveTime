@@ -38,7 +38,7 @@ object ApplicationModule {
             ActivityDataBase::class.java,
             "activity.db"
         )
-            .fallbackToDestructiveMigration()
+            //.fallbackToDestructiveMigration()
             // .addMigrations(...)
             // .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             // .enableMultiInstanceInvalidation()
