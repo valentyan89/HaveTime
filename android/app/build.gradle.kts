@@ -2,9 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
-    kotlin("plugin.serialization") version "2.0.0"
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -58,17 +58,16 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
-    // Используем стабильные версии для навигации и вьюмодели
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.play.services.auth)
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("com.kizitonwose.calendar:compose:2.10.1")
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.calendar.compose)
+    implementation(libs.gson)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -78,51 +77,43 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 
-    val room_version = "2.8.4"
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    implementation(libs.datastore.preferences)
 
-    val ktorVersion = "3.3.1"
-    implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
-    implementation("io.ktor:ktor-client-core:${ktorVersion}")
-    implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
-    implementation("io.ktor:ktor-client-auth:${ktorVersion}")
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.auth)
 
-    val osm = "6.1.18"
-    val bonusPackVersion = "6.9.0"
-    implementation("org.osmdroid:osmdroid-android:$osm")
-    implementation("com.github.MKergall:osmbonuspack:$bonusPackVersion")
-    
+    implementation(libs.osmdroid.android)
+    implementation(libs.osmbonuspack)
 
-    val work_version = "2.11.2" // используйте последнюю актуальную версию
-    implementation("androidx.work:work-runtime:$work_version")
-    implementation("androidx.work:work-runtime-ktx:${work_version}")
+    implementation(libs.work.runtime)
+    implementation(libs.work.runtime.ktx)
 
-    implementation("com.google.dagger:hilt-android:2.57.1")
-    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
-    implementation("androidx.hilt:hilt-work:1.2.0")
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
-    // For AppWidgets support
-    implementation("androidx.glance:glance-appwidget:1.1.1")
-    // For interop APIs with Material 3
-    implementation("androidx.glance:glance-material3:1.1.1")
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
 
-    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
+    implementation(libs.haze.jetpack.compose)
 }
 
 configurations.all {
     resolutionStrategy {
-        force("androidx.concurrent:concurrent-futures:1.2.0")
-        force("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+        force(libs.concurrent.futures)
+        force(libs.concurrent.futures.ktx)
     }
 }
