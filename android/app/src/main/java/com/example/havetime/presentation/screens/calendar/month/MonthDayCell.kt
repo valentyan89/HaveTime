@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.havetime.R
+import com.example.havetime.presentation.common.utils.HaveText
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import java.time.LocalDate
@@ -77,7 +77,7 @@ fun MonthDayCell(
             },
         contentAlignment = Alignment.Center
     ) {
-        Text(
+        HaveText(
             text = day.date.dayOfMonth.toString(),
             fontSize = 15.sp,
             fontWeight = if (isToday && isCurrentMonth) FontWeight.Bold else FontWeight.Normal,

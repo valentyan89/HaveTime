@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.havetime.presentation.common.utils.HaveText
 import com.kizitonwose.calendar.core.CalendarMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -32,7 +32,7 @@ fun MonthSectionHeader(
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
         }
 
-        Text(
+        HaveText(
             text = "$headerMonthName ${monthData.yearMonth.year}",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,

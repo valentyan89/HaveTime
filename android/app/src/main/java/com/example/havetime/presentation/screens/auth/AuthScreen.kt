@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import com.example.havetime.presentation.common.utils.HaveText
 import dev.chrisbanes.haze.HazeState
 
 @Composable
@@ -111,14 +111,14 @@ fun AuthScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.welcome_user, user.login),
                         style = MaterialTheme.typography.headlineMedium
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
+                    HaveText(
                         text = "${stringResource(R.string.token)}: ${user.token.take(10)}...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
@@ -127,7 +127,7 @@ fun AuthScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(onClick = { viewModel.logout() }) {
-                        Text(stringResource(R.string.logout))
+                        HaveText(stringResource(R.string.logout))
                     }
                 }
             } ?: run {
@@ -138,7 +138,7 @@ fun AuthScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.authorization),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
@@ -150,7 +150,7 @@ fun AuthScreen(
                     OutlinedTextField(
                         value = loginInput,
                         onValueChange = { loginInput = it },
-                        label = { Text(stringResource(R.string.login_label)) },
+                        label = { HaveText(stringResource(R.string.login_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = authState !is AuthState.Loading
@@ -161,7 +161,7 @@ fun AuthScreen(
                     OutlinedTextField(
                         value = passwordInput,
                         onValueChange = { passwordInput = it },
-                        label = { Text(stringResource(R.string.password_label)) },
+                        label = { HaveText(stringResource(R.string.password_label)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
@@ -179,7 +179,7 @@ fun AuthScreen(
                             modifier = Modifier.weight(1f),
                             enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
                         ) {
-                            Text(stringResource(R.string.registration))
+                            HaveText(stringResource(R.string.registration))
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -189,7 +189,7 @@ fun AuthScreen(
                             modifier = Modifier.weight(1f),
                             enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
                         ) {
-                            Text(stringResource(R.string.login_button))
+                            HaveText(stringResource(R.string.login_button))
                         }
                     }
                 }

@@ -23,7 +23,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.havetime.R
+import com.example.havetime.presentation.common.utils.HaveText
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
@@ -87,7 +87,7 @@ fun DayTopBar(
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        Text(
+                        HaveText(
                             text = today.dayOfMonth.toString(),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
@@ -102,7 +102,7 @@ fun DayTopBar(
                     .replaceFirstChar { it.uppercase() }
             }
 
-            Text(
+            HaveText(
                 text = "$monthName ${date.year}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -138,7 +138,7 @@ fun DayTopBar(
                     value = searchQuery,
                     onValueChange = onSearchQueryChanged,
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    placeholder = { HaveText(stringResource(R.string.search_placeholder)) },
                     singleLine = true,
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(

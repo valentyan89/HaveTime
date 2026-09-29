@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.havetime.presentation.common.utils.HaveText
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
@@ -31,7 +32,7 @@ fun DaysOfWeekHeader(
             val dayName = remember(dayOfWeek, currentLocale) {
                 dayOfWeek.getDisplayName(TextStyle.SHORT, currentLocale)
             }
-            Text(
+            HaveText(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
                 text = dayName,
