@@ -3,7 +3,7 @@ package com.example.havetime.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.dao.ActivityDao
 import com.example.havetime.data.local.dao.UserDao
 import com.example.havetime.data.local.entity.ActivityEntity
 import com.example.havetime.data.local.entity.UserEntity
@@ -18,7 +18,7 @@ import com.example.havetime.data.local.entity.UserEntity
 )
 @TypeConverters(DateConverter::class)
 abstract class ActivityDataBase : RoomDatabase() {
-    abstract fun todoDao(): TodoDao
+    abstract fun activityDao(): ActivityDao
     abstract fun userDao(): UserDao
 
 

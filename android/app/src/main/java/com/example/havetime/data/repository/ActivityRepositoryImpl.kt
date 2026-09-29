@@ -2,7 +2,7 @@ package com.example.havetime.data.repository
 
 import android.util.Log
 import com.example.calendar.domain.repository.ActivityRepository
-import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.dao.ActivityDao
 import com.example.havetime.data.local.dao.UserDao
 import com.example.havetime.data.mapper.toClientDto
 import com.example.havetime.data.mapper.toDomain
@@ -23,13 +23,13 @@ import java.time.ZoneOffset
 import javax.inject.Inject
 
 class ActivityRepositoryImpl @Inject constructor(
-    private val todoDao: TodoDao,
+    private val activityDao: ActivityDao,
     private val userDao: UserDao,
     private val api: ActivityApi
 ) : ActivityRepository {
 
-    override fun getTodos(): Flow<List<Activity>> {
-        return todoDao.getAllTodos().map { entities ->
+    override fun getActivities(): Flow<List<Activity>> {
+        return activityDao.getAllActivities().map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -42,26 +42,26 @@ class ActivityRepositoryImpl @Inject constructor(
         val dayEnd = date.plusDays(1).atStartOfDay()
             .toInstant(ZoneOffset.UTC)
             .toEpochMilli()
-        return todoDao.getTodosByDate(dayStart, dayEnd).map { entities ->
+        return activityDao.getActivitiesByDate(dayStart, dayEnd).map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    override fun addTodo(todo: Activity): Flow<Int> = flow {
+    override fun addActivity(activity: Activity): Flow<Int> = flow {
         val userServerId = userDao.getUser().firstOrNull()?.serverId ?: 0
-        val entity = todo.toEntity().copy(
+        val entity = activity.toEntity().copy(
             userId = userServerId,
             isSynced = false,
             lastTimeModified = System.currentTimeMillis()
         )
-        val id = todoDao.insert(entity).toInt()
+        val id = activityDao.insert(entity).toInt()
         emit(id)
     }
 
-    override fun deleteTodo(id: Int): Flow<Unit> = flow {
-        val activity = todoDao.getTodoById(id)
+    override fun deleteActivity(id: Int): Flow<Unit> = flow {
+        val activity = activityDao.getActivityById(id)
         activity?.let {
-            todoDao.update(
+            activityDao.update(
                 it.copy(
                     isSynced = false,
                     isDeleted = true,
@@ -77,9 +77,9 @@ class ActivityRepositoryImpl @Inject constructor(
             val user = userDao.getSyncUser()
             user?.let { userRoom ->
                 KtorClient.updateToken(userRoom.token)
-                val lastSyncTime = todoDao.getLastSyncTimestamp() ?: 0L
+                val lastSyncTime = activityDao.getLastSyncTimestamp() ?: 0L
 
-                val unsynced = todoDao.getUnsyncedEvents()
+                val unsynced = activityDao.getUnsyncedEvents()
                 val roomActivities = unsynced.map { it.toDomain().toDto().toNetworkDto() }
                 val request = SyncRequest(
                     activities = roomActivities,
@@ -89,7 +89,7 @@ class ActivityRepositoryImpl @Inject constructor(
                 val ids = unsynced.map { it.id }
                 val response = api.sync(request)
                 val freshDtos = response.map { it.toClientDto().toEntity() }
-                todoDao.updateDataAfterSync(freshDtos, ids)
+                activityDao.updateDataAfterSync(freshDtos, ids)
                 userDao.insert(
                     user.copy(lastSyncAt = System.currentTimeMillis())
                 )
@@ -105,7 +105,7 @@ class ActivityRepositoryImpl @Inject constructor(
             isSynced = false,
             lastTimeModified = System.currentTimeMillis()
         )
-        todoDao.update(entity)
+        activityDao.update(entity)
         emit(Unit)
     }
 
@@ -121,26 +121,26 @@ class ActivityRepositoryImpl @Inject constructor(
             .toInstant(ZoneOffset.UTC)
             .toEpochMilli()
 
-        return todoDao.getTodosByDate(monthStart, monthEnd).map { entities ->
+        return activityDao.getActivitiesByDate(monthStart, monthEnd).map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
     override fun searchActivities(query: String): Flow<List<Activity>> {
-        return todoDao.getAllTodos().map { entities ->
+        return activityDao.getAllActivities().map { entities ->
             entities.filter { it.title.contains(query, ignoreCase = true) }
                 .map { it.toDomain() }
         }
     }
 
     override suspend fun getActivityById(id: Int): Activity? {
-        val entity = todoDao.getTodoById(id)
+        val entity = activityDao.getActivityById(id)
         return entity?.toDomain()
     }
 
     override suspend fun getUpcomingActivities(limit: Int): List<Activity> {
         Log.d("RRR", "активности для виджета")
-        return todoDao.getActivitiesForWidget(limit, System.currentTimeMillis()).map { entities ->
+        return activityDao.getActivitiesForWidget(limit, System.currentTimeMillis()).map { entities ->
             entities.toDomain() }
     }
 }

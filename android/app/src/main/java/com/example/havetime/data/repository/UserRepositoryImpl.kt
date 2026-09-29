@@ -1,7 +1,7 @@
 package com.example.havetime.data.repository
 
 import com.example.havetime.data.local.TokenManager
-import com.example.havetime.data.local.dao.TodoDao
+import com.example.havetime.data.local.dao.ActivityDao
 import com.example.havetime.data.local.dao.UserDao
 import com.example.havetime.data.local.entity.UserEntity
 import com.example.havetime.data.remote.api.AuthApi
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
-    private val todoDao: TodoDao,
+    private val activityDao: ActivityDao,
     private val api: AuthApi,
     private val tokenManager: TokenManager
 ) : UserRepository{
@@ -40,7 +40,7 @@ class UserRepositoryImpl @Inject constructor(
                 lastSyncAt = System.currentTimeMillis()
             )
         )
-        todoDao.setTasksBeforeLogin(response.id)
+        activityDao.setTasksBeforeLogin(response.id)
 
         response.token
         Result.success(Unit)
@@ -70,7 +70,7 @@ class UserRepositoryImpl @Inject constructor(
                 lastSyncAt = System.currentTimeMillis()
             )
         )
-        todoDao.setTasksBeforeLogin(response.id)
+        activityDao.setTasksBeforeLogin(response.id)
 
         response.token
         Result.success(Unit)

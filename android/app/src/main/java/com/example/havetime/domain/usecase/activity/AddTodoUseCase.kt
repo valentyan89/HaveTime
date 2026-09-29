@@ -19,16 +19,16 @@ class AddTodoUseCase(
     private val worker: WorkManager,
     private val widgetRepository: WidgetRepository
 ) {
-    operator fun invoke(todo: Activity): Flow<Unit> {
-        return repository.addTodo(todo).onEach { actualId ->
+    operator fun invoke(activity: Activity): Flow<Unit> {
+        return repository.addActivity(activity).onEach { actualId ->
             remindManager.scheduleRemind(
                 taskId = actualId,
-                taskTitle = todo.title,
-                startTimeMillis = todo.timeInterval.startTime
+                taskTitle = activity.title,
+                startTimeMillis = activity.timeInterval.startTime
             )
 
-            val lat = todo.location?.latitude
-            val lon = todo.location?.longitude
+            val lat = activity.location?.latitude
+            val lon = activity.location?.longitude
 
             if (lat != null && lon != null) {
                 val inputData = Data.Builder()

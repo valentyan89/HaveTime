@@ -1,17 +1,11 @@
 package com.example.havetime.di
 
 import androidx.work.WorkManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.domain.repository.DateRepository
-import com.example.havetime.domain.repository.GeocodingRepository
 import com.example.havetime.domain.repository.RemindManager
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.domain.repository.WidgetRepository
-import com.example.havetime.domain.usecase.GetAndSaveAddressUseCase
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
 import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
 import com.example.havetime.domain.usecase.activity.GetActivitiesForMonthUseCase
@@ -19,7 +13,6 @@ import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
 import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.GetUpcomingActivitiesUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
-import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
 import com.example.havetime.domain.usecase.auth.GetUserUseCase
 import com.example.havetime.domain.usecase.auth.LoginUseCase
@@ -38,7 +31,10 @@ import com.example.havetime.domain.usecase.date.GetPreviousDayUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousWeekUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousYearUseCase
-import com.example.havetime.presentation.worker.GeocodingWorker
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
 
 @Module
 @InstallIn(ViewModelComponent::class)

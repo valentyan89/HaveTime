@@ -10,12 +10,12 @@ import com.example.havetime.data.local.entity.ActivityEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TodoDao {
+interface ActivityDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(activities: List<ActivityEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(todo: ActivityEntity): Long
+    suspend fun insert(activity: ActivityEntity): Long
 
     @Query("DELETE FROM activity WHERE id = :id")
     suspend fun delete(id: Int)
@@ -24,13 +24,13 @@ interface TodoDao {
     suspend fun deleteAllActivities()
 
     @Query("SELECT * FROM activity WHERE isDeleted = 0")
-    fun getAllTodos(): Flow<List<ActivityEntity>>
+    fun getAllActivities(): Flow<List<ActivityEntity>>
 
     @Query("SELECT * FROM activity WHERE id = :id AND isDeleted = 0")
-    suspend fun getTodoById(id: Int): ActivityEntity?
+    suspend fun getActivityById(id: Int): ActivityEntity?
 
     @Query("SELECT * FROM activity WHERE startTime < :dayEnd AND endTime > :dayStart AND isDeleted = 0 ORDER BY startTime ASC")
-    fun getTodosByDate(dayStart: Long, dayEnd: Long): Flow<List<ActivityEntity>>
+    fun getActivitiesByDate(dayStart: Long, dayEnd: Long): Flow<List<ActivityEntity>>
 
     @Update
     suspend fun update(activity: ActivityEntity)

@@ -22,7 +22,6 @@ import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.YearScreen
 import com.example.havetime.presentation.screens.map.MapScreen
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 @Composable
 fun CalendarNavHost() {
