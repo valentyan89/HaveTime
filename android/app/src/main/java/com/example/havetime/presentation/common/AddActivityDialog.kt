@@ -33,7 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -53,7 +52,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,6 +63,7 @@ import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
+import com.example.havetime.presentation.common.utils.HaveText
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -168,7 +167,7 @@ fun AddActivityDialog(
                         if (endDate.isBefore(startDate)) endDate = startDate
                     }
                     showStartDatePicker = false
-                }) { Text(stringResource(R.string.ok)) }
+                }) { HaveText(stringResource(R.string.ok)) }
             }
         ) { DatePicker(state = datePickerState) }
     }
@@ -186,7 +185,7 @@ fun AddActivityDialog(
                         if (endDate.isBefore(startDate)) startDate = endDate
                     }
                     showEndDatePicker = false
-                }) { Text(stringResource(R.string.ok)) }
+                }) { HaveText(stringResource(R.string.ok)) }
             }
         ) { DatePicker(state = datePickerState) }
     }
@@ -198,14 +197,13 @@ fun AddActivityDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier.fillMaxWidth(0.95f),
         title = {
-            Text(
+            HaveText(
                 text = if (showMapSelection) stringResource(R.string.select_location)
                 else if (editingActivity == null) stringResource(R.string.new_activity)
                 else stringResource(R.string.edit_activity),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                fontFamily = FontFamily.Default
+                color = MaterialTheme.colorScheme.primary
             )
         },
         text = {
@@ -225,7 +223,7 @@ fun AddActivityDialog(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(stringResource(R.string.apply_button))
+                            HaveText(stringResource(R.string.apply_button))
                         }
                     }
                 } else {
@@ -233,7 +231,7 @@ fun AddActivityDialog(
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
-                            label = { Text(stringResource(R.string.title)) },
+                            label = { HaveText(stringResource(R.string.title)) },
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -241,15 +239,15 @@ fun AddActivityDialog(
 
                         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text(stringResource(R.string.start), style = MaterialTheme.typography.labelMedium)
+                                HaveText(stringResource(R.string.start), style = MaterialTheme.typography.labelMedium)
                                 TextButton(onClick = { showStartDatePicker = true }, contentPadding = PaddingValues(0.dp)) {
-                                    Text(startDate.format(dateFormatter))
+                                    HaveText(startDate.format(dateFormatter))
                                 }
                             }
                             Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                                Text(stringResource(R.string.end), style = MaterialTheme.typography.labelMedium)
+                                HaveText(stringResource(R.string.end), style = MaterialTheme.typography.labelMedium)
                                 TextButton(onClick = { showEndDatePicker = true }, contentPadding = PaddingValues(0.dp)) {
-                                    Text(endDate.format(dateFormatter))
+                                    HaveText(endDate.format(dateFormatter))
                                 }
                             }
                         }
@@ -263,14 +261,14 @@ fun AddActivityDialog(
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text(
+                            HaveText(
                                 text = if (tempLocation != null) stringResource(R.string.location_selected) else stringResource(R.string.select_location)
                             )
                         }
 
                         Spacer(Modifier.height(16.dp))
 
-                        Text(
+                        HaveText(
                             text = "${stringResource(R.string.start_time)}: ${String.format(currentLocale, "%02d:%02d", startH % 24, startM % 60)}",
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -278,7 +276,7 @@ fun AddActivityDialog(
 
                         Spacer(Modifier.height(12.dp))
 
-                        Text(
+                        HaveText(
                             text = "${stringResource(R.string.end_time)}: ${String.format(currentLocale, "%02d:%02d", endH % 24, endM % 60)}",
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -317,11 +315,11 @@ fun AddActivityDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (editingActivity != null) {
                             TextButton(onClick = { onDelete(editingActivity.id) }) {
-                                Text(stringResource(R.string.delete), color = Color.Red, fontWeight = FontWeight.Bold)
+                                HaveText(stringResource(R.string.delete), color = Color.Red, fontWeight = FontWeight.Bold)
                             }
                             Spacer(Modifier.width(8.dp))
                         }
-                        TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                        TextButton(onClick = onDismiss) { HaveText(stringResource(R.string.cancel)) }
                     }
 
                     Button(
@@ -344,7 +342,7 @@ fun AddActivityDialog(
                             onConfirm(updatedActivity)
                         },
                         shape = RoundedCornerShape(24.dp)
-                    ) { Text(stringResource(R.string.ok)) }
+                    ) { HaveText(stringResource(R.string.ok)) }
                 }
             }
         },
@@ -468,7 +466,7 @@ fun WheelColumn(count: Int, initialValue: Int, label: String, onValueChange: (In
                 val displayValue = index % count
                 val isSelected = (listState.firstVisibleItemIndex + 1) == index
                 Box(Modifier.fillMaxWidth().height(itemHeight), Alignment.Center) {
-                    Text(
+                    HaveText(
                         text = String.format(currentLocale, "%02d%s", displayValue, label),
                         fontSize = if (isSelected) 18.sp else 15.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,

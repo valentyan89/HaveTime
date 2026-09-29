@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -29,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.havetime.presentation.common.utils.HaveText
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -98,7 +98,7 @@ fun CalendarHeader(
                         .background(Color(0xFF00796B).copy(alpha = 0.1f))
                         .clickable { onTodayClick() }
                 ) {
-                    Text(
+                    HaveText(
                         text = todayDate.dayOfMonth.toString(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -108,7 +108,7 @@ fun CalendarHeader(
                 
                 Spacer(Modifier.width(16.dp))
 
-                Text(
+                HaveText(
                     text = monthYearText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -143,7 +143,7 @@ fun CalendarHeader(
                                     .clickable { onDateSelected(date) }
                                     .padding(vertical = 4.dp)
                             ) {
-                                Text(
+                                HaveText(
                                     text = dayName,
                                     fontSize = 11.sp,
                                     color = if (isSelected) Color(0xFF00796B) else Color.Gray,
@@ -157,7 +157,7 @@ fun CalendarHeader(
                                         .clip(CircleShape)
                                         .background(if (isSelected) Color(0xFF00796B) else Color.Transparent)
                                 ) {
-                                    Text(
+                                    HaveText(
                                         text = date.dayOfMonth.toString(),
                                         fontSize = 14.sp,
                                         color = if (isSelected) Color.White else Color.Black,

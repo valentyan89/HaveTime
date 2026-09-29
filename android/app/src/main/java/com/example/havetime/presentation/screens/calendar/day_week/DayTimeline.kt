@@ -19,14 +19,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.TimeInterval
+import com.example.havetime.presentation.common.utils.HaveText
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -147,7 +146,7 @@ fun DayTimeline(
                             .height(HOUR_HEIGHT_DP.dp)
                             .offset(y = topOffsetDp)
                     ) {
-                        Text(
+                        HaveText(
                             text = String.format(Locale("ru"), "%02d:00", hour),
                             modifier = Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
@@ -260,11 +259,11 @@ fun DayTimeline(
                             colors = CardDefaults.cardColors(containerColor = eventColor)
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text(event.title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp, maxLines = 1)
+                                HaveText(event.title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp, maxLines = 1)
 
                                 val sT = Instant.ofEpochMilli(currentStart).atZone(ZoneId.systemDefault()).toLocalTime()
                                 val eT = Instant.ofEpochMilli(currentEnd).atZone(ZoneId.systemDefault()).toLocalTime()
-                                Text("%02d:%02d - %02d:%02d".format(sT.hour, sT.minute, eT.hour, eT.minute), color = Color.White.copy(0.8f), fontSize = 11.sp)
+                                HaveText("%02d:%02d - %02d:%02d".format(sT.hour, sT.minute, eT.hour, eT.minute), color = Color.White.copy(0.8f), fontSize = 11.sp)
 
                                 if (!event.location?.geocodedAddress.isNullOrBlank()) {
 
@@ -284,7 +283,7 @@ fun DayTimeline(
                                         Spacer(modifier = Modifier.width(2.dp))
 
                                         event.location.geocodedAddress.let {
-                                            Text(
+                                            HaveText(
                                                 text = it,
                                                 color = Color.White.copy(alpha = 0.9f),
                                                 fontSize = 10.sp

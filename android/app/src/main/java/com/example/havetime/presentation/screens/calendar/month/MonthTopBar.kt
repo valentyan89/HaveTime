@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.havetime.R
+import com.example.havetime.presentation.common.utils.HaveText
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -75,7 +75,7 @@ fun MonthTopBar(
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    Text(
+                    HaveText(
                         text = today.dayOfMonth.toString(),
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
@@ -91,7 +91,7 @@ fun MonthTopBar(
                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
         }
 
-        Text(
+        HaveText(
             text = "$monthName ${visibleMonth.year}",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,

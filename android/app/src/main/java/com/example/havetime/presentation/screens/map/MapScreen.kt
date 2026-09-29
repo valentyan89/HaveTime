@@ -45,7 +45,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -76,6 +75,7 @@ import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.common.AddActivityDialog
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.example.havetime.presentation.common.getShortDayOfWeekName
+import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import dev.chrisbanes.haze.HazeState
@@ -255,7 +255,7 @@ fun MapScreen(
                                             modifier = Modifier.size(16.dp),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
-                                        Text(
+                                        HaveText(
                                             text = today.dayOfMonth.toString(),
                                             fontSize = 9.sp,
                                             fontWeight = FontWeight.Bold,
@@ -268,7 +268,7 @@ fun MapScreen(
                             val monthName = date.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
                                 .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
 
-                            Text(
+                            HaveText(
                                 text = "$monthName ${date.year}",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
@@ -304,7 +304,7 @@ fun MapScreen(
                                     value = searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChanged(it) },
                                     modifier = Modifier.weight(1f),
-                                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                                    placeholder = { HaveText(stringResource(R.string.search_placeholder)) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(24.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
@@ -362,7 +362,7 @@ fun MapScreen(
                                                 .clickable { viewModel.selectDate(itemDate) }
                                                 .padding(vertical = 4.dp)
                                         ) {
-                                            Text(
+                                            HaveText(
                                                 text = dayOfWeekName,
                                                 fontSize = 12.sp,
                                                 color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -384,7 +384,7 @@ fun MapScreen(
                                                     ),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                Text(
+                                                HaveText(
                                                     text = itemDate.dayOfMonth.toString(),
                                                     fontSize = 16.sp,
                                                     fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
@@ -414,11 +414,11 @@ fun MapScreen(
                     ) {
                         items(searchResults) { activity ->
                             ListItem(
-                                headlineContent = { Text(activity.title) },
+                                headlineContent = { HaveText(activity.title) },
                                 supportingContent = {
                                     val startDateTime = Instant.ofEpochMilli(activity.timeInterval.startTime)
                                         .atZone(ZoneId.systemDefault())
-                                    Text(startDateTime.format(searchItemFormatter))
+                                    HaveText(startDateTime.format(searchItemFormatter))
                                 },
                                 leadingContent = {
                                     Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
@@ -435,7 +435,7 @@ fun MapScreen(
                         if (searchResults.isEmpty()) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                    Text(stringResource(R.string.nothing_found), color = Color.Gray)
+                                    HaveText(stringResource(R.string.nothing_found), color = Color.Gray)
                                 }
                             }
                         }
@@ -475,7 +475,7 @@ fun MapScreen(
                                 shape = MaterialTheme.shapes.medium,
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
-                                Text(
+                                HaveText(
                                     text = stringResource(R.string.no_location_events),
                                     modifier = Modifier
                                         .padding(12.dp)

@@ -39,7 +39,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,6 +55,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import dev.chrisbanes.haze.HazeState
@@ -99,7 +99,7 @@ fun YearScreen(
             }
             is YearState.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = yearState.message, color = MaterialTheme.colorScheme.error)
+                    HaveText(text = yearState.message, color = MaterialTheme.colorScheme.error)
                 }
             }
             is YearState.Success -> {
@@ -146,7 +146,7 @@ fun YearScreen(
                                                 modifier = Modifier.size(16.dp),
                                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                                             )
-                                            Text(
+                                            HaveText(
                                                 text = today.dayOfMonth.toString(),
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -177,7 +177,7 @@ fun YearScreen(
                                 IconButton(onClick = { viewModel.goToPreviousYear() }) {
                                     Icon(Icons.Default.ChevronLeft, contentDescription = null)
                                 }
-                                Text(
+                                HaveText(
                                     text = yearState.currentYear.toString(),
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold,
@@ -233,7 +233,7 @@ fun MonthItem(
             .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
+        HaveText(
             text = monthName,
             style = MaterialTheme.typography.labelLarge,
             color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
@@ -258,7 +258,7 @@ fun MonthItem(
             contentAlignment = Alignment.Center
         ) {
             if (monthData.daysWithActivities > 0) {
-                Text(
+                HaveText(
                     text = monthData.daysWithActivities.toString(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,

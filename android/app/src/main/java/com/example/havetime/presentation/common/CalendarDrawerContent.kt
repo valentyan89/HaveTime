@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.havetime.R
+import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.navigation.Screen
 import java.time.Year
 
@@ -61,7 +61,7 @@ fun CalendarDrawerContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                HaveText(
                     text = stringResource(R.string.app_name),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -89,7 +89,7 @@ fun CalendarDrawerContent(
                     )
                 },
                 label = {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.day_screen),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
@@ -120,7 +120,7 @@ fun CalendarDrawerContent(
                     )
                 },
                 label = {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.month_screen),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
@@ -151,7 +151,7 @@ fun CalendarDrawerContent(
                     )
                 },
                 label = {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.year_screen_title),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
@@ -188,7 +188,7 @@ fun CalendarDrawerContent(
                     )
                 },
                 label = {
-                    Text(
+                    HaveText(
                         text = stringResource(R.string.map),
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         color = MaterialTheme.colorScheme.onSurface
