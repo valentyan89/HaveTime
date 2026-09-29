@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -44,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -62,7 +60,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -81,9 +78,7 @@ import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
@@ -442,48 +437,11 @@ fun MapScreen(
                     }
                 }
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        AndroidView(
-                            factory = {
-                                mapView.apply {
-                                    setTileSource(TileSourceFactory.MAPNIK)
-                                    setMultiTouchControls(true)
-                                    zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
-                                    controller.setZoom(15.0)
-                                    controller.setCenter(GeoPoint(55.7558, 37.6173))
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-
-                        if (geoMarks.isEmpty()) {
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .align(Alignment.BottomCenter)
-                                    .padding(16.dp)
-                                    .padding(bottom = paddingValues.calculateBottomPadding()),
-                                shape = MaterialTheme.shapes.medium,
-                                color = MaterialTheme.colorScheme.surfaceVariant
-                            ) {
-                                HaveText(
-                                    text = stringResource(R.string.no_location_events),
-                                    modifier = Modifier
-                                        .padding(12.dp)
-                                )
-                            }
-                        }
-                    }
-                }
+                MapContent(
+                    mapView = mapView,
+                    geoMarks = geoMarks,
+                    paddingValues = paddingValues
+                )
             }
         }
     }

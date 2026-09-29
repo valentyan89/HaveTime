@@ -203,7 +203,8 @@ fun AddActivityDialog(
                 else stringResource(R.string.edit_activity),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         text = {
