@@ -1,5 +1,63 @@
 # HaveTime - Умный календарь для Android
 
+## Стек технологий
+
+### Платформа и язык
+
+- **Kotlin**
+- **Android SDK**
+- **Java 11**
+- **Gradle Kotlin DSL**
+- **KSP** — генерация кода
+
+### Пользовательский интерфейс
+
+- **Jetpack Compose**
+- **Material 3**
+- **Compose Navigation**
+- **Compose Runtime**
+- **Google Fonts for Compose**
+- **Compose Material Icons Extended**
+- **Compose Calendar**
+
+### Архитектура и управление зависимостями
+
+- **Android Architecture Components**
+- **ViewModel**
+- **Hilt / Dagger** — внедрение зависимостей
+- **WorkManager** — фоновые задачи
+- **Jetpack Glance** — виджеты приложения (не доделано до идеала)
+
+### Хранение данных
+
+- **Room** — локальная база данных
+- **DataStore Preferences** — хранение пользовательских настроек
+- **Kotlinx Serialization**
+
+### Сеть и авторизация
+
+- **Ktor Client**
+- **OkHttp**
+- **Ktor Content Negotiation**
+- **Ktor Auth**
+
+### Карты и геолокация
+
+- **osmdroid**
+- **OSM Bonus Pack**
+- **OpenStreetMap**
+
+### Дополнительные библиотеки
+
+- **Haze Jetpack Compose** — визуальные эффекты и размытие
+- **Desugar JDK Libraries** — поддержка современных API Java на старых версиях Android
+
+### Минимальные требования
+
+- **minSdk: 24**
+- **targetSdk: 36**
+- **compileSdk: 36**
+
 ## Использование приложения
 
 ### День (Day View)
@@ -43,8 +101,9 @@
 
 ## Лицензия
 
-Проект разработан в академических целях.
+Проект разработан в академических целях. Начиная с 2026-06-15 проект ведется автором репозитория
+
 
 ---
 
-**Последнее обновление:** 2026-07-28
+**Последнее обновление:** 2026-09-30
