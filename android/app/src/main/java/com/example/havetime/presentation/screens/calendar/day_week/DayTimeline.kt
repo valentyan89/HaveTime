@@ -290,6 +290,27 @@ fun DayTimeline(
                                             )
                                         }
                                     }
+                                } else {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.LocationOn,
+                                            contentDescription = "Координаты",
+                                            tint = Color.White.copy(alpha = 0.9f),
+                                            modifier = Modifier.size(12.dp)
+                                        )
+
+                                        Spacer(modifier = Modifier.width(2.dp))
+
+                                        val str = "${event.location?.latitude}, ${event.location?.longitude}"
+                                        HaveText(
+                                            text = str,
+                                            color = Color.White.copy(alpha = 0.9f),
+                                            fontSize = 10.sp
+                                        )
+                                    }
                                 }
                             }
                         }
