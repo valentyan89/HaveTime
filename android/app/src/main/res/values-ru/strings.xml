@@ -48,4 +48,18 @@
     <string name="go_to_today">Go to today</string>
     <string name="clear_text">Clear text</string>
     <string name="nothing_found">Nothing found</string>
+    <!-- Settings -->
+    <string name="settings">Настройки</string>
+    <string name="settings_language">Язык приложения</string>
+    <string name="settings_location">Определение местоположения</string>
+    <string name="dynamic_color">Динамические цвета</string>
+
+    <!-- Language -->
+    <string name="language_system">Системный</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_english">Английский</string>
+
+    <!-- Location -->
+    <string name="location_coordinates">По координатам</string>
+    <string name="location_geocoding">Геокодирование</string>
 </resources>

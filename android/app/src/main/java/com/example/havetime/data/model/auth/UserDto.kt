@@ -1,4 +1,4 @@
-package com.example.havetime.data.model
+package com.example.havetime.data.model.auth
 
 data class UserDto(
     val id: Int,

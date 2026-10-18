@@ -109,6 +109,7 @@ dependencies {
     implementation(libs.glance.material3)
 
     implementation(libs.haze.jetpack.compose)
+    implementation(libs.androidx.core.splashscreen)
 }
 
 configurations.all {

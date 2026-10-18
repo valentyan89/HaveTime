@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,7 +78,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +93,7 @@ fun AddActivityDialog(
 ) {
     var title by remember(editingActivity?.id) { mutableStateOf(editingActivity?.title ?: "") }
 
-    val currentLocale = Locale.getDefault()
+    val currentLocale = LocalConfiguration.current.locales[0]
     val dateFormatter = remember(currentLocale) {
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(currentLocale)
     }
@@ -454,7 +454,7 @@ fun WheelColumn(count: Int, initialValue: Int, label: String, onValueChange: (In
     val startIndex = (totalItems / 2) - ((totalItems / 2) % count) + initialValue
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = (startIndex - 1).coerceAtLeast(0))
     val snapBehavior = rememberSnapFlingBehavior(listState)
-    val currentLocale = Locale.getDefault()
+    val currentLocale = LocalConfiguration.current.locales[0]
 
     val currentSelected by remember { derivedStateOf { (listState.firstVisibleItemIndex + 1) % count } }
 

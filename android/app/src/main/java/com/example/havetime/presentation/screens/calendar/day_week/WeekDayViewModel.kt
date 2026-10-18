@@ -68,6 +68,9 @@ class WeekDayViewModel @Inject constructor(
         }
     }
 
+    private val _toggleAddress = MutableStateFlow(false)
+    val toggleAddress = _toggleAddress.asStateFlow()
+
     val currentTime: StateFlow<LocalDateTime> = getCurrentTimeUseCase()
         .stateIn(
             scope = viewModelScope,

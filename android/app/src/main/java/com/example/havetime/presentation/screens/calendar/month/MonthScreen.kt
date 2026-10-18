@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -67,7 +68,7 @@ fun MonthScreen(
     }
 
     val today = LocalDate.now()
-    val currentLocale = remember { Locale.getDefault() }
+    val currentLocale = LocalConfiguration.current.locales[0]
 
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 

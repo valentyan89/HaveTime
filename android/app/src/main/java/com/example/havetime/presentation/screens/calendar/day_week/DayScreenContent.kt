@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -25,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -40,12 +40,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Locale
 
 private const val INFINITE_PAGER_ITEMS = 10_000
 private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayScreenContent(
     date: LocalDate,
@@ -70,7 +68,7 @@ fun DayScreenContent(
     var draftStartTime by remember { mutableStateOf<Long?>(null) }
     var draftEndTime by remember { mutableStateOf<Long?>(null) }
 
-    val currentLocale = remember { Locale.getDefault() }
+    val currentLocale = LocalConfiguration.current.locales[0]
 
     val hazeState = remember { HazeState() }
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()

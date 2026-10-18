@@ -1,7 +1,7 @@
 package com.example.havetime.data.mapper
 
 import com.example.havetime.data.local.entity.UserEntity
-import com.example.havetime.data.model.UserDto
+import com.example.havetime.data.model.auth.UserDto
 import com.example.havetime.domain.model.User
 
 fun UserEntity.toDomain(): User {

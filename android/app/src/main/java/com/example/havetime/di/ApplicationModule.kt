@@ -26,6 +26,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 private val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_tokens")
+private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -92,4 +93,10 @@ object ApplicationModule {
     @Singleton
     fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
         WorkManager.getInstance(context)
+
+    @Provides
+    @Singleton
+    @Named("settings_store")
+    fun provideSettingsDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        context.settingsDataStore
 }

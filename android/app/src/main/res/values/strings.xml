@@ -47,4 +47,18 @@
     <string name="go_to_today">Go to today</string>
     <string name="clear_text">Clear text</string>
     <string name="nothing_found">Nothing found</string>
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_language">App language</string>
+    <string name="settings_location">Location detection method</string>
+    <string name="dynamic_color">Dynamic colors</string>
+
+    <!-- Language -->
+    <string name="language_system">System default</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_english">English</string>
+
+    <!-- Location -->
+    <string name="location_coordinates">By coordinates</string>
+    <string name="location_geocoding">Geocoding</string>
 </resources>

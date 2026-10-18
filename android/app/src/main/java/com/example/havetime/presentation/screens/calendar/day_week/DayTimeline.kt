@@ -59,13 +59,13 @@ private const val TIME_COLUMN_WIDTH_DP = 60f
 
 @Composable
 fun DayTimeline(
+    modifier: Modifier = Modifier,
     events: List<Activity>,
     currentDateTime: LocalDateTime,
     selectedDate: LocalDate,
     onEventClick: (Activity) -> Unit = {},
     onAddActivity: (Long, Long) -> Unit = { _, _ -> },
     onUpdateActivity: (Activity) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -147,7 +147,7 @@ fun DayTimeline(
                             .offset(y = topOffsetDp)
                     ) {
                         HaveText(
-                            text = String.format(Locale("ru"), "%02d:00", hour),
+                            text = "%02d:00".format(Locale.getDefault(), hour),
                             modifier = Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
@@ -289,6 +289,27 @@ fun DayTimeline(
                                                 fontSize = 10.sp
                                             )
                                         }
+                                    }
+                                } else if (event.location != null) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.LocationOn,
+                                            contentDescription = "Координаты",
+                                            tint = Color.White.copy(alpha = 0.9f),
+                                            modifier = Modifier.size(12.dp)
+                                        )
+
+                                        Spacer(modifier = Modifier.width(2.dp))
+
+                                        val str = "${event.location.latitude}, ${event.location.longitude}"
+                                        HaveText(
+                                            text = str,
+                                            color = Color.White.copy(alpha = 0.9f),
+                                            fontSize = 10.sp
+                                        )
                                     }
                                 }
                             }

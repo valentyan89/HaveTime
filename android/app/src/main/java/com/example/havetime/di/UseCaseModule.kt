@@ -4,6 +4,7 @@ import androidx.work.WorkManager
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.RemindManager
+import com.example.havetime.domain.repository.SettingsRepository
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.domain.repository.WidgetRepository
 import com.example.havetime.domain.usecase.activity.AddTodoUseCase
@@ -31,6 +32,11 @@ import com.example.havetime.domain.usecase.date.GetPreviousDayUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousWeekUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousYearUseCase
+import com.example.havetime.domain.usecase.settings.GetSettingsUseCase
+import com.example.havetime.domain.usecase.settings.SetDynamicColorUseCase
+import com.example.havetime.domain.usecase.settings.SetLanguageUseCase
+import com.example.havetime.domain.usecase.settings.SetLocationUseCase
+import com.example.havetime.domain.usecase.settings.SetNotificationsEnabledUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -156,4 +162,24 @@ object UseCaseModule {
     @Provides
     fun getUpcomingActivitiesUseCase(repository: ActivityRepository): GetUpcomingActivitiesUseCase =
         GetUpcomingActivitiesUseCase(repository)
+
+    @Provides
+    fun setLanguageUseCase(repository: SettingsRepository): SetLanguageUseCase =
+        SetLanguageUseCase(repository)
+
+    @Provides
+    fun setLocationUseCase(repository: SettingsRepository): SetLocationUseCase =
+        SetLocationUseCase(repository)
+
+    @Provides
+    fun getSettingsUseCase(repository: SettingsRepository): GetSettingsUseCase =
+        GetSettingsUseCase(repository)
+
+    @Provides
+    fun setNotificationsEnabledUseCase(repository: SettingsRepository): SetNotificationsEnabledUseCase =
+        SetNotificationsEnabledUseCase(repository)
+
+    @Provides
+    fun setDynaUseCase(repository: SettingsRepository): SetDynamicColorUseCase =
+        SetDynamicColorUseCase(repository)
 }

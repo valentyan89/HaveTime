@@ -5,11 +5,13 @@ import com.example.havetime.data.repository.ActivityRepositoryImpl
 import com.example.havetime.data.repository.DateRepositoryImpl
 import com.example.havetime.data.repository.GeocodingRepositoryImpl
 import com.example.havetime.data.repository.RemindManagerImpl
+import com.example.havetime.data.repository.SettingsRepositoryImpl
 import com.example.havetime.data.repository.UserRepositoryImpl
 import com.example.havetime.data.repository.WidgetRepositoryImpl
 import com.example.havetime.domain.repository.DateRepository
 import com.example.havetime.domain.repository.GeocodingRepository
 import com.example.havetime.domain.repository.RemindManager
+import com.example.havetime.domain.repository.SettingsRepository
 import com.example.havetime.domain.repository.UserRepository
 import com.example.havetime.domain.repository.WidgetRepository
 import dagger.Binds
@@ -44,4 +46,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWidgetRepository(impl: WidgetRepositoryImpl): WidgetRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl) : SettingsRepository
 }
