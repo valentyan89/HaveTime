@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.sp
 import com.example.havetime.presentation.common.utils.HaveText
 import java.time.DayOfWeek
@@ -46,8 +47,8 @@ fun CalendarHeader(
     onMonthClick: () -> Unit,
     currentDestination: String?
 ) {
-    val locale = Locale.getDefault()
-    val monthYearText = remember(selectedDate) {
+    val locale = LocalConfiguration.current.locales[0]
+    val monthYearText = remember(selectedDate, locale) {
         val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
         selectedDate.format(formatter).replaceFirstChar { it.uppercase() }
     }

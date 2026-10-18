@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.havetime.presentation.common.CalendarDrawerContent
+import com.example.havetime.presentation.screens.Settings.SettingsScreen
 import com.example.havetime.presentation.screens.auth.AuthScreen
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
@@ -108,6 +109,15 @@ fun CalendarNavHost() {
                     onAuthSuccess = { },
                     onBackClick = { navController.popBackStack() },
                     navController = navController
+                )
+            }
+
+            composable(Screen.Settings.route) {
+                SettingsScreen(
+                    navController = navController,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }

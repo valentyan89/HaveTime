@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -75,7 +76,7 @@ fun YearScreen(
     val state by viewModel.state.collectAsState()
     val today by viewModel.today.collectAsState()
 
-    val currentLocale = remember { Locale.getDefault() }
+    val currentLocale = LocalConfiguration.current.locales[0]
 
     val hazeState = remember { HazeState() }
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()

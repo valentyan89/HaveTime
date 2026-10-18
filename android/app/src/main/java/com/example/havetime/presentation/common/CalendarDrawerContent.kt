@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarViewDay
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -198,6 +199,41 @@ fun CalendarDrawerContent(
                 onClick = {
                     navController.navigate(Screen.Map.route) {
                         popUpTo(0) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                    onCloseDrawer()
+                },
+                modifier = Modifier.padding(vertical = 6.dp),
+                colors = NavigationDrawerItemDefaults.colors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedContainerColor = Color.Transparent
+                )
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            NavigationDrawerItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                label = {
+                    HaveText(
+                        text = stringResource(R.string.settings),
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                selected = currentRoute == Screen.Settings.route,
+                onClick = {
+                    navController.navigate(Screen.Settings.route) {
                         launchSingleTop = true
                     }
                     onCloseDrawer()

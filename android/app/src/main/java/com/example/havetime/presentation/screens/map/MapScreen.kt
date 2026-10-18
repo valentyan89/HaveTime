@@ -77,6 +77,7 @@ import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
+import androidx.compose.ui.platform.LocalConfiguration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -135,7 +136,7 @@ fun MapScreen(
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
 
-    val currentLocale = Locale.getDefault()
+    val currentLocale = LocalConfiguration.current.locales[0]
     val searchItemFormatter = remember(currentLocale) {
         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(currentLocale)
     }

@@ -51,7 +51,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Locale
 import kotlin.math.abs
 
 private const val HOUR_HEIGHT_DP = 90f
@@ -147,7 +146,7 @@ fun DayTimeline(
                             .offset(y = topOffsetDp)
                     ) {
                         HaveText(
-                            text = String.format(Locale("ru"), "%02d:00", hour),
+                            text = String.format("%02d:00", hour),
                             modifier = Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
