@@ -51,6 +51,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Locale
 import kotlin.math.abs
 
 private const val HOUR_HEIGHT_DP = 90f
@@ -58,13 +59,13 @@ private const val TIME_COLUMN_WIDTH_DP = 60f
 
 @Composable
 fun DayTimeline(
+    modifier: Modifier = Modifier,
     events: List<Activity>,
     currentDateTime: LocalDateTime,
     selectedDate: LocalDate,
     onEventClick: (Activity) -> Unit = {},
     onAddActivity: (Long, Long) -> Unit = { _, _ -> },
     onUpdateActivity: (Activity) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -146,7 +147,7 @@ fun DayTimeline(
                             .offset(y = topOffsetDp)
                     ) {
                         HaveText(
-                            text = String.format("%02d:00", hour),
+                            text = "%02d:00".format(Locale.getDefault(), hour),
                             modifier = Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
@@ -289,7 +290,7 @@ fun DayTimeline(
                                             )
                                         }
                                     }
-                                } else {
+                                } else if (event.location != null) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier.fillMaxWidth()
@@ -303,7 +304,7 @@ fun DayTimeline(
 
                                         Spacer(modifier = Modifier.width(2.dp))
 
-                                        val str = "${event.location?.latitude}, ${event.location?.longitude}"
+                                        val str = "${event.location.latitude}, ${event.location.longitude}"
                                         HaveText(
                                             text = str,
                                             color = Color.White.copy(alpha = 0.9f),
