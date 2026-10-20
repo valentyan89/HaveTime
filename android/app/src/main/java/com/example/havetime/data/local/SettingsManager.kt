@@ -8,13 +8,17 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.havetime.data.mapper.toLanguage
 import com.example.havetime.data.mapper.toLocation
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.map
 
 @Singleton
-class SettingsManager @Inject constructor(@Named("settings_store") private val dataStore: DataStore<Preferences>) {
+class SettingsManager
+@Inject
+constructor(
+    @Named("settings_store") private val dataStore: DataStore<Preferences>
+) {
     private companion object {
         val LOCATION_MODE_KEY = stringPreferencesKey("location_mode")
         val LANGUAGE_KEY = stringPreferencesKey("language")
@@ -39,13 +43,13 @@ class SettingsManager @Inject constructor(@Named("settings_store") private val d
         }
     }
 
-    val appSettings = dataStore.data.map { preferences ->
-        AppSettings(
-            location = preferences[LOCATION_MODE_KEY].toLocation(),
-            language = preferences[LANGUAGE_KEY].toLanguage(),
-            dynamicColor = preferences[DYNAMIC_COLOR_KEY] ?: false,
-            notificationsEnabled = true
-        )
-    }
-
+    val appSettings =
+        dataStore.data.map { preferences ->
+            AppSettings(
+                location = preferences[LOCATION_MODE_KEY].toLocation(),
+                language = preferences[LANGUAGE_KEY].toLanguage(),
+                dynamicColor = preferences[DYNAMIC_COLOR_KEY] ?: false,
+                notificationsEnabled = true
+            )
+        }
 }

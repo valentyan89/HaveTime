@@ -46,13 +46,13 @@ import androidx.compose.ui.zIndex
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.presentation.common.utils.HaveText
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Locale
 import kotlin.math.abs
+import kotlinx.coroutines.launch
 
 private const val HOUR_HEIGHT_DP = 90f
 private const val TIME_COLUMN_WIDTH_DP = 60f
@@ -65,7 +65,7 @@ fun DayTimeline(
     selectedDate: LocalDate,
     onEventClick: (Activity) -> Unit = {},
     onAddActivity: (Long, Long) -> Unit = { _, _ -> },
-    onUpdateActivity: (Activity) -> Unit = {},
+    onUpdateActivity: (Activity) -> Unit = {}
 ) {
     val lazyListState = rememberLazyListState()
     val density = LocalDensity.current
@@ -97,7 +97,8 @@ fun DayTimeline(
             val totalHeightDp = (24 * HOUR_HEIGHT_DP).dp
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .height(totalHeightDp)
                     .pointerInput(selectedDate) {
@@ -105,14 +106,19 @@ fun DayTimeline(
                             onDragStart = { offset ->
                                 val totalMin = (offset.y / minuteHeightPx).toLong()
                                 val startDT = selectedDate.atStartOfDay().plusMinutes(totalMin)
-                                creatingActivityStart = startDT.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                creatingActivityStart =
+                                    startDT.atZone(
+                                        ZoneId.systemDefault()
+                                    ).toInstant().toEpochMilli()
                                 creatingActivityEnd = creatingActivityStart
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
                                 if (change.position.y < 50f) {
                                     scope.launch { lazyListState.animateScrollBy(-30f) }
-                                } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
+                                } else if (change.position.y >
+                                    (24 * HOUR_HEIGHT_DP * density.density - 50f)
+                                ) {
                                     scope.launch { lazyListState.animateScrollBy(30f) }
                                 }
 
@@ -120,7 +126,9 @@ fun DayTimeline(
                                 creatingActivityEnd = (creatingActivityEnd ?: 0L) + dMin * 60000
                             },
                             onDragEnd = {
-                                if (creatingActivityStart != null && creatingActivityEnd != null) {
+                                if (creatingActivityStart != null &&
+                                    creatingActivityEnd != null
+                                ) {
                                     val s = creatingActivityStart!!
                                     val e = creatingActivityEnd!!
                                     val start = if (s < e) s else e
@@ -141,21 +149,24 @@ fun DayTimeline(
                 repeat(24) { hour ->
                     val topOffsetDp = (hour * HOUR_HEIGHT_DP).dp
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxWidth()
                             .height(HOUR_HEIGHT_DP.dp)
                             .offset(y = topOffsetDp)
                     ) {
                         HaveText(
                             text = "%02d:00".format(Locale.getDefault(), hour),
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .width(TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         HorizontalDivider(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .fillMaxWidth()
                                 .padding(start = TIME_COLUMN_WIDTH_DP.dp)
                                 .align(Alignment.TopStart),
@@ -165,43 +176,81 @@ fun DayTimeline(
                     }
                 }
 
-                creatingActivityStart?.let { s -> creatingActivityEnd?.let { e ->
-                    val start = if (s < e) s else e
-                    val end = if (s < e) e else s
-                    val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    if (start < dayEnd && end > dayStart) {
-                        val drawStart = if (start < dayStart) dayStart else start
-                        val drawEnd = if (end > dayEnd) dayEnd else end
-                        val offMin = (drawStart - dayStart) / 60000f
-                        val durMin = (drawEnd - drawStart) / 60000f
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = TIME_COLUMN_WIDTH_DP.dp, end = 16.dp)
-                                .graphicsLayer { translationY = offMin * minuteHeightPx }
-                                .height(with(density) { (durMin * minuteHeightPx).toDp() })
-                                .background(Color.Green.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                                .border(2.dp, Color.Green, RoundedCornerShape(8.dp))
-                                .zIndex(400f)
-                        )
+                creatingActivityStart?.let { s ->
+                    creatingActivityEnd?.let { e ->
+                        val start = if (s < e) s else e
+                        val end = if (s < e) e else s
+                        val dayStart =
+                            selectedDate
+                                .atStartOfDay()
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                        val dayEnd =
+                            selectedDate
+                                .plusDays(1)
+                                .atStartOfDay()
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                        if (start < dayEnd && end > dayStart) {
+                            val drawStart = if (start < dayStart) dayStart else start
+                            val drawEnd = if (end > dayEnd) dayEnd else end
+                            val offMin = (drawStart - dayStart) / 60000f
+                            val durMin = (drawEnd - drawStart) / 60000f
+                            Box(
+                                modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = TIME_COLUMN_WIDTH_DP.dp, end = 16.dp)
+                                    .graphicsLayer { translationY = offMin * minuteHeightPx }
+                                    .height(with(density) { (durMin * minuteHeightPx).toDp() })
+                                    .background(
+                                        Color.Green.copy(alpha = 0.3f),
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .border(2.dp, Color.Green, RoundedCornerShape(8.dp))
+                                    .zIndex(400f)
+                            )
+                        }
                     }
-                } }
+                }
 
-                val dayStart = selectedDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                val dayEnd = selectedDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                val dayVisibleIntervals = events.filter {
-                    it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart
-                }.sortedBy { it.timeInterval.startTime }
+                val dayStart =
+                    selectedDate
+                        .atStartOfDay()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
+                val dayEnd =
+                    selectedDate
+                        .plusDays(1)
+                        .atStartOfDay()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
+                val dayVisibleIntervals =
+                    events
+                        .filter {
+                            it.timeInterval.startTime < dayEnd && it.timeInterval.endTime > dayStart
+                        }.sortedBy { it.timeInterval.startTime }
 
                 dayVisibleIntervals.forEachIndexed { idx, event ->
-                    var currentStart by remember(event.id, event.timeInterval.startTime) { mutableStateOf(event.timeInterval.startTime) }
-                    var currentEnd by remember(event.id, event.timeInterval.endTime) { mutableStateOf(event.timeInterval.endTime) }
-                    val overlapping = dayVisibleIntervals.filter {
-                        it.timeInterval.startTime < event.timeInterval.endTime &&
-                                it.timeInterval.endTime > event.timeInterval.startTime
+                    var currentStart by remember(event.id, event.timeInterval.startTime) {
+                        mutableStateOf(event.timeInterval.startTime)
                     }
-                    val simultaneous = overlapping.filter { it.timeInterval.startTime == event.timeInterval.startTime }
+                    var currentEnd by remember(event.id, event.timeInterval.endTime) {
+                        mutableStateOf(event.timeInterval.endTime)
+                    }
+                    val overlapping =
+                        dayVisibleIntervals.filter {
+                            it.timeInterval.startTime < event.timeInterval.endTime &&
+                                it.timeInterval.endTime > event.timeInterval.startTime
+                        }
+                    val simultaneous = overlapping.filter {
+                        it.timeInterval.startTime ==
+                            event.timeInterval.startTime
+                    }
                     val widthFactor: Float
                     val horizontalOffsetFactor: Float
                     if (simultaneous.size > 1) {
@@ -217,14 +266,18 @@ fun DayTimeline(
                     val startMin = (displayStart - dayStart) / 60000f
                     val durMin = (displayEnd - displayStart) / 60000f
                     if (durMin > 0) {
-                        val eventColor = lerp(Color(event.color), MaterialTheme.colorScheme.surface, 0.0f)
+                        val eventColor =
+                            lerp(Color(event.color), MaterialTheme.colorScheme.surface, 0.0f)
                         Card(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .graphicsLayer {
                                     translationY = startMin * minuteHeightPx
-                                    translationX = horizontalOffsetFactor * (with(density) { (400.dp.toPx()) }) * widthFactor
-                                }
-                                .fillMaxWidth(widthFactor)
+                                    translationX =
+                                        horizontalOffsetFactor *
+                                        (with(density) { (400.dp.toPx()) }) *
+                                        widthFactor
+                                }.fillMaxWidth(widthFactor)
                                 .padding(start = TIME_COLUMN_WIDTH_DP.dp + 4.dp, end = 4.dp)
                                 .height(with(density) { (durMin * minuteHeightPx).toDp() })
                                 .zIndex(if (activeId == event.id) 1000f else 10f + idx)
@@ -238,35 +291,72 @@ fun DayTimeline(
                                             currentStart += dMin * 60000
                                             currentEnd = currentStart + duration
                                             if (change.position.y < 50f) {
-                                                scope.launch { lazyListState.animateScrollBy(-30f) }
-                                            } else if (change.position.y > (24 * HOUR_HEIGHT_DP * density.density - 50f)) {
-                                                scope.launch { lazyListState.animateScrollBy(30f) }
+                                                scope.launch {
+                                                    lazyListState.animateScrollBy(-30f)
+                                                }
+                                            } else if (change.position.y >
+                                                (24 * HOUR_HEIGHT_DP * density.density - 50f)
+                                            ) {
+                                                scope.launch {
+                                                    lazyListState.animateScrollBy(30f)
+                                                }
                                             }
                                         },
                                         onDragEnd = {
-                                            val updatedEvent = event.copy(timeInterval = TimeInterval(currentStart, currentEnd), lastTimeModified = currentDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                                            val updatedEvent =
+                                                event.copy(
+                                                    timeInterval = TimeInterval(
+                                                        currentStart,
+                                                        currentEnd
+                                                    ),
+                                                    lastTimeModified =
+                                                    currentDateTime
+                                                        .atZone(
+                                                            ZoneId.systemDefault()
+                                                        ).toInstant()
+                                                        .toEpochMilli()
+                                                )
                                             onUpdateActivity(updatedEvent)
-                                            if (currentStart < dayStart || currentEnd > dayEnd) {
+                                            if (currentStart < dayStart ||
+                                                currentEnd > dayEnd
+                                            ) {
                                                 onEventClick(updatedEvent)
                                             }
                                             activeId = null
                                         },
                                         onDragCancel = { activeId = null }
                                     )
-                                }
-                                .clickable { onEventClick(event) },
+                                }.clickable { onEventClick(event) },
                             shape = RoundedCornerShape(8.dp),
                             colors = CardDefaults.cardColors(containerColor = eventColor)
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                HaveText(event.title, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp, maxLines = 1)
+                                HaveText(
+                                    event.title,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    maxLines = 1
+                                )
 
-                                val sT = Instant.ofEpochMilli(currentStart).atZone(ZoneId.systemDefault()).toLocalTime()
-                                val eT = Instant.ofEpochMilli(currentEnd).atZone(ZoneId.systemDefault()).toLocalTime()
-                                HaveText("%02d:%02d - %02d:%02d".format(sT.hour, sT.minute, eT.hour, eT.minute), color = Color.White.copy(0.8f), fontSize = 11.sp)
+                                val sT = Instant.ofEpochMilli(
+                                    currentStart
+                                ).atZone(ZoneId.systemDefault()).toLocalTime()
+                                val eT = Instant.ofEpochMilli(
+                                    currentEnd
+                                ).atZone(ZoneId.systemDefault()).toLocalTime()
+                                HaveText(
+                                    "%02d:%02d - %02d:%02d".format(
+                                        sT.hour,
+                                        sT.minute,
+                                        eT.hour,
+                                        eT.minute
+                                    ),
+                                    color = Color.White.copy(0.8f),
+                                    fontSize = 11.sp
+                                )
 
                                 if (!event.location?.geocodedAddress.isNullOrBlank()) {
-
                                     Spacer(modifier = Modifier.height(2.dp))
 
                                     Row(
@@ -319,9 +409,16 @@ fun DayTimeline(
 
                 val currentMinutes = currentDateTime.hour * 60 + currentDateTime.minute
                 val yPos = currentMinutes * minuteHeightPx
-                Box(modifier = Modifier.fillMaxWidth().graphicsLayer { translationY = yPos }.zIndex(600f)) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().graphicsLayer {
+                        translationY = yPos
+                    }.zIndex(600f)
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        HorizontalDivider(thickness = 1.5.dp, color = MaterialTheme.colorScheme.inversePrimary)
+                        HorizontalDivider(
+                            thickness = 1.5.dp,
+                            color = MaterialTheme.colorScheme.inversePrimary
+                        )
                     }
                 }
             }

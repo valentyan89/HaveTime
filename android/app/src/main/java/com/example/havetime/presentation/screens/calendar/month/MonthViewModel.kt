@@ -3,8 +3,7 @@ package com.example.havetime.presentation.screens.calendar.month
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.model.Activity
-import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
-import com.example.havetime.domain.usecase.activity.GetTodosUseCase
+import com.example.havetime.domain.usecase.activity.GetActivitiesUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
@@ -35,12 +34,10 @@ class MonthViewModel @Inject constructor(
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextMonthUseCase: GetNextMonthUseCase,
     private val getPreviousMonthUseCase: GetPreviousMonthUseCase,
-    private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
-    private val getTodosUseCase: GetTodosUseCase,
+    private val getActivitiesUseCase: GetActivitiesUseCase,
     private val searchUseCase: SearchUseCase,
     private val getInitialDateUseCase: GetInitialDateUseCase
 ) : ViewModel() {
-
     private val _currentMonth = MutableStateFlow<YearMonth>(getInitialDateUseCase().yearMonth)
     val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
@@ -55,18 +52,23 @@ class MonthViewModel @Inject constructor(
         }
     }
 
-    val intensityMap: StateFlow<Map<LocalDate, Int>> = getTodosUseCase().map { activities ->
-            activities.groupBy { activity ->
-                    java.time.Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(java.time.ZoneOffset.UTC).toLocalDate()
-                }.mapValues { entry -> entry.value.size }
-        }
-        .flowOn(Dispatchers.Default)
-        .distinctUntilChanged()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyMap()
-        )
+    val intensityMap: StateFlow<Map<LocalDate, Int>> =
+        getActivitiesUseCase()
+            .map { activities ->
+                activities
+                    .groupBy { activity ->
+                        java.time.Instant
+                            .ofEpochMilli(activity.timeInterval.startTime)
+                            .atZone(java.time.ZoneOffset.UTC)
+                            .toLocalDate()
+                    }.mapValues { entry -> entry.value.size }
+            }.flowOn(Dispatchers.Default)
+            .distinctUntilChanged()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyMap()
+            )
 
     fun go2Today() {
         viewModelScope.launch {
@@ -102,28 +104,30 @@ class MonthViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
-    fun getIntensityForDate(date: LocalDate): Int {
-        return intensityMap.value[date] ?: 0
-    }
+    fun getIntensityForDate(date: LocalDate): Int = intensityMap.value[date] ?: 0
 
     fun selectMonth(yearMonth: YearMonth) {
         _currentMonth.value = yearMonth
     }
 
-    val _searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val searchResults: StateFlow<List<Activity>> = _searchQuery
-        .debounce(300)
-        .distinctUntilChanged()
-        .flatMapLatest { query ->
-            if (query.isBlank()) flowOf(emptyList())
-            else searchUseCase(query)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val searchResults: StateFlow<List<Activity>> =
+        _searchQuery
+            .debounce(300)
+            .distinctUntilChanged()
+            .flatMapLatest { query ->
+                if (query.isBlank()) {
+                    flowOf(emptyList())
+                } else {
+                    searchUseCase(query)
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query

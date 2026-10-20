@@ -28,40 +28,40 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 
 @Composable
-fun MapContent(
-    mapView: MapView,
-    geoMarks: List<Activity>,
-    paddingValues: PaddingValues
-) {
+fun MapContent(mapView: MapView, geoMarks: List<Activity>, paddingValues: PaddingValues) {
     val screenCornerRadius = rememberScreenBottomCornerRadius()
 
-    val cardShape = RoundedCornerShape(
-        topStart = 16.dp,
-        topEnd = 16.dp,
-        bottomStart = screenCornerRadius,
-        bottomEnd = screenCornerRadius
-    )
+    val cardShape =
+        RoundedCornerShape(
+            topStart = 16.dp,
+            topEnd = 16.dp,
+            bottomStart = screenCornerRadius,
+            bottomEnd = screenCornerRadius
+        )
 
     Card(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
             .padding(
                 horizontal = 8.dp
             ),
         shape = cardShape,
-        colors = CardDefaults.cardColors(
+        colors =
+        CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(
+        elevation =
+        CardDefaults.cardElevation(
             defaultElevation = 4.dp
         )
     ) {
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .clip(cardShape)
         ) {
-
             AndroidView(
                 factory = {
                     mapView.apply {
@@ -86,7 +86,8 @@ fun MapContent(
 
             if (geoMarks.isEmpty()) {
                 Surface(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .wrapContentHeight()
                         .align(Alignment.BottomCenter)
                         .padding(
@@ -97,7 +98,8 @@ fun MapContent(
                 ) {
                     HaveText(
                         modifier = Modifier.padding(12.dp),
-                        text = stringResource(
+                        text =
+                        stringResource(
                             R.string.no_location_events
                         ),
                         fontSize = 18.sp

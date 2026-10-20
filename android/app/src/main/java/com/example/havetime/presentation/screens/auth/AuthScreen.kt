@@ -88,14 +88,16 @@ fun AuthScreen(
     ) { paddingValues ->
 
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             IconButton(
                 onClick = onBackClick,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 8.dp, top = 8.dp),
                 enabled = authState !is AuthState.Loading
@@ -132,7 +134,8 @@ fun AuthScreen(
                 }
             } ?: run {
                 Column(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -177,7 +180,10 @@ fun AuthScreen(
                         OutlinedButton(
                             onClick = { viewModel.register(loginInput, passwordInput) },
                             modifier = Modifier.weight(1f),
-                            enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
+                            enabled =
+                            authState !is AuthState.Loading &&
+                                loginInput.isNotBlank() &&
+                                passwordInput.isNotBlank()
                         ) {
                             HaveText(stringResource(R.string.registration))
                         }
@@ -187,7 +193,10 @@ fun AuthScreen(
                         Button(
                             onClick = { viewModel.login(loginInput, passwordInput) },
                             modifier = Modifier.weight(1f),
-                            enabled = authState !is AuthState.Loading && loginInput.isNotBlank() && passwordInput.isNotBlank()
+                            enabled =
+                            authState !is AuthState.Loading &&
+                                loginInput.isNotBlank() &&
+                                passwordInput.isNotBlank()
                         ) {
                             HaveText(stringResource(R.string.login_button))
                         }

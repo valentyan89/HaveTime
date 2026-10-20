@@ -3,12 +3,11 @@ package com.example.havetime.presentation.screens.calendar.day_week
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.model.Activity
-import com.example.havetime.domain.usecase.activity.AddTodoUseCase
-import com.example.havetime.domain.usecase.activity.DeleteTodoUseCase
+import com.example.havetime.domain.usecase.activity.AddActivityUseCase
+import com.example.havetime.domain.usecase.activity.DeleteActivityUseCase
+import com.example.havetime.domain.usecase.activity.GetActivitiesUseCase
 import com.example.havetime.domain.usecase.activity.GetIntervalsForDateUseCase
-import com.example.havetime.domain.usecase.activity.GetTodosUseCase
 import com.example.havetime.domain.usecase.activity.SearchUseCase
-import com.example.havetime.domain.usecase.activity.SyncWithServerUseCase
 import com.example.havetime.domain.usecase.activity.UpdateActivityUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentTimeUseCase
@@ -36,12 +35,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeekDayViewModel @Inject constructor(
-    private val addTodoUseCase: AddTodoUseCase,
-    private val deleteTodoUseCase: DeleteTodoUseCase,
+    private val addActivityUseCase: AddActivityUseCase,
+    private val deleteActivityUseCase: DeleteActivityUseCase,
     private val updateActivityUseCase: UpdateActivityUseCase,
-    private val getTodosUseCase: GetTodosUseCase,
+    private val getActivitiesUseCase: GetActivitiesUseCase,
     private val getIntervalsForDateUseCase: GetIntervalsForDateUseCase,
-    private val syncWithServerUseCase: SyncWithServerUseCase,
     private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     private val getCurrentDateUseCase: GetCurrentDateUseCase,
     private val getNextWeekUseCase: GetNextWeekUseCase,
@@ -71,45 +69,49 @@ class WeekDayViewModel @Inject constructor(
     private val _toggleAddress = MutableStateFlow(false)
     val toggleAddress = _toggleAddress.asStateFlow()
 
-    val currentTime: StateFlow<LocalDateTime> = getCurrentTimeUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = getInitialDateTimeUseCase()
-        )
+    val currentTime: StateFlow<LocalDateTime> =
+        getCurrentTimeUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = getInitialDateTimeUseCase()
+            )
 
-    val today: StateFlow<LocalDate> = getCurrentDateUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = getInitialDateUseCase()
-        )
+    val today: StateFlow<LocalDate> =
+        getCurrentDateUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = getInitialDateUseCase()
+            )
 
     fun setCalendarMode(mode: CalendarMode) {
         _calendarMode.value = mode
     }
 
-    val activityForDate: StateFlow<List<Activity>> = _currentDate
-        .flatMapLatest { date ->
-            getIntervalsForDateUseCase(date)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val activityForDate: StateFlow<List<Activity>> =
+        _currentDate
+            .flatMapLatest { date ->
+                getIntervalsForDateUseCase(date)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val activityForWeek: StateFlow<List<Activity>> = getTodosUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val activityForWeek: StateFlow<List<Activity>> =
+        getActivitiesUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     fun selectDate(date: LocalDate) {
         _currentDate.value = date
     }
 
-    fun go2Today(){
+    fun go2Today() {
         viewModelScope.launch {
             val today = getCurrentDateUseCase().first()
             _currentDate.value = today
@@ -153,7 +155,7 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun addActivity(activity: Activity) {
-        addTodoUseCase(activity).launchIn(viewModelScope)
+        addActivityUseCase(activity).launchIn(viewModelScope)
     }
 
     fun updateActivity(activity: Activity) {
@@ -161,21 +163,25 @@ class WeekDayViewModel @Inject constructor(
     }
 
     fun deleteActivity(id: Int) {
-        deleteTodoUseCase(id).launchIn(viewModelScope)
+        deleteActivityUseCase(id).launchIn(viewModelScope)
     }
 
-    val _searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val searchResults: StateFlow<List<Activity>> = _searchQuery
-        .flatMapLatest { query ->
-            if (query.isBlank()) flowOf(emptyList())
-            else searchUseCase(query)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val searchResults: StateFlow<List<Activity>> =
+        _searchQuery
+            .flatMapLatest { query ->
+                if (query.isBlank()) {
+                    flowOf(emptyList())
+                } else {
+                    searchUseCase(query)
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query

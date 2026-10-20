@@ -11,23 +11,26 @@ import androidx.work.Configuration
 import com.example.havetime.presentation.worker.SyncDataWorker
 import com.example.havetime.presentation.worker.WidgetUpdateWorker
 import dagger.hilt.android.HiltAndroidApp
-import org.osmdroid.config.IConfigurationProvider
 import javax.inject.Inject
+import org.osmdroid.config.IConfigurationProvider
 
 @HiltAndroidApp
-class HaveTimeApplication : Application(), Configuration.Provider {
-
+class HaveTimeApplication :
+    Application(),
+    Configuration.Provider {
     @Inject
     lateinit var osmConfig: IConfigurationProvider
+
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setWorkerFactory(workerFactory)
-            .build()
+        get() =
+            Configuration
+                .Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setWorkerFactory(workerFactory)
+                .build()
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -35,9 +38,10 @@ class HaveTimeApplication : Application(), Configuration.Provider {
             val channelName = "Напоминания о задачах"
             val importance = NotificationManager.IMPORTANCE_HIGH
 
-            val channel = NotificationChannel(channelId, channelName, importance).apply {
-                description = "Уведомления за час до активности"
-            }
+            val channel =
+                NotificationChannel(channelId, channelName, importance).apply {
+                    description = "Уведомления за час до активности"
+                }
 
             val notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

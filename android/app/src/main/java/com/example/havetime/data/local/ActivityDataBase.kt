@@ -12,14 +12,13 @@ import com.example.havetime.data.local.entity.UserEntity
     entities = [
         ActivityEntity::class,
         UserEntity::class
-               ],
+    ],
     version = 2,
     exportSchema = true
 )
 @TypeConverters(DateConverter::class)
 abstract class ActivityDataBase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
+
     abstract fun userDao(): UserDao
-
-
 }

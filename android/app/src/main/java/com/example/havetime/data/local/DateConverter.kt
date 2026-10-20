@@ -8,12 +8,9 @@ class DateConverter {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
     @TypeConverter
-    fun fromString(value: String?): LocalDateTime? {
-        return value?.let { LocalDateTime.parse(it, formatter) }
-    }
+    fun fromString(value: String?): LocalDateTime? =
+        value?.let { LocalDateTime.parse(it, formatter) }
 
     @TypeConverter
-    fun dateToString(date: LocalDateTime?): String? {
-        return date?.format(formatter)
-    }
+    fun dateToString(date: LocalDateTime?): String? = date?.format(formatter)
 }

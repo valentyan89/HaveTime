@@ -41,14 +41,22 @@ fun WeekCalendarPager(
     date: LocalDate,
     today: LocalDate,
     currentLocale: Locale,
-    onSelectDate: (LocalDate) -> Unit,
+    onSelectDate: (LocalDate) -> Unit
 ) {
     val pagerState = rememberLazyListState(initialFirstVisibleItemIndex = PAGER_START_INDEX)
     val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = pagerState)
 
     LaunchedEffect(date) {
-        val mondayOfDate = date.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val mondayOfToday = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val mondayOfDate =
+            date.with(
+                java.time.temporal.TemporalAdjusters
+                    .previousOrSame(DayOfWeek.MONDAY)
+            )
+        val mondayOfToday =
+            today.with(
+                java.time.temporal.TemporalAdjusters
+                    .previousOrSame(DayOfWeek.MONDAY)
+            )
         val weeksDiff = ChronoUnit.WEEKS.between(mondayOfToday, mondayOfDate).toInt()
         val target = PAGER_START_INDEX + weeksDiff
         if (pagerState.firstVisibleItemIndex != target) {
@@ -59,28 +67,38 @@ fun WeekCalendarPager(
     LazyRow(
         state = pagerState,
         flingBehavior = snapFlingBehavior,
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .height(70.dp),
         contentPadding = PaddingValues(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(INFINITE_PAGER_ITEMS) { weekIndex ->
-            val startOfWeek = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .plusWeeks((weekIndex - PAGER_START_INDEX).toLong())
+            val startOfWeek =
+                today
+                    .with(
+                        java.time.temporal.TemporalAdjusters
+                            .previousOrSame(DayOfWeek.MONDAY)
+                    ).plusWeeks((weekIndex - PAGER_START_INDEX).toLong())
 
             Row(modifier = Modifier.fillParentMaxWidth()) {
                 (0..6).forEach { dayOffset ->
                     val itemDate = startOfWeek.plusDays(dayOffset.toLong())
                     val isSelected = itemDate == date
                     val isTodayItem = itemDate == today
-                    val dayOfWeekName = remember(itemDate, currentLocale) {
-                        itemDate.dayOfWeek.getDisplayName(TextStyle.SHORT, currentLocale).uppercase()
-                    }
+                    val dayOfWeekName =
+                        remember(itemDate, currentLocale) {
+                            itemDate.dayOfWeek.getDisplayName(
+                                TextStyle.SHORT,
+                                currentLocale
+                            ).uppercase()
+                        }
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .weight(1f)
                             .clickable { onSelectDate(itemDate) }
                             .padding(vertical = 4.dp)
@@ -95,13 +113,16 @@ fun WeekCalendarPager(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Box(
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
                                 .background(
                                     when {
                                         isSelected -> MaterialTheme.colorScheme.primary
-                                        isTodayItem -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                        isTodayItem -> MaterialTheme.colorScheme.primary.copy(
+                                            alpha = 0.15f
+                                        )
                                         else -> Color.Transparent
                                     }
                                 ),
@@ -110,8 +131,15 @@ fun WeekCalendarPager(
                             HaveText(
                                 text = itemDate.dayOfMonth.toString(),
                                 fontSize = 16.sp,
-                                fontWeight = if (isSelected || isTodayItem) FontWeight.Bold else FontWeight.Normal,
-                                color = when {
+                                fontWeight = if (isSelected ||
+                                    isTodayItem
+                                ) {
+                                    FontWeight.Bold
+                                } else {
+                                    FontWeight.Normal
+                                },
+                                color =
+                                when {
                                     isSelected -> Color.White
                                     isTodayItem -> MaterialTheme.colorScheme.primary
                                     else -> MaterialTheme.colorScheme.onSurface

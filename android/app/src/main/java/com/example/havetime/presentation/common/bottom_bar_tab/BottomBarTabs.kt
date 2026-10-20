@@ -23,19 +23,18 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.pointer.pointerInput
 import com.example.havetime.presentation.common.utils.HaveText
 
-
 @Composable
 fun BottomBarTabs(
     tabs: List<BottomBarTab>,
     selectedTab: Int,
     onTabSelected: (BottomBarTab) -> Unit
-){
+) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall,
         LocalContentColor provides MaterialTheme.colorScheme.onSurface
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
         ) {
             for (tab in tabs) {
                 val alpha by animateFloatAsState(
@@ -45,14 +44,16 @@ fun BottomBarTabs(
                 val scale by animateFloatAsState(
                     targetValue = if (selectedTab == tabs.indexOf(tab)) 1f else .98f,
                     visibilityThreshold = .000001f,
-                    animationSpec = spring(
+                    animationSpec =
+                    spring(
                         stiffness = Spring.StiffnessLow,
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
                     ),
                     label = "scale"
                 )
                 Column(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .scale(scale)
                         .alpha(alpha)
                         .fillMaxHeight()
@@ -63,7 +64,7 @@ fun BottomBarTabs(
                             }
                         },
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Icon(imageVector = tab.icon, contentDescription = "tab ${tab.title}")
                     HaveText(text = tab.title)

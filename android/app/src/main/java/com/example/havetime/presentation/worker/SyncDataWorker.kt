@@ -16,43 +16,46 @@ import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
-class SyncDataWorker @AssistedInject constructor(
+class SyncDataWorker
+@AssistedInject
+constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val syncWithServerUseCase: SyncWithServerUseCase
-) : CoroutineWorker(context, params){
-
+) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         Log.d("RRR", "воркер")
-        return try{
+        return try {
             val result = syncWithServerUseCase()
-            if (result.isSuccess){
+            if (result.isSuccess) {
                 Result.success()
             } else {
                 Result.success()
             }
-        } catch (e: Throwable){
+        } catch (e: Throwable) {
             Result.success()
         }
     }
 
-    companion object{
+    companion object {
         private const val WORKER_NAME = "sync_activity_worker"
         private const val INTERVAL_SYNC = 15L
 
-        fun plannedSyncWorker(context: Context){
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+        fun plannedSyncWorker(context: Context) {
+            val constraints =
+                Constraints
+                    .Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
 
-            val syncWork = PeriodicWorkRequestBuilder<SyncDataWorker>(
-                repeatInterval = INTERVAL_SYNC,
-                repeatIntervalTimeUnit = TimeUnit.MINUTES,
-                flexTimeInterval = 5L,
-                flexTimeIntervalUnit = TimeUnit.MINUTES
-            )
-                .setConstraints(constraints)
-                .build()
+            val syncWork =
+                PeriodicWorkRequestBuilder<SyncDataWorker>(
+                    repeatInterval = INTERVAL_SYNC,
+                    repeatIntervalTimeUnit = TimeUnit.MINUTES,
+                    flexTimeInterval = 5L,
+                    flexTimeIntervalUnit = TimeUnit.MINUTES
+                ).setConstraints(constraints)
+                    .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 uniqueWorkName = WORKER_NAME,
@@ -61,7 +64,7 @@ class SyncDataWorker @AssistedInject constructor(
             )
         }
 
-        fun cancelSyncWorker(context: Context){
+        fun cancelSyncWorker(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(WORKER_NAME)
         }
     }

@@ -14,12 +14,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthApi @Inject constructor(private val client: HttpClient) {
-    suspend fun login(login: String, password: String): LoginResponse{
-        val response =  client.post("/login"){
-            contentType(io.ktor.http.ContentType.Application.Json)
-            setBody(LoginRequest(login, password))
-        }
+class AuthApi
+@Inject
+constructor(private val client: HttpClient) {
+    suspend fun login(login: String, password: String): LoginResponse {
+        val response =
+            client.post("/login") {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(LoginRequest(login, password))
+            }
 
         if (response.status == HttpStatusCode.OK) {
             return response.body<LoginResponse>()
@@ -28,11 +31,12 @@ class AuthApi @Inject constructor(private val client: HttpClient) {
         }
     }
 
-    suspend fun register(login: String, password: String): LoginResponse{
-        val response = client.post("/register"){
-            contentType(io.ktor.http.ContentType.Application.Json)
-            setBody(RegisterRequest(login, password))
-        }
+    suspend fun register(login: String, password: String): LoginResponse {
+        val response =
+            client.post("/register") {
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(RegisterRequest(login, password))
+            }
 
         if (response.status == HttpStatusCode.OK || response.status == HttpStatusCode.Created) {
             return login(login, password)

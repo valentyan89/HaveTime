@@ -41,27 +41,31 @@ fun MonthDayCell(
     val isCurrentMonth = day.position == DayPosition.MonthDate
     val isToday = day.date == today
 
-    val intensity = remember(day.date, intensityMap) {
-        if (isCurrentMonth) intensityMap[day.date] ?: 0 else 0
-    }
-
-    val backgroundColor = remember(intensity, isCurrentMonth, isToday) {
-        when {
-            !isCurrentMonth || intensity == 0 -> Color.Transparent
-            intensity >= 8 -> colorHigh
-            intensity >= 4 -> colorMedium
-            else -> colorLow
+    val intensity =
+        remember(day.date, intensityMap) {
+            if (isCurrentMonth) intensityMap[day.date] ?: 0 else 0
         }
-    }
 
-    val textColor = when {
-        !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-        isToday -> MaterialTheme.colorScheme.onPrimary
-        else -> MaterialTheme.colorScheme.onSurface
-    }
+    val backgroundColor =
+        remember(intensity, isCurrentMonth, isToday) {
+            when {
+                !isCurrentMonth || intensity == 0 -> Color.Transparent
+                intensity >= 8 -> colorHigh
+                intensity >= 4 -> colorMedium
+                else -> colorLow
+            }
+        }
+
+    val textColor =
+        when {
+            !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            isToday -> MaterialTheme.colorScheme.onPrimary
+            else -> MaterialTheme.colorScheme.onSurface
+        }
 
     Box(
-        modifier = Modifier
+        modifier =
+        Modifier
             .aspectRatio(1f)
             .padding(4.dp)
             .clip(CircleShape)
@@ -71,8 +75,7 @@ fun MonthDayCell(
                 } else {
                     backgroundColor
                 }
-            )
-            .clickable(enabled = true) {
+            ).clickable(enabled = true) {
                 onDayClick(day.date)
             },
         contentAlignment = Alignment.Center

@@ -5,8 +5,8 @@ import com.example.havetime.domain.model.settingsPrefs.AppSettings
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
 import com.example.havetime.domain.repository.SettingsRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
 class SettingsRepositoryImpl @Inject constructor(
     private val settingsManager: SettingsManager

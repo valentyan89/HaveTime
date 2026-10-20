@@ -43,10 +43,11 @@ fun MonthTopBar(
     onMenuClick: () -> Unit,
     onGo2Today: () -> Unit,
     onYearClick: (Int) -> Unit,
-    onAvatarClick: () -> Unit,
+    onAvatarClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
@@ -61,7 +62,8 @@ fun MonthTopBar(
             Spacer(modifier = Modifier.width(4.dp))
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.primaryContainer)
@@ -85,18 +87,23 @@ fun MonthTopBar(
             }
         }
 
-        val monthName = remember(visibleMonth, currentLocale) {
-            val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
-            visibleMonth.format(formatter)
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
-        }
+        val monthName =
+            remember(visibleMonth, currentLocale) {
+                val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
+                visibleMonth
+                    .format(formatter)
+                    .replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString()
+                    }
+            }
 
         HaveText(
             text = "$monthName ${visibleMonth.year}",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .align(Alignment.Center)
                 .clickable { onYearClick(visibleMonth.year) }
         )
@@ -109,9 +116,11 @@ fun MonthTopBar(
                 Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
             }
             IconButton(onClick = onAvatarClick) {
-                Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                Icon(
+                    Icons.Default.AccountCircle,
+                    contentDescription = stringResource(R.string.profile)
+                )
             }
         }
     }
 }
-

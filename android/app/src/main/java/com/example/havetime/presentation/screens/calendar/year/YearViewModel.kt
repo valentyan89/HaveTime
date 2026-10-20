@@ -9,6 +9,12 @@ import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextYearUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousYearUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
+import java.time.LocalDate
+import java.time.Month
+import java.time.YearMonth
+import java.time.ZoneOffset
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,15 +24,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.LocalDate
-import java.time.Month
-import java.time.YearMonth
-import java.time.ZoneOffset
-import javax.inject.Inject
 
 @HiltViewModel
-class YearViewModel @Inject constructor(
+class YearViewModel
+@Inject
+constructor(
     private val getCurrentYearUseCase: GetCurrentYearUseCase,
     private val getNextYearUseCase: GetNextYearUseCase,
     private val getPreviousYearUseCase: GetPreviousYearUseCase,
@@ -40,12 +42,13 @@ class YearViewModel @Inject constructor(
     private val _currentYear = MutableStateFlow(getInitialDateUseCase().year)
     val currentYear: StateFlow<Int> = _currentYear.asStateFlow()
 
-    val today: StateFlow<LocalDate> = getCurrentDateUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = getInitialDateUseCase()
-        )
+    val today: StateFlow<LocalDate> =
+        getCurrentDateUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = getInitialDateUseCase()
+            )
 
     init {
         loadCurrentYear()
@@ -87,26 +90,34 @@ class YearViewModel @Inject constructor(
             try {
                 _state.value = YearState.Loading
 
-                val monthsData = withContext(Dispatchers.Default) {
-                    Month.entries.map { month ->
-                        val yearMonth = YearMonth.of(year, month)
-                        val daysInMonth = yearMonth.lengthOfMonth()
-                        val activities = getActivitiesForMonthUseCase(yearMonth).first()
+                val monthsData =
+                    withContext(Dispatchers.Default) {
+                        Month.entries.map { month ->
+                            val yearMonth = YearMonth.of(year, month)
+                            val daysInMonth = yearMonth.lengthOfMonth()
+                            val activities = getActivitiesForMonthUseCase(yearMonth).first()
 
-                        val daysWithActivities = activities
-                            .map { it.timeInterval.startTime.toLocalDateUtc() }
-                            .distinct()
-                            .count()
+                            val daysWithActivities =
+                                activities
+                                    .map { it.timeInterval.startTime.toLocalDateUtc() }
+                                    .distinct()
+                                    .count()
 
-                        YearMonthData(
-                            yearMonth = yearMonth,
-                            month = month,
-                            daysInMonth = daysInMonth,
-                            daysWithActivities = daysWithActivities,
-                            completionPercentage = if (daysInMonth > 0) daysWithActivities.toFloat() / daysInMonth else 0f
-                        )
+                            YearMonthData(
+                                yearMonth = yearMonth,
+                                month = month,
+                                daysInMonth = daysInMonth,
+                                daysWithActivities = daysWithActivities,
+                                completionPercentage = if (daysInMonth >
+                                    0
+                                ) {
+                                    daysWithActivities.toFloat() / daysInMonth
+                                } else {
+                                    0f
+                                }
+                            )
+                        }
                     }
-                }
 
                 _state.value = YearState.Success(year, monthsData)
             } catch (e: Exception) {
@@ -116,6 +127,7 @@ class YearViewModel @Inject constructor(
     }
 }
 
-fun Long.toLocalDateUtc(): Int = Instant.ofEpochMilli(this)
+fun Long.toLocalDateUtc(): Int = Instant
+    .ofEpochMilli(this)
     .atZone(ZoneOffset.UTC)
     .dayOfMonth

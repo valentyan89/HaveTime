@@ -21,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -33,7 +33,6 @@ import dev.chrisbanes.haze.haze
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,12 +54,13 @@ fun MonthScreen(
 
     val hazeState = remember { HazeState() }
 
-    val state = rememberCalendarState(
-        startMonth = startMonth,
-        endMonth = endMonth,
-        firstVisibleMonth = month,
-        firstDayOfWeek = daysOfWeek.first()
-    )
+    val state =
+        rememberCalendarState(
+            startMonth = startMonth,
+            endMonth = endMonth,
+            firstVisibleMonth = month,
+            firstDayOfWeek = daysOfWeek.first()
+        )
 
     val visibleMonth = state.firstVisibleMonth.yearMonth
     LaunchedEffect(visibleMonth) {
@@ -82,24 +82,27 @@ fun MonthScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .haze(
                     hazeState,
                     backgroundColor = MaterialTheme.colorScheme.background,
                     tint = Color.Black.copy(alpha = .2f),
-                    blurRadius = 30.dp,
-                )
-                .fillMaxSize()
+                    blurRadius = 30.dp
+                ).fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
                     bottom = navigationBarsPadding
                 )
         ) {
             Card(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
                 Column {
                     MonthTopBar(

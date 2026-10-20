@@ -25,22 +25,24 @@ fun GlassyFloatingActionButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .padding(end = 16.dp)
             .size(56.dp)
             .hazeChild(
                 state = hazeState,
                 shape = CircleShape
-            )
-            .clip(CircleShape)
+            ).clip(CircleShape)
             .clickable(onClick = onClick)
             .border(
                 width = Dp.Hairline,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
+                brush =
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
                         Color.White.copy(alpha = .8f),
-                        Color.White.copy(alpha = .2f),
-                    ),
+                        Color.White.copy(alpha = .2f)
+                    )
                 ),
                 shape = CircleShape
             ),

@@ -15,15 +15,17 @@ import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.navigation.Screen
 
 @Composable
-fun MonthBottomNavigationBar(
-    navController: NavController,
-    onCalendarClick: () -> Unit
-) {
+fun MonthBottomNavigationBar(navController: NavController, onCalendarClick: () -> Unit) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
         NavigationBarItem(
-            icon = { Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.calendar)) },
+            icon = {
+                Icon(
+                    Icons.Default.CalendarMonth,
+                    contentDescription = stringResource(R.string.calendar)
+                )
+            },
             label = { HaveText(stringResource(R.string.calendar)) },
             selected = true,
             onClick = onCalendarClick

@@ -18,54 +18,53 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.json.Json
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
     @Provides
     @Singleton
-    fun provideHttpClient(tokenManager: TokenManager): HttpClient {
-        return HttpClient(OkHttp) {
-            install(ContentNegotiation) {
-                json(Json {
+    fun provideHttpClient(tokenManager: TokenManager): HttpClient = HttpClient(OkHttp) {
+        install(ContentNegotiation) {
+            json(
+                Json {
                     ignoreUnknownKeys = true
                     prettyPrint = true
                     isLenient = true
                     encodeDefaults = true
-                })
-            }
+                }
+            )
+        }
 
-            install(Logging) {
-                level = LogLevel.ALL
-            }
+        install(Logging) {
+            level = LogLevel.ALL
+        }
 
-            install(Auth) {
-                bearer {
-                    sendWithoutRequest { true }
-                    loadTokens {
-                        val token = tokenManager.tokenFlow.firstOrNull()
-                        if (!token.isNullOrEmpty()) {
-                            BearerTokens(token, "")
-                        } else {
-                            null
-                        }
+        install(Auth) {
+            bearer {
+                sendWithoutRequest { true }
+                loadTokens {
+                    val token = tokenManager.tokenFlow.firstOrNull()
+                    if (!token.isNullOrEmpty()) {
+                        BearerTokens(token, "")
+                    } else {
+                        null
                     }
                 }
             }
+        }
 
-            install(HttpTimeout) {
-                requestTimeoutMillis = 10000
-                connectTimeoutMillis = 10000
-            }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 10000
+            connectTimeoutMillis = 10000
+        }
 
-            defaultRequest {
-                url("http://10.0.2.2:8080/")
-                contentType(ContentType.Application.Json)
-            }
+        defaultRequest {
+            url("http://10.0.2.2:8080/")
+            contentType(ContentType.Application.Json)
         }
     }
 }

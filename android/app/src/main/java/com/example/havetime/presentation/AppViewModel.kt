@@ -14,7 +14,6 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     getSettingsUseCase: GetSettingsUseCase
 ) : ViewModel() {
-
     val settings = getSettingsUseCase()
         .map<AppSettings, AppSettings?> { it }
         .stateIn(

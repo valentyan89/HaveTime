@@ -22,38 +22,45 @@ class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val getUserUseCase: GetUserUseCase
-) : ViewModel(){
+) : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    val currentUser: StateFlow<User?> = getUserUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
+    val currentUser: StateFlow<User?> =
+        getUserUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = null
+            )
 
-    fun login(login: String, password: String){
+    fun login(login: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
 
             val result = loginUseCase(login, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
-            }
+            _authState.value =
+                when {
+                    result.isSuccess -> AuthState.Success
+                    else -> AuthState.Error(
+                        result.exceptionOrNull()?.message ?: "Unknown error"
+                    )
+                }
         }
     }
 
-    fun register(login: String, password: String){
+    fun register(login: String, password: String) {
         viewModelScope.launch {
             _authState.value = AuthState.Loading
 
             val result = registerUseCase(login, password)
-            _authState.value = when {
-                result.isSuccess -> AuthState.Success
-                else -> AuthState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
-            }
+            _authState.value =
+                when {
+                    result.isSuccess -> AuthState.Success
+                    else -> AuthState.Error(
+                        result.exceptionOrNull()?.message ?: "Unknown error"
+                    )
+                }
         }
     }
 

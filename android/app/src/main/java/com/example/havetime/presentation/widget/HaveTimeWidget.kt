@@ -14,30 +14,28 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 
 class HaveTimeWidget : GlanceAppWidget() {
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) {
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context = context.applicationContext,
-            entryPoint = WidgetEntryPoint::class.java
-        )
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val entryPoint =
+            EntryPointAccessors.fromApplication(
+                context = context.applicationContext,
+                entryPoint = WidgetEntryPoint::class.java
+            )
 
         val useCase = entryPoint.getUpcomingActivitiesUseCase()
 
         delay(1000)
 
-        val upComingActivities = try {
-            useCase()
-        } catch (e: Exception){
-            emptyList()
-        }
-
-
+        val upComingActivities =
+            try {
+                useCase()
+            } catch (e: Exception) {
+                emptyList()
+            }
 
         provideContent {
             Column(
-                modifier = GlanceModifier
+                modifier =
+                GlanceModifier
                     .fillMaxSize()
                     .background(Color.White)
             ) {

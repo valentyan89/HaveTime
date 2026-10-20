@@ -65,12 +65,6 @@ import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.domain.model.TimeInterval
 import com.example.havetime.presentation.common.utils.HaveText
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.MapEventsOverlay
-import org.osmdroid.views.overlay.Marker
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -78,6 +72,12 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Marker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,21 +94,28 @@ fun AddActivityDialog(
     var title by remember(editingActivity?.id) { mutableStateOf(editingActivity?.title ?: "") }
 
     val currentLocale = LocalConfiguration.current.locales[0]
-    val dateFormatter = remember(currentLocale) {
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(currentLocale)
-    }
+    val dateFormatter =
+        remember(currentLocale) {
+            DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(currentLocale)
+        }
 
-    val startDT = if (editingActivity != null) {
-        Instant.ofEpochMilli(editingActivity.timeInterval.startTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    } else {
-        LocalDateTime.of(initialDate, initialStartTime)
-    }
+    val startDT =
+        if (editingActivity != null) {
+            Instant.ofEpochMilli(
+                editingActivity.timeInterval.startTime
+            ).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        } else {
+            LocalDateTime.of(initialDate, initialStartTime)
+        }
 
-    val endDT = if (editingActivity != null) {
-        Instant.ofEpochMilli(editingActivity.timeInterval.endTime).atZone(ZoneId.systemDefault()).toLocalDateTime()
-    } else {
-        LocalDateTime.of(initialDate, initialEndTime)
-    }
+    val endDT =
+        if (editingActivity != null) {
+            Instant.ofEpochMilli(
+                editingActivity.timeInterval.endTime
+            ).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        } else {
+            LocalDateTime.of(initialDate, initialEndTime)
+        }
 
     var startDate by remember(editingActivity?.id) { mutableStateOf(startDT.toLocalDate()) }
     var startH by remember(editingActivity?.id) { mutableIntStateOf(startDT.hour) }
@@ -142,28 +149,45 @@ fun AddActivityDialog(
     val filterColor = MaterialTheme.colorScheme.primary
     val filterIntensity = 0.2f
 
-    val colorRows = listOf(
-        listOf(Color(0xFFEF5350), Color(0xFFEC407A), Color(0xFFAB47BC), Color(0xFF7E57C2), Color(0xFF5C6BC0)),
-        listOf(Color(0xFF42A5F5), Color(0xFF26A69A), Color(0xFF66BB6A), Color(0xFFFFCA28), Color(0xFFFF7043))
-    ).map { row ->
-        row.map { color ->
-            lerp(color, filterColor, filterIntensity)
+    val colorRows =
+        listOf(
+            listOf(
+                Color(0xFFEF5350),
+                Color(0xFFEC407A),
+                Color(0xFFAB47BC),
+                Color(0xFF7E57C2),
+                Color(0xFF5C6BC0)
+            ),
+            listOf(
+                Color(0xFF42A5F5),
+                Color(0xFF26A69A),
+                Color(0xFF66BB6A),
+                Color(0xFFFFCA28),
+                Color(0xFFFF7043)
+            )
+        ).map { row ->
+            row.map { color ->
+                lerp(color, filterColor, filterIntensity)
+            }
         }
-    }
 
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
 
     if (showStartDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        )
+        val datePickerState =
+            rememberDatePickerState(
+                initialSelectedDateMillis = startDate.atStartOfDay(
+                    ZoneId.systemDefault()
+                ).toInstant().toEpochMilli()
+            )
         DatePickerDialog(
             onDismissRequest = { showStartDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
-                        startDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        startDate =
+                            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
                         if (endDate.isBefore(startDate)) endDate = startDate
                     }
                     showStartDatePicker = false
@@ -173,15 +197,19 @@ fun AddActivityDialog(
     }
 
     if (showEndDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        )
+        val datePickerState =
+            rememberDatePickerState(
+                initialSelectedDateMillis = endDate.atStartOfDay(
+                    ZoneId.systemDefault()
+                ).toInstant().toEpochMilli()
+            )
         DatePickerDialog(
             onDismissRequest = { showEndDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
-                        endDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        endDate =
+                            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
                         if (endDate.isBefore(startDate)) startDate = endDate
                     }
                     showEndDatePicker = false
@@ -198,9 +226,14 @@ fun AddActivityDialog(
         modifier = Modifier.fillMaxWidth(0.95f),
         title = {
             HaveText(
-                text = if (showMapSelection) stringResource(R.string.select_location)
-                else if (editingActivity == null) stringResource(R.string.new_activity)
-                else stringResource(R.string.edit_activity),
+                text =
+                if (showMapSelection) {
+                    stringResource(R.string.select_location)
+                } else if (editingActivity == null) {
+                    stringResource(R.string.new_activity)
+                } else {
+                    stringResource(R.string.edit_activity)
+                },
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -210,8 +243,19 @@ fun AddActivityDialog(
         text = {
             Crossfade(targetState = showMapSelection, label = "") { isMap ->
                 if (isMap) {
-                    Column(Modifier.fillMaxWidth().height(450.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(Modifier.weight(1f).padding(horizontal = 8.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(
+                        Modifier.fillMaxWidth().height(450.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            Modifier
+                                .weight(
+                                    1f
+                                ).padding(
+                                    horizontal = 8.dp
+                                ).clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
                             LocationPickerView(
                                 initialLocation = tempLocation,
                                 markerColor = selectedColor,
@@ -228,7 +272,10 @@ fun AddActivityDialog(
                         }
                     }
                 } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.verticalScroll(rememberScrollState())
+                    ) {
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
@@ -238,16 +285,30 @@ fun AddActivityDialog(
 
                         Spacer(Modifier.height(16.dp))
 
-                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            Arrangement.SpaceBetween,
+                            Alignment.CenterVertically
+                        ) {
                             Column(Modifier.weight(1f)) {
-                                HaveText(stringResource(R.string.start), style = MaterialTheme.typography.labelMedium)
-                                TextButton(onClick = { showStartDatePicker = true }, contentPadding = PaddingValues(0.dp)) {
+                                HaveText(
+                                    stringResource(R.string.start),
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                TextButton(onClick = {
+                                    showStartDatePicker = true
+                                }, contentPadding = PaddingValues(0.dp)) {
                                     HaveText(startDate.format(dateFormatter))
                                 }
                             }
                             Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-                                HaveText(stringResource(R.string.end), style = MaterialTheme.typography.labelMedium)
-                                TextButton(onClick = { showEndDatePicker = true }, contentPadding = PaddingValues(0.dp)) {
+                                HaveText(
+                                    stringResource(R.string.end),
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                TextButton(onClick = {
+                                    showEndDatePicker = true
+                                }, contentPadding = PaddingValues(0.dp)) {
                                     HaveText(endDate.format(dateFormatter))
                                 }
                             }
@@ -263,25 +324,47 @@ fun AddActivityDialog(
                             Icon(Icons.Default.LocationOn, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
                             HaveText(
-                                text = if (tempLocation != null) stringResource(R.string.location_selected) else stringResource(R.string.select_location)
+                                text =
+                                if (tempLocation != null) {
+                                    stringResource(
+                                        R.string.location_selected
+                                    )
+                                } else {
+                                    stringResource(R.string.select_location)
+                                }
                             )
                         }
 
                         Spacer(Modifier.height(16.dp))
 
                         HaveText(
-                            text = "${stringResource(R.string.start_time)}: ${String.format(currentLocale, "%02d:%02d", startH % 24, startM % 60)}",
+                            text = "${stringResource(
+                                R.string.start_time
+                            )}: ${String.format(
+                                currentLocale,
+                                "%02d:%02d",
+                                startH % 24,
+                                startM % 60
+                            )}",
                             style = MaterialTheme.typography.labelSmall
                         )
-                        TimeWheelPicker(startH % 24, startM % 60) { h, m -> startH = h; startM = m }
+                        TimeWheelPicker(startH % 24, startM % 60) { h, m ->
+                            startH = h
+                            startM = m
+                        }
 
                         Spacer(Modifier.height(12.dp))
 
                         HaveText(
-                            text = "${stringResource(R.string.end_time)}: ${String.format(currentLocale, "%02d:%02d", endH % 24, endM % 60)}",
+                            text = "${stringResource(
+                                R.string.end_time
+                            )}: ${String.format(currentLocale, "%02d:%02d", endH % 24, endM % 60)}",
                             style = MaterialTheme.typography.labelSmall
                         )
-                        TimeWheelPicker(endH % 24, endM % 60) { h, m -> endH = h; endM = m }
+                        TimeWheelPicker(endH % 24, endM % 60) { h, m ->
+                            endH = h
+                            endM = m
+                        }
 
                         Spacer(Modifier.height(20.dp))
 
@@ -290,12 +373,21 @@ fun AddActivityDialog(
                                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
                                     row.forEach { colorItem ->
                                         Box(
-                                            modifier = Modifier.size(34.dp).clip(RoundedCornerShape(8.dp)).background(colorItem)
+                                            modifier =
+                                            Modifier
+                                                .size(34.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(colorItem)
                                                 .clickable { selectedColor = colorItem }
                                                 .padding(4.dp)
                                         ) {
                                             if (selectedColor == colorItem) {
-                                                Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.3f), RoundedCornerShape(4.dp)))
+                                                Box(
+                                                    Modifier.fillMaxSize().background(
+                                                        Color.White.copy(alpha = 0.3f),
+                                                        RoundedCornerShape(4.dp)
+                                                    )
+                                                )
                                             }
                                         }
                                     }
@@ -316,30 +408,48 @@ fun AddActivityDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (editingActivity != null) {
                             TextButton(onClick = { onDelete(editingActivity.id) }) {
-                                HaveText(stringResource(R.string.delete), color = Color.Red, fontWeight = FontWeight.Bold)
+                                HaveText(
+                                    stringResource(R.string.delete),
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                             Spacer(Modifier.width(8.dp))
                         }
-                        TextButton(onClick = onDismiss) { HaveText(stringResource(R.string.cancel)) }
+                        TextButton(onClick = onDismiss) {
+                            HaveText(stringResource(R.string.cancel))
+                        }
                     }
 
                     Button(
                         onClick = {
-                            val st = LocalDateTime.of(startDate, LocalTime.of(startH % 24, startM % 60))
+                            val st = LocalDateTime.of(
+                                startDate,
+                                LocalTime.of(
+                                    startH % 24,
+                                    startM % 60
+                                )
+                            )
                             val et = LocalDateTime.of(endDate, LocalTime.of(endH % 24, endM % 60))
 
-                            val updatedActivity = Activity(
-                                id = editingActivity?.id ?: 0,
-                                userId = editingActivity?.userId ?: 1,
-                                title = title.ifEmpty { defaultActivityTitle },
-                                timeInterval = TimeInterval(
-                                    st.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                                    et.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                                ),
-                                color = selectedColor.toArgb(),
-                                location = tempLocation,
-                                lastTimeModified = System.currentTimeMillis()
-                            )
+                            val updatedActivity =
+                                Activity(
+                                    id = editingActivity?.id ?: 0,
+                                    userId = editingActivity?.userId ?: 1,
+                                    title = title.ifEmpty { defaultActivityTitle },
+                                    timeInterval =
+                                    TimeInterval(
+                                        st.atZone(
+                                            ZoneId.systemDefault()
+                                        ).toInstant().toEpochMilli(),
+                                        et.atZone(
+                                            ZoneId.systemDefault()
+                                        ).toInstant().toEpochMilli()
+                                    ),
+                                    color = selectedColor.toArgb(),
+                                    location = tempLocation,
+                                    lastTimeModified = System.currentTimeMillis()
+                                )
                             onConfirm(updatedActivity)
                         },
                         shape = RoundedCornerShape(24.dp)
@@ -363,13 +473,14 @@ fun LocationPickerView(
     val markerTitle = stringResource(R.string.select_location)
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                else -> {}
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                    Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                    else -> {}
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -381,52 +492,59 @@ fun LocationPickerView(
             mapView.apply {
                 setMultiTouchControls(true)
                 controller.setZoom(15.0)
-                val startPoint = if (initialLocation != null) {
-                    GeoPoint(initialLocation.latitude, initialLocation.longitude)
-                } else {
-                    GeoPoint(55.7558, 37.6173)
-                }
+                val startPoint =
+                    if (initialLocation != null) {
+                        GeoPoint(initialLocation.latitude, initialLocation.longitude)
+                    } else {
+                        GeoPoint(55.7558, 37.6173)
+                    }
                 controller.setCenter(startPoint)
                 tileProvider.tileSource = TileSourceFactory.DEFAULT_TILE_SOURCE
 
-                val marker = Marker(this).apply {
-                    position = startPoint
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = markerTitle
+                val marker =
+                    Marker(this).apply {
+                        position = startPoint
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        title = markerTitle
 
-                    val drawable = GradientDrawable().apply {
-                        shape = GradientDrawable.OVAL
-                        setColor(markerColor.toArgb())
-                        setSize(60, 60)
-                        setStroke(4, android.graphics.Color.WHITE)
-                    }
-                    icon = drawable
-                }
-                if (initialLocation != null) overlays.add(marker)
-
-                val receiver = object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                        overlays.filterIsInstance<Marker>().forEach { overlays.remove(it) }
-                        val newMarker = Marker(this@apply).apply {
-                            position = p
-                            title = markerTitle
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-
-                            val drawable = GradientDrawable().apply {
+                        val drawable =
+                            GradientDrawable().apply {
                                 shape = GradientDrawable.OVAL
                                 setColor(markerColor.toArgb())
                                 setSize(60, 60)
                                 setStroke(4, android.graphics.Color.WHITE)
                             }
-                            icon = drawable
-                        }
-                        overlays.add(newMarker)
-                        invalidate()
-                        onLocationPicked(Location(p.latitude, p.longitude, null))
-                        return true
+                        icon = drawable
                     }
-                    override fun longPressHelper(p: GeoPoint): Boolean = false
-                }
+                if (initialLocation != null) overlays.add(marker)
+
+                val receiver =
+                    object : MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
+                            overlays.filterIsInstance<Marker>().forEach { overlays.remove(it) }
+                            val newMarker =
+                                Marker(this@apply).apply {
+                                    position = p
+                                    title = markerTitle
+                                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+
+                                    val drawable =
+                                        GradientDrawable().apply {
+                                            shape = GradientDrawable.OVAL
+                                            setColor(markerColor.toArgb())
+                                            setSize(60, 60)
+                                            setStroke(4, android.graphics.Color.WHITE)
+                                        }
+                                    icon = drawable
+                                }
+                            overlays.add(newMarker)
+                            invalidate()
+                            onLocationPicked(Location(p.latitude, p.longitude, null))
+                            return true
+                        }
+
+                        override fun longPressHelper(p: GeoPoint): Boolean = false
+                    }
                 overlays.add(MapEventsOverlay(receiver))
             }
         },
@@ -452,17 +570,35 @@ fun WheelColumn(count: Int, initialValue: Int, label: String, onValueChange: (In
     val itemHeight = 34.dp
     val totalItems = 10000
     val startIndex = (totalItems / 2) - ((totalItems / 2) % count) + initialValue
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = (startIndex - 1).coerceAtLeast(0))
+    val listState =
+        rememberLazyListState(initialFirstVisibleItemIndex = (startIndex - 1).coerceAtLeast(0))
     val snapBehavior = rememberSnapFlingBehavior(listState)
     val currentLocale = LocalConfiguration.current.locales[0]
 
-    val currentSelected by remember { derivedStateOf { (listState.firstVisibleItemIndex + 1) % count } }
+    val currentSelected by remember {
+        derivedStateOf { (listState.firstVisibleItemIndex + 1) % count }
+    }
 
     LaunchedEffect(currentSelected) { onValueChange(currentSelected) }
 
     Box(Modifier.width(65.dp).height(itemHeight * 3), Alignment.Center) {
-        Box(modifier = Modifier.fillMaxWidth().height(itemHeight).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(8.dp)))
-        LazyColumn(state = listState, flingBehavior = snapBehavior, modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(
+                    itemHeight
+                ).background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    RoundedCornerShape(8.dp)
+                )
+        )
+        LazyColumn(
+            state = listState,
+            flingBehavior = snapBehavior,
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             items(totalItems) { index ->
                 val displayValue = index % count
                 val isSelected = (listState.firstVisibleItemIndex + 1) == index
@@ -471,7 +607,13 @@ fun WheelColumn(count: Int, initialValue: Int, label: String, onValueChange: (In
                         text = String.format(currentLocale, "%02d%s", displayValue, label),
                         fontSize = if (isSelected) 18.sp else 15.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray.copy(alpha = 0.6f)
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Gray.copy(
+                                alpha = 0.6f
+                            )
+                        }
                     )
                 }
             }

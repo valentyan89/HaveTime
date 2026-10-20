@@ -19,9 +19,7 @@ class DateRepositoryImpl @Inject constructor() : DateRepository {
         return LocalDate.now()
     }
 
-    override fun getInitialDateTime(): LocalDateTime {
-        return LocalDateTime.now()
-    }
+    override fun getInitialDateTime(): LocalDateTime = LocalDateTime.now()
 
     override fun getCurrentTime(): Flow<LocalDateTime> = flow {
         while (true) {
@@ -30,84 +28,59 @@ class DateRepositoryImpl @Inject constructor() : DateRepository {
         }
     }
 
-    override fun getCurrentDate(): Flow<LocalDate> {
-        return getCurrentTime().map { it.toLocalDate() }.distinctUntilChanged()
-    }
+    override fun getCurrentDate(): Flow<LocalDate> = getCurrentTime().map {
+        it.toLocalDate()
+    }.distinctUntilChanged()
 
-    override fun getCurrentYear(): Flow<Int> {
-        return getCurrentTime().map { it.toLocalDate().year }.distinctUntilChanged()
-    }
+    override fun getCurrentYear(): Flow<Int> = getCurrentTime().map {
+        it.toLocalDate().year
+    }.distinctUntilChanged()
 
-    override fun getCurrentTimeOnly(): Flow<LocalTime> {
-        return getCurrentTime().map { it.toLocalTime() }.distinctUntilChanged()
-    }
+    override fun getCurrentTimeOnly(): Flow<LocalTime> = getCurrentTime().map {
+        it.toLocalTime()
+    }.distinctUntilChanged()
 
-    override fun isToday(date: LocalDate): Flow<Boolean> {
-        return getCurrentDate().map { date == it }.distinctUntilChanged()
-    }
+    override fun isToday(date: LocalDate): Flow<Boolean> = getCurrentDate().map {
+        date == it
+    }.distinctUntilChanged()
 
-    override fun getMonday(date: LocalDate): LocalDate {
-        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
+    override fun getMonday(date: LocalDate): LocalDate =
+        date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-    override fun getFirstDayOfWeek(date: LocalDate): LocalDate {
-        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
+    override fun getFirstDayOfWeek(date: LocalDate): LocalDate =
+        date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-    override fun getLastDayOfWeek(date: LocalDate): LocalDate {
-        return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-    }
+    override fun getLastDayOfWeek(date: LocalDate): LocalDate =
+        date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
 
-    override fun getFirstDayOfMonth(yearMonth: YearMonth): LocalDate {
-        return yearMonth.atDay(1)
-    }
+    override fun getFirstDayOfMonth(yearMonth: YearMonth): LocalDate = yearMonth.atDay(1)
 
-    override fun getLastDayOfMonth(yearMonth: YearMonth): LocalDate {
-        return yearMonth.atEndOfMonth()
-    }
+    override fun getLastDayOfMonth(yearMonth: YearMonth): LocalDate = yearMonth.atEndOfMonth()
 
     override fun getFirstDayOfGrid(yearMonth: YearMonth): LocalDate {
         val firstDay = getFirstDayOfMonth(yearMonth)
         return getFirstDayOfWeek(firstDay)
     }
 
-    override fun isSameWeek(date1: LocalDate, date2: LocalDate): Boolean {
-        return getMonday(date1) == getMonday(date2)
-    }
+    override fun isSameWeek(date1: LocalDate, date2: LocalDate): Boolean =
+        getMonday(date1) == getMonday(date2)
 
-    override fun isSameMonth(date: LocalDate, yearMonth: YearMonth): Boolean {
-        return date.year == yearMonth.year && date.month == yearMonth.month
-    }
+    override fun isSameMonth(date: LocalDate, yearMonth: YearMonth): Boolean =
+        date.year == yearMonth.year && date.month == yearMonth.month
 
-    override fun getNextDay(date: LocalDate): LocalDate {
-        return date.plusDays(1)
-    }
+    override fun getNextDay(date: LocalDate): LocalDate = date.plusDays(1)
 
-    override fun getPreviousDay(date: LocalDate): LocalDate {
-        return date.minusDays(1)
-    }
+    override fun getPreviousDay(date: LocalDate): LocalDate = date.minusDays(1)
 
-    override fun getNextWeek(date: LocalDate): LocalDate {
-        return date.plusWeeks(1)
-    }
+    override fun getNextWeek(date: LocalDate): LocalDate = date.plusWeeks(1)
 
-    override fun getPreviousWeek(date: LocalDate): LocalDate {
-        return date.minusWeeks(1)
-    }
+    override fun getPreviousWeek(date: LocalDate): LocalDate = date.minusWeeks(1)
 
-    override fun getNextMonth(yearMonth: YearMonth): YearMonth {
-        return yearMonth.plusMonths(1)
-    }
+    override fun getNextMonth(yearMonth: YearMonth): YearMonth = yearMonth.plusMonths(1)
 
-    override fun getPreviousMonth(yearMonth: YearMonth): YearMonth {
-        return yearMonth.minusMonths(1)
-    }
+    override fun getPreviousMonth(yearMonth: YearMonth): YearMonth = yearMonth.minusMonths(1)
 
-    override fun getNextYear(currentYear: Int): Int {
-        return currentYear + 1
-    }
+    override fun getNextYear(currentYear: Int): Int = currentYear + 1
 
-    override fun getPreviousYear(currentYear: Int): Int {
-        return currentYear - 1
-    }
+    override fun getPreviousYear(currentYear: Int): Int = currentYear - 1
 }

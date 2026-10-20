@@ -15,12 +15,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
 
-
 @HiltWorker
-class WidgetUpdateWorker @AssistedInject constructor(
+class WidgetUpdateWorker
+@AssistedInject
+constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters
-): CoroutineWorker(context, params) {
+) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         HaveTimeWidget().updateAll(applicationContext)
 
@@ -31,17 +32,19 @@ class WidgetUpdateWorker @AssistedInject constructor(
         private const val WORKER_NAME = "update_widget_worker"
         private const val INTERVAL_UPDATE = 5L
 
-        fun scheduleBackgroundUpdate(context: Context){
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+        fun scheduleBackgroundUpdate(context: Context) {
+            val constraints =
+                Constraints
+                    .Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
 
-            val widgetWork = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-                repeatInterval = INTERVAL_UPDATE,
-                repeatIntervalTimeUnit = TimeUnit.HOURS
-            )
-                .setConstraints(constraints)
-                .build()
+            val widgetWork =
+                PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+                    repeatInterval = INTERVAL_UPDATE,
+                    repeatIntervalTimeUnit = TimeUnit.HOURS
+                ).setConstraints(constraints)
+                    .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 uniqueWorkName = WORKER_NAME,

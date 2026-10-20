@@ -54,10 +54,11 @@ fun DayTopBar(
     onGo2Today: () -> Unit,
     onMenuClick: () -> Unit,
     onAvatarClick: () -> Unit,
-    onTitleClick: () -> Unit,
+    onTitleClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
@@ -73,7 +74,8 @@ fun DayTopBar(
                 Spacer(modifier = Modifier.width(4.dp))
 
                 Box(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer)
@@ -97,17 +99,20 @@ fun DayTopBar(
                 }
             }
 
-            val monthName = remember(date, currentLocale) {
-                date.month.getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
-                    .replaceFirstChar { it.uppercase() }
-            }
+            val monthName =
+                remember(date, currentLocale) {
+                    date.month
+                        .getDisplayName(TextStyle.FULL_STANDALONE, currentLocale)
+                        .replaceFirstChar { it.uppercase() }
+                }
 
             HaveText(
                 text = "$monthName ${date.year}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .align(Alignment.Center)
                     .clickable { onTitleClick() }
             )
@@ -120,7 +125,10 @@ fun DayTopBar(
                     Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                 }
                 IconButton(onClick = onAvatarClick) {
-                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = stringResource(R.string.profile)
+                    )
                 }
             }
         } else {
@@ -141,7 +149,8 @@ fun DayTopBar(
                     placeholder = { HaveText(stringResource(R.string.search_placeholder)) },
                     singleLine = true,
                     shape = RoundedCornerShape(24.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
+                    colors =
+                    OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = Color.LightGray
                     )

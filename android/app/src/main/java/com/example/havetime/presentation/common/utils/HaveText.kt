@@ -23,20 +23,18 @@ import androidx.compose.ui.unit.TextUnit
  * @param content контент поддерживающий адаптивность
  */
 @Composable
-fun AdaptabilityWrapper(
-    strategy: TextAdaptability,
-    content: @Composable () -> Unit
-) {
+fun AdaptabilityWrapper(strategy: TextAdaptability, content: @Composable () -> Unit) {
     val currentDensity = LocalDensity.current
 
-    val targetDensity = if (currentDensity.fontScale > strategy.maxScale) {
-        Density(
-            density = currentDensity.density,
-            fontScale = strategy.maxScale
-        )
-    } else {
-        currentDensity
-    }
+    val targetDensity =
+        if (currentDensity.fontScale > strategy.maxScale) {
+            Density(
+                density = currentDensity.density,
+                fontScale = strategy.maxScale
+            )
+        } else {
+            currentDensity
+        }
 
     CompositionLocalProvider(LocalDensity provides targetDensity) {
         content()
