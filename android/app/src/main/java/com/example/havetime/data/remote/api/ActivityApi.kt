@@ -14,16 +14,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ActivityApi @Inject constructor(private val client: HttpClient) {
-    suspend fun getActivities(): List<ActivityDto> {
-        return client.get("/activities").body()
-    }
+class ActivityApi
+@Inject
+constructor(private val client: HttpClient) {
+    suspend fun getActivities(): List<ActivityDto> = client.get("/activities").body()
 
-    suspend fun sync(syncRequest: SyncRequest): List<ActivityNetworkDto>{
-        return client.post("/activities/sync") {
+    suspend fun sync(syncRequest: SyncRequest): List<ActivityNetworkDto> = client
+        .post("/activities/sync") {
             setBody(syncRequest)
         }.body()
-    }
 
     suspend fun deleteActivity(id: Int): Boolean {
         val response = client.delete("activities/$id")

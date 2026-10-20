@@ -61,9 +61,10 @@ fun SettingsScreenContent(
 ) {
     val hazeState = remember { HazeState() }
 
-    val navigationBarsPadding = WindowInsets.navigationBars
-        .asPaddingValues()
-        .calculateBottomPadding()
+    val navigationBarsPadding =
+        WindowInsets.navigationBars
+            .asPaddingValues()
+            .calculateBottomPadding()
 
     Scaffold(
         topBar = {
@@ -96,28 +97,27 @@ fun SettingsScreenContent(
     ) { paddingValues ->
 
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .haze(
                     hazeState,
                     backgroundColor = MaterialTheme.colorScheme.background,
                     tint = Color.Black.copy(alpha = 0.2f),
                     blurRadius = 30.dp
-                )
-                .fillMaxSize()
+                ).fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
                     bottom = navigationBarsPadding
-                )
-                .verticalScroll(rememberScrollState())
+                ).verticalScroll(rememberScrollState())
         ) {
-
             HaveText(
                 text = stringResource(R.string.settings_language),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
                 style = TextStyle(fontStyle = FontStyle.Normal),
-                modifier = Modifier.padding(
+                modifier =
+                Modifier.padding(
                     horizontal = 16.dp,
                     vertical = 12.dp
                 )
@@ -153,7 +153,8 @@ fun SettingsScreenContent(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
                 style = TextStyle(fontStyle = FontStyle.Normal),
-                modifier = Modifier.padding(
+                modifier =
+                Modifier.padding(
                     horizontal = 16.dp,
                     vertical = 12.dp
                 )
@@ -177,20 +178,16 @@ fun SettingsScreenContent(
 }
 
 @Composable
-private fun SettingsRadioItem(
-    title: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
+private fun SettingsRadioItem(title: String, selected: Boolean, onClick: () -> Unit) {
     Row(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .selectable(
                 selected = selected,
                 onClick = onClick,
                 role = Role.RadioButton
-            )
-            .padding(
+            ).padding(
                 horizontal = 16.dp,
                 vertical = 12.dp
             ),
@@ -219,14 +216,14 @@ private fun SettingsSwitchItem(
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
                 role = Role.Switch
-            )
-            .padding(
+            ).padding(
                 horizontal = 16.dp,
                 vertical = 12.dp
             ),

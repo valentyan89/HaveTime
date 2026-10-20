@@ -5,10 +5,9 @@ import java.time.YearMonth
 
 sealed class YearState {
     object Loading : YearState()
-    data class Success(
-        val currentYear: Int,
-        val monthsData: List<YearMonthData>
-    ) : YearState()
+
+    data class Success(val currentYear: Int, val monthsData: List<YearMonthData>) : YearState()
+
     data class Error(val message: String) : YearState()
 }
 

@@ -14,16 +14,19 @@ sealed class BottomBarTab(val title: String, val icon: ImageVector, val color: C
         icon = Icons.Rounded.Person,
         color = Color(0xFFFFA574)
     )
+
     data object Calendar : BottomBarTab(
         title = "Calendar",
         icon = Icons.Rounded.CalendarMonth,
         color = Color(0xFFFA6FFF)
     )
+
     data object Map : BottomBarTab(
         title = "Map",
         icon = Icons.Rounded.Map,
         color = Color(0xFFADFF64)
     )
+
     data object Settings : BottomBarTab(
         title = "Settings",
         icon = Icons.Rounded.Settings,
@@ -31,8 +34,9 @@ sealed class BottomBarTab(val title: String, val icon: ImageVector, val color: C
     )
 }
 
-val tabs = listOf(
-    BottomBarTab.Calendar,
-    BottomBarTab.Map,
-    BottomBarTab.Profile
-)
+val tabs =
+    listOf(
+        BottomBarTab.Calendar,
+        BottomBarTab.Map,
+        BottomBarTab.Profile
+    )

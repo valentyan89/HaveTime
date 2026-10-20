@@ -13,14 +13,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
-class AddTodoUseCase(
+class AddActivityUseCase(
     private val repository: ActivityRepository,
     private val remindManager: RemindManager,
     private val worker: WorkManager,
     private val widgetRepository: WidgetRepository
 ) {
-    operator fun invoke(activity: Activity): Flow<Unit> {
-        return repository.addActivity(activity).onEach { actualId ->
+    operator fun invoke(activity: Activity): Flow<Unit> = repository
+        .addActivity(activity)
+        .onEach { actualId ->
             remindManager.scheduleRemind(
                 taskId = actualId,
                 taskTitle = activity.title,
@@ -31,13 +32,16 @@ class AddTodoUseCase(
             val lon = activity.location?.longitude
 
             if (lat != null && lon != null) {
-                val inputData = Data.Builder()
-                    .putInt(GeocodingWorker.KEY_ACTIVITY_ID, actualId)
-                    .build()
+                val inputData =
+                    Data
+                        .Builder()
+                        .putInt(GeocodingWorker.KEY_ACTIVITY_ID, actualId)
+                        .build()
 
-                val geocodingWorkRequest = OneTimeWorkRequestBuilder<GeocodingWorker>()
-                    .setInputData(inputData)
-                    .build()
+                val geocodingWorkRequest =
+                    OneTimeWorkRequestBuilder<GeocodingWorker>()
+                        .setInputData(inputData)
+                        .build()
 
                 worker.enqueue(geocodingWorkRequest)
             }
@@ -45,5 +49,4 @@ class AddTodoUseCase(
 
             widgetRepository.updateWidget()
         }.map { Unit }
-    }
 }

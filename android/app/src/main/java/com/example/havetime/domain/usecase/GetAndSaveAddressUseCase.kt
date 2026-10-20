@@ -3,7 +3,10 @@ package com.example.havetime.domain.usecase
 import com.example.calendar.domain.repository.ActivityRepository
 import com.example.havetime.domain.repository.GeocodingRepository
 
-class GetAndSaveAddressUseCase(private val repository: ActivityRepository, private val geocoding: GeocodingRepository) {
+class GetAndSaveAddressUseCase(
+    private val repository: ActivityRepository,
+    private val geocoding: GeocodingRepository
+) {
     suspend operator fun invoke(id: Int): Boolean {
         val activity = repository.getActivityById(id) ?: return false
 

@@ -72,7 +72,6 @@ fun YearScreen(
     onMenuClick: () -> Unit = {},
     viewModel: YearViewModel = hiltViewModel()
 ) {
-
     val state by viewModel.state.collectAsState()
     val today by viewModel.today.collectAsState()
 
@@ -105,17 +104,21 @@ fun YearScreen(
             }
             is YearState.Success -> {
                 Column(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
                     ) {
                         Column {
                             Box(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 8.dp, vertical = 8.dp)
                             ) {
@@ -124,19 +127,25 @@ fun YearScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = onMenuClick) {
-                                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                                        Icon(
+                                            Icons.Default.Menu,
+                                            contentDescription = stringResource(R.string.menu)
+                                        )
                                     }
-                                    
+
                                     Spacer(modifier = Modifier.width(4.dp))
 
                                     Box(
-                                        modifier = Modifier
+                                        modifier =
+                                        Modifier
                                             .size(36.dp)
                                             .clip(RoundedCornerShape(8.dp))
-                                            .background(MaterialTheme.colorScheme.primaryContainer)
-                                            .clickable { 
+                                            .background(
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            )
+                                            .clickable {
                                                 viewModel.setYear(today.year)
-                                                sharedViewModel.go2Today() 
+                                                sharedViewModel.go2Today()
                                             },
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -162,10 +171,16 @@ fun YearScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     IconButton(onClick = { }) {
-                                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                                        Icon(
+                                            Icons.Default.Search,
+                                            contentDescription = stringResource(R.string.search)
+                                        )
                                     }
                                     IconButton(onClick = onAvatarClick) {
-                                        Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile))
+                                        Icon(
+                                            Icons.Default.AccountCircle,
+                                            contentDescription = stringResource(R.string.profile)
+                                        )
                                     }
                                 }
                             }
@@ -182,7 +197,7 @@ fun YearScreen(
                                     text = yearState.currentYear.toString(),
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 IconButton(onClick = { viewModel.goToNextYear() }) {
                                     Icon(Icons.Default.ChevronRight, contentDescription = null)
@@ -199,7 +214,9 @@ fun YearScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(yearState.monthsData) { monthData ->
-                            val isCurrentMonth = monthData.month == today.month && yearState.currentYear == today.year
+                            val isCurrentMonth =
+                                monthData.month == today.month &&
+                                    yearState.currentYear == today.year
 
                             MonthItem(
                                 monthData = monthData,
@@ -225,10 +242,13 @@ fun MonthItem(
     onClick: () -> Unit,
     locale: Locale
 ) {
-    val monthName = monthData.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase() }
+    val monthName = monthData.month.getDisplayName(TextStyle.FULL, locale).replaceFirstChar {
+        it.uppercase()
+    }
 
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .padding(4.dp),
@@ -240,18 +260,21 @@ fun MonthItem(
             color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (isCurrentMonth) FontWeight.Bold else FontWeight.Normal
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .size(60.dp)
                 .clip(CircleShape)
                 .background(
-                    if (monthData.daysWithActivities > 0) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    else MaterialTheme.colorScheme.surfaceVariant
-                )
-                .border(
+                    if (monthData.daysWithActivities > 0) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    }
+                ).border(
                     width = if (isCurrentMonth) 2.dp else 0.dp,
                     color = if (isCurrentMonth) MaterialTheme.colorScheme.primary else Color.Transparent,
                     shape = CircleShape

@@ -50,17 +50,19 @@ fun GlassyBottomBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val selectedTabIndex = remember(currentRoute) {
-        when (currentRoute) {
-            Screen.Day.route -> 0
-            Screen.Map.route -> 1
-            Screen.Auth.route -> 2
-            else -> 0
+    val selectedTabIndex =
+        remember(currentRoute) {
+            when (currentRoute) {
+                Screen.Day.route -> 0
+                Screen.Map.route -> 1
+                Screen.Auth.route -> 2
+                else -> 0
+            }
         }
-    }
 
     Box(
-        modifier = Modifier
+        modifier =
+        Modifier
             .padding(bottom = 16.dp, start = 32.dp, end = 32.dp)
             .navigationBarsPadding()
             .fillMaxWidth()
@@ -68,11 +70,13 @@ fun GlassyBottomBar(
             .hazeChild(state = hazeState, shape = CircleShape)
             .border(
                 width = Dp.Hairline,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
+                brush =
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
                         Color.White.copy(alpha = .8f),
-                        Color.White.copy(alpha = .2f),
-                    ),
+                        Color.White.copy(alpha = .2f)
+                    )
                 ),
                 shape = CircleShape
             )
@@ -80,14 +84,16 @@ fun GlassyBottomBar(
         val animatedSelectedTabIndex by animateFloatAsState(
             targetValue = selectedTabIndex.toFloat(),
             label = "animatedSelectedTabIndex",
-            animationSpec = spring(
+            animationSpec =
+            spring(
                 stiffness = Spring.StiffnessLow,
-                dampingRatio = Spring.DampingRatioLowBouncy,
+                dampingRatio = Spring.DampingRatioLowBouncy
             )
         )
 
         val isBlurSupported = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.S }
-        val targetColor = tabsList.getOrNull(selectedTabIndex)?.color ?: MaterialTheme.colorScheme.primary
+        val targetColor =
+            tabsList.getOrNull(selectedTabIndex)?.color ?: MaterialTheme.colorScheme.primary
         val animatedColor by animateColorAsState(
             targetValue = MaterialTheme.colorScheme.primary,
             label = "animatedColor",
@@ -95,20 +101,24 @@ fun GlassyBottomBar(
         )
 
         Canvas(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
                 .then(
                     if (isBlurSupported) {
                         Modifier.blur(50.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-                    } else Modifier
+                    } else {
+                        Modifier
+                    }
                 )
         ) {
             val tabWidth = size.width / tabsList.size
-            val centerOffset = Offset(
-                x = (tabWidth * animatedSelectedTabIndex) + tabWidth / 2,
-                y = size.height / 2
-            )
+            val centerOffset =
+                Offset(
+                    x = (tabWidth * animatedSelectedTabIndex) + tabWidth / 2,
+                    y = size.height / 2
+                )
 
             if (isBlurSupported) {
                 drawCircle(
@@ -119,8 +129,10 @@ fun GlassyBottomBar(
             } else {
                 val glowRadius = size.height * 0.9f
                 drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
+                    brush =
+                    Brush.radialGradient(
+                        colors =
+                        listOf(
                             animatedColor.copy(alpha = 0.4f),
                             animatedColor.copy(alpha = 0.2f),
                             Color.Transparent
@@ -135,31 +147,37 @@ fun GlassyBottomBar(
         }
 
         Canvas(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
         ) {
-            val path = Path().apply {
-                addRoundRect(RoundRect(size.toRect(), CornerRadius(size.height)))
-            }
+            val path =
+                Path().apply {
+                    addRoundRect(RoundRect(size.toRect(), CornerRadius(size.height)))
+                }
             val length = PathMeasure().apply { setPath(path, false) }.length
 
             val tabWidth = size.width / tabsList.size
             drawPath(
                 path,
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
+                brush =
+                Brush.horizontalGradient(
+                    colors =
+                    listOf(
                         animatedColor.copy(alpha = 0f),
                         animatedColor.copy(alpha = 1f),
                         animatedColor.copy(alpha = 1f),
-                        animatedColor.copy(alpha = 0f),
+                        animatedColor.copy(alpha = 0f)
                     ),
                     startX = tabWidth * animatedSelectedTabIndex,
-                    endX = tabWidth * (animatedSelectedTabIndex + 1),
+                    endX = tabWidth * (animatedSelectedTabIndex + 1)
                 ),
-                style = Stroke(
+                style =
+                Stroke(
                     width = 6f,
-                    pathEffect = PathEffect.dashPathEffect(
+                    pathEffect =
+                    PathEffect.dashPathEffect(
                         intervals = floatArrayOf(length / 2, length)
                     )
                 )
@@ -171,12 +189,13 @@ fun GlassyBottomBar(
             selectedTab = selectedTabIndex,
             onTabSelected = { tab ->
                 val index = tabsList.indexOf(tab)
-                val route = when (index) {
-                    0 -> Screen.Day.route
-                    1 -> Screen.Map.route
-                    2 -> Screen.Auth.route
-                    else -> null
-                }
+                val route =
+                    when (index) {
+                        0 -> Screen.Day.route
+                        1 -> Screen.Map.route
+                        2 -> Screen.Auth.route
+                        else -> null
+                    }
 
                 route?.let { target ->
                     if (currentRoute != target) {

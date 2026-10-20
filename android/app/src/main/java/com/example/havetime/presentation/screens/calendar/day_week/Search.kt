@@ -33,10 +33,11 @@ private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 fun SearchResultsList(
     searchResults: List<Activity>,
     currentLocale: Locale,
-    onActivityClick: (Activity) -> Unit,
+    onActivityClick: (Activity) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
             .zIndex(100f)
@@ -45,12 +46,27 @@ fun SearchResultsList(
             ListItem(
                 headlineContent = { HaveText(activity.title) },
                 supportingContent = {
-                    val start = Instant.ofEpochMilli(activity.timeInterval.startTime).atZone(ZoneId.systemDefault())
+                    val start = Instant.ofEpochMilli(
+                        activity.timeInterval.startTime
+                    ).atZone(ZoneId.systemDefault())
                     val formattedMonth = start.month.getDisplayName(TextStyle.SHORT, currentLocale)
-                    HaveText(String.format(currentLocale, "%d %s %d:%02d", start.dayOfMonth, formattedMonth, start.hour, start.minute))
+                    HaveText(
+                        String.format(
+                            currentLocale,
+                            "%d %s %d:%02d",
+                            start.dayOfMonth,
+                            formattedMonth,
+                            start.hour,
+                            start.minute
+                        )
+                    )
                 },
                 leadingContent = {
-                    Box(modifier = Modifier.size(12.dp).background(Color(activity.color), CircleShape))
+                    Box(
+                        modifier = Modifier.size(
+                            12.dp
+                        ).background(Color(activity.color), CircleShape)
+                    )
                 },
                 modifier = Modifier.clickable { onActivityClick(activity) }
             )
@@ -58,7 +74,10 @@ fun SearchResultsList(
         }
         if (searchResults.isEmpty()) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     HaveText("не найдено", color = Color.Gray)
                 }
             }

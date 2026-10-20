@@ -23,8 +23,7 @@ class UserRepositoryImpl @Inject constructor(
     private val activityDao: ActivityDao,
     private val api: AuthApi,
     private val tokenManager: TokenManager
-) : UserRepository{
-
+) : UserRepository {
     override suspend fun login(login: String, password: String): Result<Unit> = try {
         val response: LoginResponse = api.login(login, password)
 
@@ -47,7 +46,9 @@ class UserRepositoryImpl @Inject constructor(
     } catch (e: ResponseException) {
         when (e.response.status) {
             HttpStatusCode.Unauthorized -> Result.failure(AuthError.InvalidCredentials)
-            else -> Result.failure(AuthError.UnknownError("Код сервера: ${e.response.status.value}"))
+            else -> Result.failure(
+                AuthError.UnknownError("Код сервера: ${e.response.status.value}")
+            )
         }
     } catch (e: IOException) {
         Result.failure(AuthError.NetworkError)
@@ -76,8 +77,12 @@ class UserRepositoryImpl @Inject constructor(
         Result.success(Unit)
     } catch (e: ResponseException) {
         when (e.response.status) {
-            HttpStatusCode.BadRequest, HttpStatusCode.Conflict -> Result.failure(AuthError.UserAlreadyExists)
-            else -> Result.failure(AuthError.UnknownError("Ошибка сервера ${e.response.status}"))
+            HttpStatusCode.BadRequest, HttpStatusCode.Conflict -> Result.failure(
+                AuthError.UserAlreadyExists
+            )
+            else -> Result.failure(
+                AuthError.UnknownError("Ошибка сервера ${e.response.status}")
+            )
         }
     } catch (e: IOException) {
         Result.failure(AuthError.NetworkError)
@@ -91,16 +96,14 @@ class UserRepositoryImpl @Inject constructor(
         userDao.logout()
     }
 
-    override fun getUser(): Flow<User?> {
-        return userDao.getUser().map { entity ->
-            entity?.let {
-                User(
-                    id = it.serverId,
-                    login = it.login,
-                    token = it.token,
-                    createdAt = it.createdAt
-                )
-            }
+    override fun getUser(): Flow<User?> = userDao.getUser().map { entity ->
+        entity?.let {
+            User(
+                id = it.serverId,
+                login = it.login,
+                token = it.token,
+                createdAt = it.createdAt
+            )
         }
     }
 }

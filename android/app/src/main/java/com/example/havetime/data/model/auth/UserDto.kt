@@ -1,8 +1,3 @@
 package com.example.havetime.data.model.auth
 
-data class UserDto(
-    val id: Int,
-    val login: String,
-    val token: String,
-    val createdAt: Long
-)
+data class UserDto(val id: Int, val login: String, val token: String, val createdAt: Long)

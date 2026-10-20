@@ -27,20 +27,23 @@ fun rememberScreenBottomCornerRadius(): Dp {
 
                 if (insets != null) {
                     val leftRadius =
-                        insets.getRoundedCorner(
-                            RoundedCorner.POSITION_BOTTOM_LEFT
-                        )?.radius ?: 0
+                        insets
+                            .getRoundedCorner(
+                                RoundedCorner.POSITION_BOTTOM_LEFT
+                            )?.radius ?: 0
 
                     val rightRadius =
-                        insets.getRoundedCorner(
-                            RoundedCorner.POSITION_BOTTOM_RIGHT
-                        )?.radius ?: 0
+                        insets
+                            .getRoundedCorner(
+                                RoundedCorner.POSITION_BOTTOM_RIGHT
+                            )?.radius ?: 0
 
                     val maxRadius = maxOf(leftRadius, rightRadius)
 
-                    cornerRadius = with(density) {
-                        maxRadius.toDp()
-                    }
+                    cornerRadius =
+                        with(density) {
+                            maxRadius.toDp()
+                        }
                 }
             }
         }

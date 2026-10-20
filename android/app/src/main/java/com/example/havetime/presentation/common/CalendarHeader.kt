@@ -25,9 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.sp
 import com.example.havetime.presentation.common.utils.HaveText
 import java.time.DayOfWeek
@@ -36,7 +36,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
-import java.util.Locale
 
 @Composable
 fun CalendarHeader(
@@ -48,21 +47,24 @@ fun CalendarHeader(
     currentDestination: String?
 ) {
     val locale = LocalConfiguration.current.locales[0]
-    val monthYearText = remember(selectedDate, locale) {
-        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
-        selectedDate.format(formatter).replaceFirstChar { it.uppercase() }
-    }
+    val monthYearText =
+        remember(selectedDate, locale) {
+            val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", locale)
+            selectedDate.format(formatter).replaceFirstChar { it.uppercase() }
+        }
 
     val initialIndex = 500
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
     val snapBehavior = rememberSnapFlingBehavior(listState)
 
     LaunchedEffect(selectedDate) {
-        val startOfSelectedWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val startOfSelectedWeek = selectedDate.with(
+            TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+        )
         val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val weeksDiff = ChronoUnit.WEEKS.between(startOfCurrentWeek, startOfSelectedWeek).toInt()
         val targetIndex = initialIndex + weeksDiff
-        
+
         if (listState.firstVisibleItemIndex != targetIndex) {
             listState.animateScrollToItem(targetIndex)
         }
@@ -71,9 +73,11 @@ fun CalendarHeader(
     LaunchedEffect(listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) {
             val weekOffset = listState.firstVisibleItemIndex - initialIndex
-            val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val startOfCurrentWeek = todayDate.with(
+                TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+            )
             val targetWeekStart = startOfCurrentWeek.plusWeeks(weekOffset.toLong())
-            
+
             val weekEnd = targetWeekStart.plusDays(6)
             if (selectedDate.isBefore(targetWeekStart) || selectedDate.isAfter(weekEnd)) {
                 onDateSelected(targetWeekStart)
@@ -93,7 +97,8 @@ fun CalendarHeader(
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF00796B).copy(alpha = 0.1f))
@@ -106,7 +111,7 @@ fun CalendarHeader(
                         color = Color(0xFF00796B)
                     )
                 }
-                
+
                 Spacer(Modifier.width(16.dp))
 
                 HaveText(
@@ -125,9 +130,11 @@ fun CalendarHeader(
             ) {
                 items(1000) { index ->
                     val weekOffset = index - initialIndex
-                    val startOfCurrentWeek = todayDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    val startOfCurrentWeek = todayDate.with(
+                        TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+                    )
                     val weekStart = startOfCurrentWeek.plusWeeks(weekOffset.toLong())
-                    
+
                     Row(
                         modifier = Modifier.fillParentMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -135,11 +142,15 @@ fun CalendarHeader(
                         (0..6).forEach { dayIdx ->
                             val date = weekStart.plusDays(dayIdx.toLong())
                             val isSelected = date == selectedDate
-                            val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale).uppercase()
+                            val dayName = date.dayOfWeek.getDisplayName(
+                                TextStyle.SHORT,
+                                locale
+                            ).uppercase()
 
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .weight(1f)
                                     .clickable { onDateSelected(date) }
                                     .padding(vertical = 4.dp)
@@ -153,10 +164,19 @@ fun CalendarHeader(
                                 Spacer(Modifier.height(4.dp))
                                 Box(
                                     contentAlignment = Alignment.Center,
-                                    modifier = Modifier
+                                    modifier =
+                                    Modifier
                                         .size(32.dp)
                                         .clip(CircleShape)
-                                        .background(if (isSelected) Color(0xFF00796B) else Color.Transparent)
+                                        .background(
+                                            if (isSelected) {
+                                                Color(
+                                                    0xFF00796B
+                                                )
+                                            } else {
+                                                Color.Transparent
+                                            }
+                                        )
                                 ) {
                                     HaveText(
                                         text = date.dayOfMonth.toString(),

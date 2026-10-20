@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -117,4 +118,9 @@ configurations.all {
         force(libs.concurrent.futures)
         force(libs.concurrent.futures.ktx)
     }
+}
+
+ktlint {
+    android.set(true)
+    ignoreFailures.set(true)
 }

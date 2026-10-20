@@ -22,13 +22,13 @@ class SettingsViewModel @Inject constructor(
     private val setLocationUseCase: SetLocationUseCase,
     private val setDynamicColorUseCase: SetDynamicColorUseCase
 ) : ViewModel() {
-
-    val settings = getSettingsUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AppSettings()
-        )
+    val settings =
+        getSettingsUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = AppSettings()
+            )
 
     fun setLanguage(language: Language) {
         viewModelScope.launch {

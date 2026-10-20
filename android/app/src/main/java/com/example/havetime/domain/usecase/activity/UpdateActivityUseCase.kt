@@ -18,8 +18,8 @@ class UpdateActivityUseCase(
     private val worker: WorkManager,
     private val widgetRepository: WidgetRepository
 ) {
-    operator fun invoke(activity: Activity): Flow<Unit> {
-        return repository.updateActivity(activity).onEach {
+    operator fun invoke(activity: Activity): Flow<Unit> =
+        repository.updateActivity(activity).onEach {
             remindManager.cancelRemind(activity.id)
             remindManager.scheduleRemind(
                 taskId = activity.id,
@@ -31,18 +31,20 @@ class UpdateActivityUseCase(
             val lon = activity.location?.longitude
 
             if (lat != null && lon != null) {
-                val inputData = Data.Builder()
-                    .putInt(GeocodingWorker.KEY_ACTIVITY_ID, activity.id)
-                    .build()
+                val inputData =
+                    Data
+                        .Builder()
+                        .putInt(GeocodingWorker.KEY_ACTIVITY_ID, activity.id)
+                        .build()
 
-                val geocodingWorkRequest = OneTimeWorkRequestBuilder<GeocodingWorker>()
-                    .setInputData(inputData)
-                    .build()
+                val geocodingWorkRequest =
+                    OneTimeWorkRequestBuilder<GeocodingWorker>()
+                        .setInputData(inputData)
+                        .build()
 
                 worker.enqueue(geocodingWorkRequest)
             }
             Log.d("RRR", "edit")
             widgetRepository.updateWidget()
         }
-    }
 }

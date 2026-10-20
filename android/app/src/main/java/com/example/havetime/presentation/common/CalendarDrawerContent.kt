@@ -46,14 +46,16 @@ fun CalendarDrawerContent(
     onCloseDrawer: () -> Unit
 ) {
     ModalDrawerSheet(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxHeight()
             .width(240.dp),
         drawerContainerColor = MaterialTheme.colorScheme.surface,
         drawerContentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
@@ -66,7 +68,7 @@ fun CalendarDrawerContent(
                     text = stringResource(R.string.app_name),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 IconButton(onClick = onCloseDrawer) {
@@ -105,7 +107,8 @@ fun CalendarDrawerContent(
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(vertical = 6.dp),
-                colors = NavigationDrawerItemDefaults.colors(
+                colors =
+                NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedContainerColor = Color.Transparent
                 )
@@ -136,7 +139,8 @@ fun CalendarDrawerContent(
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(vertical = 6.dp),
-                colors = NavigationDrawerItemDefaults.colors(
+                colors =
+                NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedContainerColor = Color.Transparent
                 )
@@ -168,7 +172,8 @@ fun CalendarDrawerContent(
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(vertical = 6.dp),
-                colors = NavigationDrawerItemDefaults.colors(
+                colors =
+                NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedContainerColor = Color.Transparent
                 )
@@ -204,7 +209,8 @@ fun CalendarDrawerContent(
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(vertical = 6.dp),
-                colors = NavigationDrawerItemDefaults.colors(
+                colors =
+                NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedContainerColor = Color.Transparent
                 )
@@ -239,7 +245,8 @@ fun CalendarDrawerContent(
                     onCloseDrawer()
                 },
                 modifier = Modifier.padding(vertical = 6.dp),
-                colors = NavigationDrawerItemDefaults.colors(
+                colors =
+                NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                     unselectedContainerColor = Color.Transparent
                 )

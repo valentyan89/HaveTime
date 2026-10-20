@@ -14,22 +14,25 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-object KtorClient{
+object KtorClient {
     private var currentAccessToken: String? = null
 
-    val client: HttpClient = HttpClient{
-        install(ContentNegotiation){
-            json(Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-                isLenient = true
-                encodeDefaults = true
-            })
-        }
+    val client: HttpClient =
+        HttpClient {
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        prettyPrint = true
+                        isLenient = true
+                        encodeDefaults = true
+                    }
+                )
+            }
 
-        install(Logging) {
-            level = LogLevel.ALL
-        }
+            install(Logging) {
+                level = LogLevel.ALL
+            }
 
 //        install("TokenInterceptor") {
 //            requestPipeline.intercept(HttpRequestPipeline.State) {
@@ -39,31 +42,31 @@ object KtorClient{
 //            }
 //        }
 
-        install(Auth) {
-            bearer {
-                sendWithoutRequest { true }
-                loadTokens {
-                    currentAccessToken?.let { BearerTokens(it, "") }
+            install(Auth) {
+                bearer {
+                    sendWithoutRequest { true }
+                    loadTokens {
+                        currentAccessToken?.let { BearerTokens(it, "") }
+                    }
                 }
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 10000
+                connectTimeoutMillis = 10000
+            }
+
+            defaultRequest {
+                url("http://10.0.2.2:8080/")
+                contentType(ContentType.Application.Json)
             }
         }
 
-        install(HttpTimeout){
-            requestTimeoutMillis = 10000
-            connectTimeoutMillis = 10000
-        }
-
-        defaultRequest {
-            url("http://10.0.2.2:8080/")
-            contentType(ContentType.Application.Json)
-        }
-    }
-
-    fun updateToken(token: String){
+    fun updateToken(token: String) {
         currentAccessToken = token
     }
 
-    fun clearToken(){
+    fun clearToken() {
         currentAccessToken = null
     }
 }

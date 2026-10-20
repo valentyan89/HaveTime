@@ -11,23 +11,15 @@ class DateUtil {
     private val dayFormatter = DateTimeFormatter.ofPattern("EE", Locale.getDefault())
     private val monthFormatter = DateTimeFormatter.ofPattern("LLLL", Locale.getDefault())
 
-    fun getDayShortName(date: LocalDate): String{
-        return date.format(dayFormatter).uppercase()
-    }
+    fun getDayShortName(date: LocalDate): String = date.format(dayFormatter).uppercase()
 
-    fun getMonthName(date: LocalDate): String{
-        return date.format(monthFormatter).uppercase()
-    }
+    fun getMonthName(date: LocalDate): String = date.format(monthFormatter).uppercase()
 
-    fun getStartWeek(date: LocalDate): LocalDate{
-        return date.with(weekFields.dayOfWeek(), 1)
-    }
+    fun getStartWeek(date: LocalDate): LocalDate = date.with(weekFields.dayOfWeek(), 1)
 
-    fun getEndWeek(date: LocalDate): LocalDate{
-        return date.with(weekFields.dayOfWeek(), 7)
-    }
+    fun getEndWeek(date: LocalDate): LocalDate = date.with(weekFields.dayOfWeek(), 7)
 
-    fun getDaysMonthGrid(date: LocalDate): List<LocalDate>{
+    fun getDaysMonthGrid(date: LocalDate): List<LocalDate> {
         val firstDayOfMonth = YearMonth.from(date).atDay(1)
         val lastDayOfMonth = YearMonth.from(date).atEndOfMonth()
 

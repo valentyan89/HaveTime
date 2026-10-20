@@ -60,7 +60,7 @@ fun DayScreenContent(
     onAddActivity: (Activity) -> Unit,
     onDeleteActivity: (Int) -> Unit,
     onMenuClick: () -> Unit,
-    onAvatarClick: () -> Unit,
+    onAvatarClick: () -> Unit
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
     var showEventDialog by remember { mutableStateOf(false) }
@@ -80,7 +80,11 @@ fun DayScreenContent(
                 onClick = { showEventDialog = true },
                 hazeState = hazeState
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_event), tint = MaterialTheme.colorScheme.onSurface)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.add_event),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         },
         bottomBar = {
@@ -91,19 +95,24 @@ fun DayScreenContent(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .haze(
                     hazeState,
                     backgroundColor = MaterialTheme.colorScheme.background,
                     tint = Color.Black.copy(alpha = .2f),
-                    blurRadius = 30.dp,
+                    blurRadius = 30.dp
+                ).fillMaxSize()
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = navigationBarsPadding
                 )
-                .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding(), bottom = navigationBarsPadding)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
                 Column {
                     DayTopBar(
@@ -117,7 +126,7 @@ fun DayScreenContent(
                         onGo2Today = onGo2Today,
                         onMenuClick = onMenuClick,
                         onAvatarClick = onAvatarClick,
-                        onTitleClick = { navController.navigate(Screen.Month.route) },
+                        onTitleClick = { navController.navigate(Screen.Month.route) }
                     )
 
                     if (!isSearchActive) {
@@ -137,8 +146,11 @@ fun DayScreenContent(
                         searchResults = searchResults,
                         currentLocale = currentLocale,
                         onActivityClick = { activity ->
-                            val activityDate = Instant.ofEpochMilli(activity.timeInterval.startTime)
-                                .atZone(ZoneId.systemDefault()).toLocalDate()
+                            val activityDate =
+                                Instant
+                                    .ofEpochMilli(activity.timeInterval.startTime)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
                             onSelectDate(activityDate)
                             isSearchActive = false
                         }
@@ -160,7 +172,8 @@ fun DayScreenContent(
                         showEventDialog = true
                     },
                     onUpdateActivity = onUpdateActivity,
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
@@ -174,9 +187,20 @@ fun DayScreenContent(
 
         AddActivityDialog(
             editingActivity = editingActivity,
-            initialDate = startInstant?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() } ?: date,
-            initialStartTime = startInstant?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime() } ?: currentTime.toLocalTime(),
-            initialEndTime = endInstant?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime() } ?: currentTime.toLocalTime().plusHours(1),
+            initialDate =
+            startInstant?.let {
+                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+            }
+                ?: date,
+            initialStartTime =
+            startInstant?.let {
+                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime()
+            }
+                ?: currentTime.toLocalTime(),
+            initialEndTime =
+            endInstant?.let {
+                Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime()
+            } ?: currentTime.toLocalTime().plusHours(1),
             onDismiss = {
                 showEventDialog = false
                 editingActivity = null

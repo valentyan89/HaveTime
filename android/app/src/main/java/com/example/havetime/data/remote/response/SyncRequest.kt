@@ -4,7 +4,4 @@ import com.example.havetime.data.model.activity.ActivityNetworkDto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SyncRequest(
-    val activities: List<ActivityNetworkDto>,
-    val lastSync: Long
-)
+data class SyncRequest(val activities: List<ActivityNetworkDto>, val lastSync: Long)

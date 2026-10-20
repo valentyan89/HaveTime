@@ -10,11 +10,13 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 @HiltWorker
-class GeocodingWorker @AssistedInject constructor(
+class GeocodingWorker
+@AssistedInject
+constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val getAndSaveAddressUseCase: GetAndSaveAddressUseCase
-) : CoroutineWorker(context, workerParams){
+) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         val activityId = inputData.getInt(KEY_ACTIVITY_ID, -1)
         Log.d("RRR", "Воркер принял Activity ID = $activityId")

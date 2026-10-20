@@ -17,20 +17,22 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun MonthSectionHeader(
-    monthData: CalendarMonth,
-    currentLocale: Locale
-) {
+fun MonthSectionHeader(monthData: CalendarMonth, currentLocale: Locale) {
     Column(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxWidth()
             .padding(top = 24.dp, bottom = 12.dp, start = 8.dp)
     ) {
-        val headerMonthName = remember(monthData, currentLocale) {
-            val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
-            monthData.yearMonth.format(formatter)
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString() }
-        }
+        val headerMonthName =
+            remember(monthData, currentLocale) {
+                val formatter = DateTimeFormatter.ofPattern("MMMM", currentLocale)
+                monthData.yearMonth
+                    .format(formatter)
+                    .replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(currentLocale) else it.toString()
+                    }
+            }
 
         HaveText(
             text = "$headerMonthName ${monthData.yearMonth.year}",

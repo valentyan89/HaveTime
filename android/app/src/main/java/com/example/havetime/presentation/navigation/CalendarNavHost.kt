@@ -26,7 +26,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CalendarNavHost() {
-
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -36,8 +35,6 @@ fun CalendarNavHost() {
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
-
-
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -54,7 +51,6 @@ fun CalendarNavHost() {
             navController = navController,
             startDestination = Screen.Day.route
         ) {
-
             composable(Screen.Day.route) {
                 DayScreen(
                     navController = navController,

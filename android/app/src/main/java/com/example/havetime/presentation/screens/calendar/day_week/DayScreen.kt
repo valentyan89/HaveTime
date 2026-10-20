@@ -18,9 +18,8 @@ fun DayScreen(
     sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
-
     val currentDate by viewModel.currentDate.collectAsState()
     val currentTimeState by viewModel.currentTime.collectAsState()
     val events by viewModel.activityForDate.collectAsState()

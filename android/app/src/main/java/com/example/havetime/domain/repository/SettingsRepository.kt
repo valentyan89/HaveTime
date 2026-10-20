@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
     suspend fun setLanguage(language: Language)
+
     suspend fun setLocation(locationMode: Location)
+
     suspend fun setNotificationsEnabled(enabled: Boolean)
+
     suspend fun setDynamicColor(enabled: Boolean)
+
     val settings: Flow<AppSettings>
 }

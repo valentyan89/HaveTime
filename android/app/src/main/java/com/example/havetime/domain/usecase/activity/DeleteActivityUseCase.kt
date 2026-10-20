@@ -7,17 +7,15 @@ import com.example.havetime.domain.repository.WidgetRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class DeleteTodoUseCase(
+class DeleteActivityUseCase(
     private val repository: ActivityRepository,
     private val remindManager: RemindManager,
     private val widgetRepository: WidgetRepository
 ) {
-    operator fun invoke(id: Int): Flow<Unit> {
-        return repository.deleteActivity(id).map {
-                remindManager.cancelRemind(id)
-                Log.d("RRR", "delete")
-                widgetRepository.updateWidget()
-                Unit
-            }
+    operator fun invoke(id: Int): Flow<Unit> = repository.deleteActivity(id).map {
+        remindManager.cancelRemind(id)
+        Log.d("RRR", "delete")
+        widgetRepository.updateWidget()
+        Unit
     }
 }
