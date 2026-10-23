@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -206,10 +207,10 @@ fun DayTimeline(
                                     .graphicsLayer { translationY = offMin * minuteHeightPx }
                                     .height(with(density) { (durMin * minuteHeightPx).toDp() })
                                     .background(
-                                        Color.Green.copy(alpha = 0.3f),
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                                         RoundedCornerShape(8.dp)
                                     )
-                                    .border(2.dp, Color.Green, RoundedCornerShape(8.dp))
+                                    .border(2.dp, MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp))
                                     .zIndex(400f)
                             )
                         }
@@ -242,12 +243,7 @@ fun DayTimeline(
                     var currentEnd by remember(event.id, event.timeInterval.endTime) {
                         mutableStateOf(event.timeInterval.endTime)
                     }
-                    val overlapping =
-                        dayVisibleIntervals.filter {
-                            it.timeInterval.startTime < event.timeInterval.endTime &&
-                                it.timeInterval.endTime > event.timeInterval.startTime
-                        }
-                    val simultaneous = overlapping.filter {
+                    val simultaneous = dayVisibleIntervals.filter {
                         it.timeInterval.startTime ==
                             event.timeInterval.startTime
                     }
@@ -256,7 +252,7 @@ fun DayTimeline(
                     if (simultaneous.size > 1) {
                         widthFactor = 1f / simultaneous.size
                         val pos = simultaneous.indexOf(event)
-                        horizontalOffsetFactor = pos.toFloat()
+                        horizontalOffsetFactor = pos.toFloat() / simultaneous.size
                     } else {
                         widthFactor = 1f
                         horizontalOffsetFactor = 0f
@@ -273,12 +269,25 @@ fun DayTimeline(
                             Modifier
                                 .graphicsLayer {
                                     translationY = startMin * minuteHeightPx
-                                    translationX =
-                                        horizontalOffsetFactor *
-                                        (with(density) { (400.dp.toPx()) }) *
-                                        widthFactor
-                                }.fillMaxWidth(widthFactor)
-                                .padding(start = TIME_COLUMN_WIDTH_DP.dp + 4.dp, end = 4.dp)
+                                }
+                                .layout { measurable, constraints ->
+                                    val leftInset = TIME_COLUMN_WIDTH_DP.dp.roundToPx()
+                                    val gap = 4.dp.roundToPx()
+                                    val availableWidth =
+                                        (constraints.maxWidth - leftInset).coerceAtLeast(0)
+                                    val columnStart =
+                                        (availableWidth * horizontalOffsetFactor).toInt()
+                                    val columnEnd =
+                                        (availableWidth * (horizontalOffsetFactor + widthFactor)).toInt()
+                                    val cardWidth = (columnEnd - columnStart - gap * 2)
+                                        .coerceAtLeast(0)
+                                    val placeable = measurable.measure(
+                                        constraints.copy(minWidth = cardWidth, maxWidth = cardWidth)
+                                    )
+                                    layout(constraints.maxWidth, placeable.height) {
+                                        placeable.placeRelative(leftInset + columnStart + gap, 0)
+                                    }
+                                }
                                 .height(with(density) { (durMin * minuteHeightPx).toDp() })
                                 .zIndex(if (activeId == event.id) 1000f else 10f + idx)
                                 .pointerInput(event.id, selectedDate) {
