@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.utils.navigationBottomPadding
 import com.example.havetime.presentation.screens.calendar.month.components.MonthDayCell
 import com.example.havetime.presentation.screens.calendar.month.components.MonthScreenHeader
 import com.example.havetime.presentation.screens.calendar.month.components.MonthSectionHeader
@@ -102,8 +103,8 @@ fun MonthScreen(
                 .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
-                    bottom = navigationBarsPadding
                 )
+                .navigationBottomPadding()
         ) {
             VerticalCalendar(
                 state = state,

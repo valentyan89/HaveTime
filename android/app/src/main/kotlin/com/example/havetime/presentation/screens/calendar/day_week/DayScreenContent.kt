@@ -29,6 +29,7 @@ import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.common.activity.AddActivityDialog
 import com.example.havetime.presentation.common.components.GlassyFloatingActionButton
 import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.utils.navigationBottomPadding
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.day_week.components.DayScreenHeader
 import com.example.havetime.presentation.screens.calendar.day_week.components.SearchResultsList
@@ -119,8 +120,8 @@ fun DayScreenContent(
                 ).fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
-                    bottom = navigationBarsPadding
                 )
+                .navigationBottomPadding()
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 if (isSearchActive && searchQuery.isNotEmpty()) {
