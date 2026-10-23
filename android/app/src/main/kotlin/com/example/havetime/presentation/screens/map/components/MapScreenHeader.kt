@@ -1,4 +1,3 @@
-
 package com.example.havetime.presentation.screens.map.components
 
 import androidx.compose.foundation.layout.Column
