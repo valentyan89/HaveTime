@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.havetime.domain.model.settingsPrefs.ColorMode
 
 private val lightScheme =
     lightColorScheme(
@@ -95,10 +96,16 @@ private val darkScheme =
 
 @Composable
 fun HaveTimeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    colorTheme: ColorMode = ColorMode.SYSTEM,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when(colorTheme) {
+        ColorMode.LIGHT -> false
+        ColorMode.DARK -> true
+        ColorMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
     val colorScheme =
         when {
             dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.havetime.R
+import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
 import com.example.havetime.presentation.common.utils.HaveText
@@ -79,9 +80,9 @@ internal fun SettingsSwitchItem(
     ) {
         HaveText(
             text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface,
             style = TextStyle(fontStyle = FontStyle.Normal),
             modifier = Modifier.weight(1f)
         )
@@ -104,4 +105,11 @@ fun Language.toStringRes(): Int = when (this) {
 fun Location.toStringRes(): Int = when (this) {
     Location.COORDS -> R.string.location_coordinates
     Location.GEOCODDING -> R.string.location_geocoding
+}
+
+@StringRes
+fun ColorMode.toStringRes(): Int = when (this) {
+    ColorMode.LIGHT -> R.string.light_theme
+    ColorMode.DARK -> R.string.dark_theme
+    ColorMode.SYSTEM -> R.string.system_theme
 }

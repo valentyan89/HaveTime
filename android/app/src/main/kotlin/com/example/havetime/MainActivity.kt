@@ -32,7 +32,10 @@ class MainActivity : ComponentActivity() {
 
             settings?.let { appSettings ->
                 AppLocaleProvider(language = appSettings.language) {
-                    HaveTimeTheme(dynamicColor = appSettings.dynamicColor) {
+                    HaveTimeTheme(
+                        colorTheme = appSettings.colorMode,
+                        dynamicColor = appSettings.dynamicColor
+                    ) {
                         CalendarNavHost()
                     }
                 }

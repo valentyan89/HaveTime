@@ -33,6 +33,7 @@ import com.example.havetime.domain.usecase.date.GetPreviousMonthUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousWeekUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousYearUseCase
 import com.example.havetime.domain.usecase.settings.GetSettingsUseCase
+import com.example.havetime.domain.usecase.settings.SetColorModeUseCase
 import com.example.havetime.domain.usecase.settings.SetDynamicColorUseCase
 import com.example.havetime.domain.usecase.settings.SetLanguageUseCase
 import com.example.havetime.domain.usecase.settings.SetLocationUseCase
@@ -180,4 +181,8 @@ object UseCaseModule {
     @Provides
     fun setDynaUseCase(repository: SettingsRepository): SetDynamicColorUseCase =
         SetDynamicColorUseCase(repository)
+
+    @Provides
+    fun setColorModeUseCase(repository: SettingsRepository): SetColorModeUseCase =
+        SetColorModeUseCase(repository)
 }

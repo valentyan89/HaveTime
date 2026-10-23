@@ -15,17 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.havetime.R
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
+import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
 import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.screens.settings.components.SettingsAppearanceSection
 import com.example.havetime.presentation.screens.settings.components.SettingsLanguageSection
 import com.example.havetime.presentation.screens.settings.components.SettingsLocationSection
-import com.example.havetime.presentation.screens.settings.components.SettingsSwitchItem
 import com.example.havetime.presentation.screens.settings.components.SettingsTopBar
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
@@ -37,6 +36,7 @@ fun SettingsScreenContent(
     onLanguageChanged: (Language) -> Unit,
     onLocationChanged: (Location) -> Unit,
     onDynamicColorChanged: (Boolean) -> Unit,
+    onColorModeChanged: (ColorMode) -> Unit,
     onBackClick: () -> Unit
 ) {
     val hazeState = remember { HazeState() }
@@ -60,10 +60,11 @@ fun SettingsScreenContent(
         ) {
             SettingsLanguageSection(settings.language, onLanguageChanged)
             HorizontalDivider()
-            SettingsSwitchItem(
-                title = stringResource(R.string.dynamic_color),
-                checked = settings.dynamicColor,
-                onCheckedChange = onDynamicColorChanged
+            SettingsAppearanceSection(
+                settings.dynamicColor,
+                settings.colorMode,
+                onColorModeChanged,
+                onDynamicColorChanged
             )
             HorizontalDivider()
             SettingsLocationSection(settings.location, onLocationChanged)

@@ -1,5 +1,6 @@
 package com.example.havetime.data.mapper
 
+import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
 
@@ -10,3 +11,7 @@ fun String?.toLanguage(): Language = Language.entries.firstOrNull {
 fun String?.toLocation(): Location = Location.entries.firstOrNull {
     it.name == this
 } ?: Location.COORDS
+
+fun String?.toColorMode(): ColorMode = ColorMode.entries.firstOrNull {
+    it.name == this
+} ?: ColorMode.SYSTEM

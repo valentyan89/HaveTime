@@ -52,7 +52,11 @@
     <string name="settings">Настройки</string>
     <string name="settings_language">Язык приложения</string>
     <string name="settings_location">Определение местоположения</string>
+    <string name="settings_appearance">Внешний вид</string>
     <string name="dynamic_color">Динамические цвета</string>
+    <string name="light_theme">Светлая тема</string>
+    <string name="dark_theme">Тёмная тема</string>
+    <string name="system_theme">Системная тема</string>
 
     <!-- Language -->
     <string name="language_system">Системный</string>

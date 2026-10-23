@@ -5,13 +5,14 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.havetime.data.mapper.toColorMode
 import com.example.havetime.data.mapper.toLanguage
 import com.example.havetime.data.mapper.toLocation
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.map
 
 @Singleton
 class SettingsManager
@@ -23,6 +24,7 @@ constructor(
         val LOCATION_MODE_KEY = stringPreferencesKey("location_mode")
         val LANGUAGE_KEY = stringPreferencesKey("language")
         val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")
+        val COLOR_MODE_KEY = stringPreferencesKey("COLOR_MODE")
     }
 
     suspend fun saveLocationMode(locationMode: String) {
@@ -43,12 +45,19 @@ constructor(
         }
     }
 
+    suspend fun saveColorMode(colorMode: String) {
+        dataStore.edit { preferences ->
+            preferences[COLOR_MODE_KEY] = colorMode
+        }
+    }
+
     val appSettings =
         dataStore.data.map { preferences ->
             AppSettings(
                 location = preferences[LOCATION_MODE_KEY].toLocation(),
                 language = preferences[LANGUAGE_KEY].toLanguage(),
                 dynamicColor = preferences[DYNAMIC_COLOR_KEY] ?: false,
+                colorMode = preferences[COLOR_MODE_KEY].toColorMode(),
                 notificationsEnabled = true
             )
         }

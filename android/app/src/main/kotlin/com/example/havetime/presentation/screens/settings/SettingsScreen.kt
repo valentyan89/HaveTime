@@ -19,6 +19,7 @@ fun SettingsScreen(
         navController = navController,
         onLanguageChanged = viewModel::setLanguage,
         onLocationChanged = viewModel::setLocation,
+        onColorModeChanged = viewModel::setColorMode,
         onDynamicColorChanged = viewModel::setDynamicColor,
         onBackClick = onBackClick
     )
