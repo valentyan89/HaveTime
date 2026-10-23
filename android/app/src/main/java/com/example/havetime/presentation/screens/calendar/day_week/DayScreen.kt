@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.presentation.screens.CalendarMode
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 
 private const val INFINITE_PAGER_ITEMS = 10_000
-private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 
 @Composable
 fun DayScreen(

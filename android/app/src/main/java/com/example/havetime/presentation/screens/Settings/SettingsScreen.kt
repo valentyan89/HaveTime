@@ -1,7 +1,8 @@
-package com.example.havetime.presentation.screens.Settings
+package com.example.havetime.presentation.screens.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController

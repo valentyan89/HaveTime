@@ -1,4 +1,4 @@
-package com.example.havetime.presentation.screens.Settings
+package com.example.havetime.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

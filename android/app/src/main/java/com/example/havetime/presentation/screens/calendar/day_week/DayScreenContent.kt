@@ -6,14 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,10 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
-import com.example.havetime.presentation.common.AddActivityDialog
-import com.example.havetime.presentation.common.GlassyFloatingActionButton
-import com.example.havetime.presentation.common.bottom_bar_tab.GlassyBottomBar
+import com.example.havetime.presentation.common.activity.AddActivityDialog
+import com.example.havetime.presentation.common.components.GlassyFloatingActionButton
+import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
 import com.example.havetime.presentation.navigation.Screen
+import com.example.havetime.presentation.screens.calendar.day_week.components.DayScreenHeader
+import com.example.havetime.presentation.screens.calendar.day_week.components.SearchResultsList
+import com.example.havetime.presentation.screens.calendar.day_week.timeline.DayTimeline
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import java.time.Instant
@@ -42,7 +42,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 private const val INFINITE_PAGER_ITEMS = 10_000
-private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 
 @Composable
 fun DayScreenContent(
@@ -108,37 +107,20 @@ fun DayScreenContent(
                     bottom = navigationBarsPadding
                 )
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column {
-                    DayTopBar(
-                        date = date,
-                        today = today,
-                        searchQuery = searchQuery,
-                        isSearchActive = isSearchActive,
-                        currentLocale = currentLocale,
-                        onSearchActiveChanged = { isSearchActive = it },
-                        onSearchQueryChanged = onSearchQueryChanged,
-                        onGo2Today = onGo2Today,
-                        onMenuClick = onMenuClick,
-                        onAvatarClick = onAvatarClick,
-                        onTitleClick = { navController.navigate(Screen.Month.route) }
-                    )
-
-                    if (!isSearchActive) {
-                        WeekCalendarPager(
-                            date = date,
-                            today = today,
-                            currentLocale = currentLocale,
-                            onSelectDate = onSelectDate
-                        )
-                    }
-                }
-            }
+            DayScreenHeader(
+                date = date,
+                today = today,
+                searchQuery = searchQuery,
+                isSearchActive = isSearchActive,
+                currentLocale = currentLocale,
+                onSearchActiveChanged = { isSearchActive = it },
+                onSearchQueryChanged = onSearchQueryChanged,
+                onGo2Today = onGo2Today,
+                onMenuClick = onMenuClick,
+                onAvatarClick = onAvatarClick,
+                onTitleClick = { navController.navigate(Screen.Month.route) },
+                onSelectDate = onSelectDate
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 if (isSearchActive && searchQuery.isNotEmpty()) {

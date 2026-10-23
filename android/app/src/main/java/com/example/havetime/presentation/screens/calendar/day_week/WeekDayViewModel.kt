@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
+import android.util.Log
 
 @HiltViewModel
 class WeekDayViewModel @Inject constructor(
@@ -160,6 +161,7 @@ class WeekDayViewModel @Inject constructor(
 
     fun updateActivity(activity: Activity) {
         updateActivityUseCase(activity).launchIn(viewModelScope)
+        Log.d("xxx", "changed")
     }
 
     fun deleteActivity(id: Int) {

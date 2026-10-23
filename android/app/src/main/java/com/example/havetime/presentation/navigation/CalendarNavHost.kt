@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -14,14 +15,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.havetime.presentation.common.CalendarDrawerContent
-import com.example.havetime.presentation.screens.Settings.SettingsScreen
+import com.example.havetime.presentation.common.navigation.drawer.CalendarDrawerContent
 import com.example.havetime.presentation.screens.auth.AuthScreen
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.YearScreen
 import com.example.havetime.presentation.screens.map.MapScreen
+import com.example.havetime.presentation.screens.settings.SettingsScreen
 import kotlinx.coroutines.launch
 
 @Composable
