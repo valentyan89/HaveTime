@@ -100,7 +100,6 @@ fun WeekCalendarPager(
                         modifier =
                         Modifier
                             .weight(1f)
-                            .clickable { onSelectDate(itemDate) }
                             .padding(vertical = 4.dp)
                     ) {
                         HaveText(
@@ -117,6 +116,7 @@ fun WeekCalendarPager(
                             Modifier
                                 .size(38.dp)
                                 .clip(CircleShape)
+                                .clickable { onSelectDate(itemDate) }
                                 .background(
                                     when {
                                         isSelected -> MaterialTheme.colorScheme.primary
