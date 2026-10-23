@@ -47,7 +47,6 @@ internal fun DayTimelineEvent(
     val latestEvent by rememberUpdatedState(event)
     val latestOnActiveChange by rememberUpdatedState(onActiveChange)
     val latestOnScrollBy by rememberUpdatedState(onScrollBy)
-    val latestOnEventClick by rememberUpdatedState(onEventClick)
     val latestOnUpdateActivity by rememberUpdatedState(onUpdateActivity)
 
     LaunchedEffect(event.timeInterval) {
@@ -126,9 +125,6 @@ internal fun DayTimelineEvent(
                                     lastTimeModified = System.currentTimeMillis()
                                 )
                                 latestOnUpdateActivity(updatedEvent)
-                                if (interval.startTime < dayStart || interval.endTime > dayEnd) {
-                                    latestOnEventClick(updatedEvent)
-                                }
                             }
                             latestOnActiveChange(null)
                         },
