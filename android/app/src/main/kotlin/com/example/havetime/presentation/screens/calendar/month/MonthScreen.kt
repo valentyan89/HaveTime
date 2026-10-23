@@ -1,14 +1,12 @@
 package com.example.havetime.presentation.screens.calendar.month
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -16,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -73,7 +70,20 @@ fun MonthScreen(
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
-        topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
+        topBar = {
+            MonthScreenHeader(
+                modifier = Modifier.statusBarsPadding(),
+                visibleMonth = visibleMonth,
+                today = today,
+                currentLocale = currentLocale,
+                daysOfWeek = daysOfWeek,
+                isSearchActive = false,
+                onMenuClick = onMenuClick,
+                onGo2Today = monthViewModel::go2Today,
+                onYearClick = onYearClick,
+                onAvatarClick = onAvatarClick
+            )
+        },
         bottomBar = {
             GlassyBottomBar(
                 navController = navController,
@@ -82,30 +92,19 @@ fun MonthScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .haze(
                     hazeState,
                     backgroundColor = MaterialTheme.colorScheme.background,
                     tint = Color.Black.copy(alpha = .2f),
                     blurRadius = 30.dp
-                ).fillMaxSize()
+                )
+                .fillMaxSize()
                 .padding(
                     top = paddingValues.calculateTopPadding(),
                     bottom = navigationBarsPadding
                 )
         ) {
-            MonthScreenHeader(
-                visibleMonth = visibleMonth,
-                today = today,
-                currentLocale = currentLocale,
-                daysOfWeek = daysOfWeek,
-                onMenuClick = onMenuClick,
-                onGo2Today = monthViewModel::go2Today,
-                onYearClick = onYearClick,
-                onAvatarClick = onAvatarClick
-            )
-
             VerticalCalendar(
                 state = state,
                 modifier = Modifier.padding(horizontal = 8.dp),
