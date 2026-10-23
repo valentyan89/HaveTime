@@ -1,20 +1,14 @@
 package com.example.havetime.presentation.screens.map
 
 import android.graphics.drawable.GradientDrawable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -42,21 +36,20 @@ import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBott
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.map.components.MapContent
+import com.example.havetime.presentation.screens.map.components.MapScreenHeader
 import com.example.havetime.presentation.screens.map.components.MapSearchResults
-import com.example.havetime.presentation.screens.map.components.MapTopBar
-import com.example.havetime.presentation.screens.map.components.MapWeekPager
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
-import java.time.Instant
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Composable
 fun MapScreen(
@@ -162,7 +155,23 @@ fun MapScreen(
 
     Scaffold(
         topBar = {
-            Spacer(modifier = Modifier.statusBarsPadding())
+            MapScreenHeader(
+                modifier = Modifier.statusBarsPadding(),
+                date = date,
+                today = today,
+                currentLocale = currentLocale,
+                isSearchActive = isSearchActive,
+                searchQuery = searchQuery,
+                onSearchActiveChanged = { isSearchActive = it },
+                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                onGo2Today = viewModel::go2Today,
+                onMonthClick = {
+                    navController.navigate(Screen.Month.route)
+                },
+                onMenuClick = onMenuClick,
+                onAvatarClick = onAvatarClick,
+                onSelectDate = viewModel::selectDate
+            )
         },
         bottomBar = {
             GlassyBottomBar(
@@ -185,33 +194,6 @@ fun MapScreen(
                     bottom = navigationBarsPadding
                 )
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column {
-                    MapTopBar(
-                        date = date,
-                        today = today,
-                        currentLocale = currentLocale,
-                        isSearchActive = isSearchActive,
-                        searchQuery = searchQuery,
-                        onSearchActiveChanged = { isSearchActive = it },
-                        onSearchQueryChanged = viewModel::onSearchQueryChanged,
-                        onGo2Today = viewModel::go2Today,
-                        onMonthClick = { navController.navigate(Screen.Month.route) },
-                        onMenuClick = onMenuClick,
-                        onAvatarClick = onAvatarClick
-                    )
-
-                    if (!isSearchActive) {
-                        MapWeekPager(date, today, viewModel::selectDate)
-                    }
-                }
-            }
-
             Box(modifier = Modifier.fillMaxSize()) {
                 if (isSearchActive && searchQuery.isNotEmpty()) {
                     MapSearchResults(searchResults, searchItemFormatter) { activity ->

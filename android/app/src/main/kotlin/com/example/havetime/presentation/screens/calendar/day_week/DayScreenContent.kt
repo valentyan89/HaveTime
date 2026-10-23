@@ -2,7 +2,6 @@ package com.example.havetime.presentation.screens.calendar.day_week
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,7 +72,23 @@ fun DayScreenContent(
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
-        topBar = { Spacer(modifier = Modifier.statusBarsPadding()) },
+        topBar = {
+            DayScreenHeader(
+                modifier = Modifier.statusBarsPadding(),
+                date = date,
+                today = today,
+                searchQuery = searchQuery,
+                isSearchActive = isSearchActive,
+                currentLocale = currentLocale,
+                onSearchActiveChanged = { isSearchActive = it },
+                onSearchQueryChanged = onSearchQueryChanged,
+                onGo2Today = onGo2Today,
+                onMenuClick = onMenuClick,
+                onAvatarClick = onAvatarClick,
+                onTitleClick = { navController.navigate(Screen.Month.route) },
+                onSelectDate = onSelectDate
+            )
+        },
         floatingActionButton = {
             GlassyFloatingActionButton(
                 onClick = { showEventDialog = true },
@@ -107,21 +122,6 @@ fun DayScreenContent(
                     bottom = navigationBarsPadding
                 )
         ) {
-            DayScreenHeader(
-                date = date,
-                today = today,
-                searchQuery = searchQuery,
-                isSearchActive = isSearchActive,
-                currentLocale = currentLocale,
-                onSearchActiveChanged = { isSearchActive = it },
-                onSearchQueryChanged = onSearchQueryChanged,
-                onGo2Today = onGo2Today,
-                onMenuClick = onMenuClick,
-                onAvatarClick = onAvatarClick,
-                onTitleClick = { navController.navigate(Screen.Month.route) },
-                onSelectDate = onSelectDate
-            )
-
             Box(modifier = Modifier.fillMaxSize()) {
                 if (isSearchActive && searchQuery.isNotEmpty()) {
                     SearchResultsList(

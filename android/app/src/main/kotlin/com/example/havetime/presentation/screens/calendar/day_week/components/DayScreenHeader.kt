@@ -14,6 +14,7 @@ import java.util.Locale
 
 @Composable
 internal fun DayScreenHeader(
+    modifier: Modifier = Modifier,
     date: LocalDate,
     today: LocalDate,
     searchQuery: String,
@@ -28,7 +29,7 @@ internal fun DayScreenHeader(
     onSelectDate: (LocalDate) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
