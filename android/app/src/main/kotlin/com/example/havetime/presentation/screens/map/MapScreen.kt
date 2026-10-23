@@ -3,6 +3,7 @@ package com.example.havetime.presentation.screens.map
 import android.graphics.drawable.GradientDrawable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,7 +33,8 @@ import androidx.navigation.NavController
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.common.activity.AddActivityDialog
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.RegisterBottomBarAddAction
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.map.components.MapContent
@@ -72,7 +74,7 @@ fun MapScreen(
 
     val mapView = remember { MapView(context) }
 
-    val hazeState = remember { HazeState() }
+    val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
 
     DisposableEffect(lifecycleOwner) {
         val observer =
@@ -93,6 +95,11 @@ fun MapScreen(
     var selectedLocation by remember { mutableStateOf<Location?>(null) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
+    RegisterBottomBarAddAction(Screen.Map.route) {
+        selectedLocation = null
+        editingActivity = null
+        showEventDialog = true
+    }
 
     val currentLocale = LocalConfiguration.current.locales[0]
     val searchItemFormatter =
@@ -172,12 +179,6 @@ fun MapScreen(
                 onAvatarClick = onAvatarClick,
                 onSelectDate = viewModel::selectDate
             )
-        },
-        bottomBar = {
-            GlassyBottomBar(
-                navController = navController,
-                hazeState = hazeState
-            )
         }
     ) { paddingValues ->
         Column(
@@ -207,7 +208,7 @@ fun MapScreen(
                 MapContent(
                     mapView = mapView,
                     geoMarks = geoMarks,
-                    paddingValues = paddingValues
+                    paddingValues = PaddingValues(bottom = 80.dp + navigationBarsPadding)
                 )
             }
         }

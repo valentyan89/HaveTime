@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -21,14 +18,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.havetime.R
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.common.activity.AddActivityDialog
-import com.example.havetime.presentation.common.components.GlassyFloatingActionButton
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.RegisterBottomBarAddAction
 import com.example.havetime.presentation.common.utils.navigationBottomPadding
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.day_week.components.DayScreenHeader
@@ -69,7 +64,13 @@ fun DayScreenContent(
 
     val currentLocale = LocalConfiguration.current.locales[0]
 
-    val hazeState = remember { HazeState() }
+    val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
+    RegisterBottomBarAddAction(Screen.Day.route) {
+        editingActivity = null
+        draftStartTime = null
+        draftEndTime = null
+        showEventDialog = true
+    }
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
@@ -88,24 +89,6 @@ fun DayScreenContent(
                 onAvatarClick = onAvatarClick,
                 onTitleClick = { navController.navigate(Screen.Month.route) },
                 onSelectDate = onSelectDate
-            )
-        },
-        floatingActionButton = {
-            GlassyFloatingActionButton(
-                onClick = { showEventDialog = true },
-                hazeState = hazeState
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_event),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        },
-        bottomBar = {
-            GlassyBottomBar(
-                navController = navController,
-                hazeState = hazeState
             )
         }
     ) { paddingValues ->

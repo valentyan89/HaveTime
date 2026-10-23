@@ -21,7 +21,7 @@ import com.example.havetime.domain.model.settingsPrefs.AppSettings
 import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.screens.settings.components.SettingsAppearanceSection
 import com.example.havetime.presentation.screens.settings.components.SettingsLanguageSection
 import com.example.havetime.presentation.screens.settings.components.SettingsLocationSection
@@ -39,12 +39,11 @@ fun SettingsScreenContent(
     onColorModeChanged: (ColorMode) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val hazeState = remember { HazeState() }
+    val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
-        topBar = { SettingsTopBar(onBackClick) },
-        bottomBar = { GlassyBottomBar(navController = navController, hazeState = hazeState) }
+        topBar = { SettingsTopBar(onBackClick) }
     ) { paddingValues ->
         Column(
             modifier = Modifier

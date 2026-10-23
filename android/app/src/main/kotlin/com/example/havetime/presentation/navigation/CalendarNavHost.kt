@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.havetime.presentation.common.navigation.drawer.CalendarDrawerContent
+import com.example.havetime.presentation.common.navigation.bottom_bar.SharedBottomBarHost
 import com.example.havetime.presentation.screens.auth.AuthScreen
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
@@ -48,74 +49,76 @@ fun CalendarNavHost() {
             )
         }
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Day.route
-        ) {
-            composable(Screen.Day.route) {
-                DayScreen(
-                    navController = navController,
-                    sharedViewModel = sharedViewModel,
-                    onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                    onMenuClick = { scope.launch { drawerState.open() } }
-                )
-            }
+        SharedBottomBarHost(navController, currentRoute) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Day.route
+            ) {
+                composable(Screen.Day.route) {
+                    DayScreen(
+                        navController = navController,
+                        sharedViewModel = sharedViewModel,
+                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
+                        onMenuClick = { scope.launch { drawerState.open() } }
+                    )
+                }
 
-            composable(Screen.Month.route) {
-                MonthScreen(
-                    navController = navController,
-                    monthViewModel = sharedViewModel,
-                    onAvatarClick = {
-                        navController.navigate(Screen.Auth.route)
-                    },
-                    onDayClick = { date ->
-                        sharedViewModel.selectDate(date)
-                        navController.navigate(Screen.Day.route)
-                    },
-                    onYearClick = { year ->
-                        navController.navigate("${Screen.Year.route}/$year")
-                    },
-                    onMenuClick = { scope.launch { drawerState.open() } }
-                )
-            }
+                composable(Screen.Month.route) {
+                    MonthScreen(
+                        navController = navController,
+                        monthViewModel = sharedViewModel,
+                        onAvatarClick = {
+                            navController.navigate(Screen.Auth.route)
+                        },
+                        onDayClick = { date ->
+                            sharedViewModel.selectDate(date)
+                            navController.navigate(Screen.Day.route)
+                        },
+                        onYearClick = { year ->
+                            navController.navigate("${Screen.Year.route}/$year")
+                        },
+                        onMenuClick = { scope.launch { drawerState.open() } }
+                    )
+                }
 
-            composable(Screen.Map.route) {
-                MapScreen(
-                    navController = navController,
-                    sharedViewModel = sharedViewModel,
-                    onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                    onMenuClick = { scope.launch { drawerState.open() } }
-                )
-            }
+                composable(Screen.Map.route) {
+                    MapScreen(
+                        navController = navController,
+                        sharedViewModel = sharedViewModel,
+                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
+                        onMenuClick = { scope.launch { drawerState.open() } }
+                    )
+                }
 
-            composable(
-                route = "${Screen.Year.route}/{year}",
-                arguments = listOf(navArgument("year") { type = NavType.IntType })
-            ) { backStackEntry ->
+                composable(
+                    route = "${Screen.Year.route}/{year}",
+                    arguments = listOf(navArgument("year") { type = NavType.IntType })
+                ) { backStackEntry ->
 
-                YearScreen(
-                    navController = navController,
-                    sharedViewModel = sharedViewModel,
-                    onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                    onMenuClick = { scope.launch { drawerState.open() } }
-                )
-            }
+                    YearScreen(
+                        navController = navController,
+                        sharedViewModel = sharedViewModel,
+                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
+                        onMenuClick = { scope.launch { drawerState.open() } }
+                    )
+                }
 
-            composable(Screen.Auth.route) {
-                AuthScreen(
-                    onAuthSuccess = { },
-                    onBackClick = { navController.popBackStack() },
-                    navController = navController
-                )
-            }
+                composable(Screen.Auth.route) {
+                    AuthScreen(
+                        onAuthSuccess = { },
+                        onBackClick = { navController.popBackStack() },
+                        navController = navController
+                    )
+                }
 
-            composable(Screen.Settings.route) {
-                SettingsScreen(
-                    navController = navController,
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
+                composable(Screen.Settings.route) {
+                    SettingsScreen(
+                        navController = navController,
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
             }
         }
     }
