@@ -35,6 +35,19 @@ interface ActivityDao {
     @Update
     suspend fun update(activity: ActivityEntity)
 
+    @Query("""
+        UPDATE activity
+        SET geocodedAddress = :address, isSynced = 0, lastTimeModified = :modifiedAt
+        WHERE id = :id AND latitude = :latitude AND longitude = :longitude AND isDeleted = 0
+    """)
+    suspend fun updateGeocodedAddress(
+        id: Int,
+        latitude: Double,
+        longitude: Double,
+        address: String,
+        modifiedAt: Long
+    ): Int
+
     @Query("SELECT * FROM activity WHERE isSynced = 0 ORDER BY lastTimeModified ASC")
     suspend fun getUnsyncedEvents(): List<ActivityEntity>
 

@@ -151,7 +151,6 @@ fun DayTimeline(
                             index = index,
                             dayVisibleIntervals = dayVisibleIntervals,
                             selectedDate = selectedDate,
-                            currentDateTime = currentDateTime,
                             dayStart = dayStart,
                             dayEnd = dayEnd,
                             minuteHeightPx = minuteHeightPx,

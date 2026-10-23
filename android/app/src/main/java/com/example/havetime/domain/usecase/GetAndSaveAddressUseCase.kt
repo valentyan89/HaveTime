@@ -16,12 +16,7 @@ class GetAndSaveAddressUseCase(
         if (lat != null && lon != null) {
             val fetchedAddress = geocoding.getAddressFromCoords(lat, lon)
             if (fetchedAddress != null) {
-                val updatedLocation = activity.location.copy(geocodedAddress = fetchedAddress)
-
-                val updatedActivity = activity.copy(location = updatedLocation)
-
-                repository.updateActivity(updatedActivity).collect {}
-                return true
+                return repository.updateGeocodedAddress(id, lat, lon, fetchedAddress)
             }
         }
         return false

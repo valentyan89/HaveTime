@@ -113,6 +113,15 @@ class ActivityRepositoryImpl @Inject constructor(
         emit(Unit)
     }
 
+    override suspend fun updateGeocodedAddress(
+        id: Int,
+        latitude: Double,
+        longitude: Double,
+        address: String
+    ): Boolean = activityDao.updateGeocodedAddress(
+        id, latitude, longitude, address, System.currentTimeMillis()
+    ) > 0
+
     override fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>> {
         val monthStart =
             yearMonth

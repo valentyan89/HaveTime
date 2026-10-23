@@ -20,6 +20,13 @@ interface ActivityRepository {
 
     fun updateActivity(activity: Activity): Flow<Unit>
 
+    suspend fun updateGeocodedAddress(
+        id: Int,
+        latitude: Double,
+        longitude: Double,
+        address: String
+    ): Boolean
+
     fun searchActivities(query: String): Flow<List<Activity>>
 
     suspend fun getActivityById(id: Int): Activity?
