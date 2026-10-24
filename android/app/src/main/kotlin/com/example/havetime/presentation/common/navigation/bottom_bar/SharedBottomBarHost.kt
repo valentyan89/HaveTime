@@ -1,7 +1,10 @@
 package com.example.havetime.presentation.common.navigation.bottom_bar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -16,15 +19,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.havetime.R
-import com.example.havetime.presentation.common.components.GlassyFloatingActionButton
 import com.example.havetime.presentation.navigation.Screen
 import dev.chrisbanes.haze.HazeState
 
@@ -33,17 +32,30 @@ internal class SharedBottomBarState {
     val addActions = mutableStateMapOf<String, () -> Unit>()
 }
 
-internal val LocalSharedBottomBar = staticCompositionLocalOf<SharedBottomBarState?> { null }
+internal val LocalSharedBottomBar =
+    staticCompositionLocalOf<SharedBottomBarState?> {
+        null
+    }
 
 @Composable
-internal fun RegisterBottomBarAddAction(route: String, onAdd: () -> Unit) {
+internal fun RegisterBottomBarAddAction(
+    route: String,
+    onAdd: () -> Unit,
+) {
     val host = LocalSharedBottomBar.current ?: return
     val latestOnAdd by rememberUpdatedState(onAdd)
+
     DisposableEffect(host, route) {
-        val action = { latestOnAdd() }
+        val action = {
+            latestOnAdd()
+        }
+
         host.addActions[route] = action
+
         onDispose {
-            if (host.addActions[route] === action) host.addActions.remove(route)
+            if (host.addActions[route] === action) {
+                host.addActions.remove(route)
+            }
         }
     }
 }
@@ -52,45 +64,60 @@ internal fun RegisterBottomBarAddAction(route: String, onAdd: () -> Unit) {
 internal fun SharedBottomBarHost(
     navController: NavController,
     currentRoute: String,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val state = remember { SharedBottomBarState() }
-    val showAdd = currentRoute == Screen.Day.route || currentRoute == Screen.Map.route
-    val showBar = showAdd || currentRoute == Screen.Settings.route
+    val state = remember {
+        SharedBottomBarState()
+    }
 
-    CompositionLocalProvider(LocalSharedBottomBar provides state) {
-        Box(Modifier.fillMaxSize()) {
+    val showAdd = currentRoute == Screen.Day.route
+            || currentRoute == Screen.Month.route
+            || currentRoute == Screen.Map.route
+
+    val showBar = showAdd
+            || currentRoute == Screen.Settings.route
+            || currentRoute == Screen.Map.route
+
+    CompositionLocalProvider(
+        LocalSharedBottomBar provides state
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
             content()
+
             if (showBar) {
                 GlassyBottomBar(
-                    modifier = Modifier.align(Alignment.BottomCenter),
+                    modifier = Modifier.align(
+                        Alignment.BottomCenter
+                    ),
                     navController = navController,
                     hazeState = state.hazeState,
                     showTrailingAction = showAdd,
-                    trailingAction = { visibleFraction ->
-                        // Haze draws the glass in the source layer, outside the icon's mask.
-                        // Trim its registered area too so the background wipes right to left.
-                        val hazeShape = remember(visibleFraction) {
-                            GenericShape { size, _ ->
-                                val circle = Path().apply { addOval(Rect(Offset.Zero, size)) }
-                                val visibleArea = Path().apply {
-                                    addRect(Rect(0f, 0f, size.width * visibleFraction, size.height))
-                                }
-                                addPath(Path.combine(PathOperation.Intersect, circle, visibleArea))
-                            }
-                        }
-                        GlassyFloatingActionButton(
-                            onClick = { state.addActions[currentRoute]?.invoke() },
-                            hazeState = state.hazeState,
-                            hazeShape = hazeShape
+                    trailingAction = { _ ->
+                        Box(
+                            modifier = Modifier
+                                .size(62.dp)
+                                .clip(CircleShape)
+                                .clickable(
+                                    enabled = showAdd,
+                                    onClickLabel = stringResource(
+                                        R.string.add_event
+                                    ),
+                                ) {
+                                    state.addActions[currentRoute]?.invoke()
+                                },
+                            contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                Icons.Default.Add,
-                                contentDescription = stringResource(R.string.add_event),
-                                tint = MaterialTheme.colorScheme.onSurface
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(
+                                    R.string.add_event
+                                ),
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
-                    }
+                    },
                 )
             }
         }

@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.havetime.R
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
 import com.example.havetime.presentation.screens.auth.components.AuthAccount
 import com.example.havetime.presentation.screens.auth.components.AuthForm
 import dev.chrisbanes.haze.HazeState
@@ -67,10 +66,10 @@ fun AuthScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
-            GlassyBottomBar(
-                navController = navController,
-                hazeState = hazeState
-            )
+//            GlassyBottomBar(
+//                navController = navController,
+//                hazeState = hazeState
+//            )
         }
     ) { paddingValues ->
         Box(

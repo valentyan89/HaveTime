@@ -72,11 +72,11 @@ fun MapScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val mapView = remember { MapView(context) }
+    val mapView = remember(context) { MapView(context) }
 
     val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
 
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(lifecycleOwner, mapView) {
         val observer =
             LifecycleEventObserver { _, event ->
                 when (event) {
@@ -107,7 +107,7 @@ fun MapScreen(
             DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(currentLocale)
         }
 
-    LaunchedEffect(geoMarks, currentDate) {
+    LaunchedEffect(mapView, geoMarks) {
         mapView.overlays.removeAll { it is Marker || it is MapEventsOverlay }
 
         val mapEventsReceiver =

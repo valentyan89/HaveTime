@@ -10,28 +10,28 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.components.YearMonthGrid
 import com.example.havetime.presentation.screens.calendar.year.components.YearTopBar
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YearScreen(
     navController: NavController,
@@ -45,7 +45,7 @@ fun YearScreen(
 
     val currentLocale = LocalConfiguration.current.locales[0]
 
-    val hazeState = remember { HazeState() }
+    val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
@@ -53,10 +53,10 @@ fun YearScreen(
             Spacer(modifier = Modifier.statusBarsPadding())
         },
         bottomBar = {
-            GlassyBottomBar(
-                navController = navController,
-                hazeState = hazeState
-            )
+//            GlassyBottomBar(
+//                navController = navController,
+//                hazeState = hazeState
+//            )
         }
     ) { paddingValues ->
         when (val yearState = state) {
@@ -74,6 +74,12 @@ fun YearScreen(
                 Column(
                     modifier =
                     Modifier
+                        .haze(
+                            hazeState,
+                            backgroundColor = MaterialTheme.colorScheme.background,
+                            tint = Color.Black.copy(alpha = .2f),
+                            blurRadius = 30.dp
+                        )
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {

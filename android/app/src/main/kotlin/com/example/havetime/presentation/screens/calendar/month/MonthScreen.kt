@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.havetime.presentation.common.navigation.bottom_bar.GlassyBottomBar
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.navigationBottomPadding
 import com.example.havetime.presentation.screens.calendar.month.components.MonthDayCell
 import com.example.havetime.presentation.screens.calendar.month.components.MonthScreenHeader
@@ -50,7 +50,7 @@ fun MonthScreen(
     val endMonth = remember(month) { YearMonth.of(month.year + 10, 12) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
 
-    val hazeState = remember { HazeState() }
+    val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
 
     val state =
         rememberCalendarState(
@@ -86,10 +86,10 @@ fun MonthScreen(
             )
         },
         bottomBar = {
-            GlassyBottomBar(
-                navController = navController,
-                hazeState = hazeState
-            )
+//            GlassyBottomBar(
+//                navController = navController,
+//                hazeState = hazeState
+//            )
         }
     ) { paddingValues ->
         Column(
