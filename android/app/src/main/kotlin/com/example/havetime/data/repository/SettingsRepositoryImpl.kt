@@ -6,10 +6,11 @@ import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
 import com.example.havetime.domain.model.settingsPrefs.Location
 import com.example.havetime.domain.repository.SettingsRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 
-class SettingsRepositoryImpl @Inject constructor(private val settingsManager: SettingsManager) : SettingsRepository {
+class SettingsRepositoryImpl @Inject constructor(private val settingsManager: SettingsManager) :
+    SettingsRepository {
     override suspend fun setLanguage(language: Language) {
         settingsManager.saveLanguage(language.name)
     }

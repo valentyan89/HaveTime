@@ -1,10 +1,10 @@
 package com.example.havetime.presentation.screens.calendar.year
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.usecase.activity.GetActivitiesForMonthUseCase
 import com.example.havetime.domain.usecase.date.GetCurrentDateUseCase
-import com.example.havetime.domain.usecase.date.GetCurrentYearUseCase
 import com.example.havetime.domain.usecase.date.GetInitialDateUseCase
 import com.example.havetime.domain.usecase.date.GetNextYearUseCase
 import com.example.havetime.domain.usecase.date.GetPreviousYearUseCase
@@ -15,7 +15,9 @@ import java.time.Month
 import java.time.YearMonth
 import java.time.ZoneOffset
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,7 @@ import kotlinx.coroutines.withContext
 class YearViewModel
 @Inject
 constructor(
-    private val getCurrentYearUseCase: GetCurrentYearUseCase,
+    private val savedStateHandle: SavedStateHandle,
     private val getNextYearUseCase: GetNextYearUseCase,
     private val getPreviousYearUseCase: GetPreviousYearUseCase,
     private val getActivitiesForMonthUseCase: GetActivitiesForMonthUseCase,
@@ -39,7 +41,9 @@ constructor(
     private val _state = MutableStateFlow<YearState>(YearState.Loading)
     val state: StateFlow<YearState> = _state.asStateFlow()
 
-    private val _currentYear = MutableStateFlow(getInitialDateUseCase().year)
+    private val _currentYear = MutableStateFlow(
+        savedStateHandle.get<Int>("year") ?: getInitialDateUseCase().year
+    )
     val currentYear: StateFlow<Int> = _currentYear.asStateFlow()
 
     val today: StateFlow<LocalDate> =
@@ -50,23 +54,19 @@ constructor(
                 initialValue = getInitialDateUseCase()
             )
 
-    init {
-        loadCurrentYear()
-    }
+    private var routeInitialized = false
 
-    private fun loadCurrentYear() {
-        viewModelScope.launch {
-            try {
-                val year = getCurrentYearUseCase().first()
-                _currentYear.value = year
-                loadYearData(year)
-            } catch (e: Exception) {
-                _state.value = YearState.Error(e.message ?: "Unknown error")
-            }
-        }
+    fun initializeYear(year: Int) {
+        if (routeInitialized) return
+        routeInitialized = true
+        val initialYear = savedStateHandle.get<Int>("year") ?: year
+        savedStateHandle["year"] = initialYear
+        _currentYear.value = initialYear
+        loadYearData(initialYear)
     }
 
     fun setYear(year: Int) {
+        savedStateHandle["year"] = year
         if (_currentYear.value != year) {
             _currentYear.value = year
             loadYearData(year)
@@ -75,18 +75,19 @@ constructor(
 
     fun goToNextYear() {
         val nextYear = getNextYearUseCase(_currentYear.value)
-        _currentYear.value = nextYear
-        loadYearData(nextYear)
+        setYear(nextYear)
     }
 
     fun goToPreviousYear() {
         val prevYear = getPreviousYearUseCase(_currentYear.value)
-        _currentYear.value = prevYear
-        loadYearData(prevYear)
+        setYear(prevYear)
     }
 
+    private var loadJob: Job? = null
+
     private fun loadYearData(year: Int) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             try {
                 _state.value = YearState.Loading
 
@@ -120,6 +121,8 @@ constructor(
                     }
 
                 _state.value = YearState.Success(year, monthsData)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _state.value = YearState.Error(e.message ?: "Error loading data")
             }

@@ -1,125 +1,128 @@
 package com.example.havetime.presentation.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.havetime.presentation.common.navigation.drawer.CalendarDrawerContent
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.example.havetime.presentation.common.navigation.bottom_bar.SharedBottomBarHost
+import com.example.havetime.presentation.common.navigation.drawer.CalendarDrawerContent
 import com.example.havetime.presentation.screens.auth.AuthScreen
 import com.example.havetime.presentation.screens.calendar.day_week.DayScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthScreen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.YearScreen
+import com.example.havetime.presentation.screens.calendar.year.YearViewModel
 import com.example.havetime.presentation.screens.map.MapScreen
 import com.example.havetime.presentation.screens.settings.SettingsScreen
 import kotlinx.coroutines.launch
 
 @Composable
 fun CalendarNavHost() {
-    val navController = rememberNavController()
+    val navigation = rememberAppNavigationState()
+    val currentScreen = navigation.currentScreen
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
     val sharedViewModel: MonthViewModel = hiltViewModel()
-    val selectedDate by sharedViewModel.selectedDate.collectAsState()
-
-    val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route ?: Screen.Day.route
+    val openMenu: () -> Unit = { scope.launch { drawerState.open() } }
+    val openAuth: () -> Unit = { navigation.navigate(Screen.Auth) }
+    val openMonth: () -> Unit = { navigation.navigate(Screen.Month) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             CalendarDrawerContent(
-                navController = navController,
-                currentRoute = currentRoute,
+                currentScreen = currentScreen,
+                onNavigate = { navigation.navigate(it) },
                 onCloseDrawer = { scope.launch { drawerState.close() } }
             )
         }
     ) {
-        SharedBottomBarHost(navController, currentRoute) {
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Day.route
-            ) {
-                composable(Screen.Day.route) {
+        SharedBottomBarHost(
+            currentScreen = currentScreen,
+            onNavigate = { navigation.selectTab(it.tab) }
+        ) {
+            val screenProvider = entryProvider<NavKey> {
+                entry<Screen.Day> {
                     DayScreen(
-                        navController = navController,
+                        onOpenMonth = openMonth,
                         sharedViewModel = sharedViewModel,
-                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                        onMenuClick = { scope.launch { drawerState.open() } }
+                        onAvatarClick = openAuth,
+                        onMenuClick = openMenu
                     )
                 }
-
-                composable(Screen.Month.route) {
+                entry<Screen.Month> {
                     MonthScreen(
-                        navController = navController,
                         monthViewModel = sharedViewModel,
-                        onAvatarClick = {
-                            navController.navigate(Screen.Auth.route)
-                        },
+                        onAvatarClick = openAuth,
                         onDayClick = { date ->
                             sharedViewModel.selectDate(date)
-                            navController.navigate(Screen.Day.route)
+                            navigation.navigate(Screen.Day)
                         },
-                        onYearClick = { year ->
-                            navController.navigate("${Screen.Year.route}/$year")
-                        },
-                        onMenuClick = { scope.launch { drawerState.open() } }
+                        onYearClick = { navigation.navigate(Screen.Year(it)) },
+                        onMenuClick = openMenu
                     )
                 }
-
-                composable(Screen.Map.route) {
-                    MapScreen(
-                        navController = navController,
-                        sharedViewModel = sharedViewModel,
-                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                        onMenuClick = { scope.launch { drawerState.open() } }
-                    )
-                }
-
-                composable(
-                    route = "${Screen.Year.route}/{year}",
-                    arguments = listOf(navArgument("year") { type = NavType.IntType })
-                ) { backStackEntry ->
-
+                entry<Screen.Year> { screen ->
+                    val viewModel: YearViewModel = hiltViewModel()
+                    androidx.compose.runtime.LaunchedEffect(viewModel) {
+                        viewModel.initializeYear(screen.year)
+                    }
                     YearScreen(
-                        navController = navController,
                         sharedViewModel = sharedViewModel,
-                        onAvatarClick = { navController.navigate(Screen.Auth.route) },
-                        onMenuClick = { scope.launch { drawerState.open() } }
+                        onOpenMonth = openMonth,
+                        viewModel = viewModel,
+                        onAvatarClick = openAuth,
+                        onMenuClick = openMenu
                     )
                 }
-
-                composable(Screen.Auth.route) {
-                    AuthScreen(
-                        onAuthSuccess = { },
-                        onBackClick = { navController.popBackStack() },
-                        navController = navController
+                entry<Screen.Map> {
+                    MapScreen(
+                        onOpenMonth = openMonth,
+                        sharedViewModel = sharedViewModel,
+                        onAvatarClick = openAuth,
+                        onMenuClick = openMenu
                     )
                 }
+                entry<Screen.Auth> {
+                    AuthScreen(onAuthSuccess = {}, onBackClick = { navigation.goBack() })
+                }
+                entry<Screen.Settings> {
+                    SettingsScreen(onBackClick = { navigation.goBack() })
+                }
+            }
 
-                composable(Screen.Settings.route) {
-                    SettingsScreen(
-                        navController = navController,
-                        onBackClick = {
-                            navController.popBackStack()
-                        }
+            val decoratedStacks = navigation.stacks.mapValues { (tab, stack) ->
+                key(tab) {
+                    rememberDecoratedNavEntries(
+                        backStack = stack,
+                        entryDecorators = listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator()
+                        ),
+                        entryProvider = screenProvider
                     )
                 }
             }
+            val visibleEntries = navigation.tabHistory.flatMap { decoratedStacks.getValue(it) }
+            NavDisplay(
+                entries = visibleEntries,
+                onBack = { navigation.goBack() }
+            )
         }
+    }
+
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch { drawerState.close() }
     }
 }

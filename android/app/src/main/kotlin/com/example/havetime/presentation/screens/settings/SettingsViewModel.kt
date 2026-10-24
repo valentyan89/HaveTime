@@ -1,6 +1,5 @@
 package com.example.havetime.presentation.screens.settings
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
@@ -13,10 +12,10 @@ import com.example.havetime.domain.usecase.settings.SetDynamicColorUseCase
 import com.example.havetime.domain.usecase.settings.SetLanguageUseCase
 import com.example.havetime.domain.usecase.settings.SetLocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(

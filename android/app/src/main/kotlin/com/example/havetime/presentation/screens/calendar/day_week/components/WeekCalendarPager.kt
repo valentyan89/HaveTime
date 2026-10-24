@@ -2,10 +2,10 @@ package com.example.havetime.presentation.screens.calendar.day_week.components
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,13 +30,15 @@ import kotlin.math.exp
 private const val INFINITE_PAGER_ITEMS = 10_000
 private const val PAGER_START_INDEX = INFINITE_PAGER_ITEMS / 2
 
-
 // Divide inertial speed by this value after each full week. Must be >= 1.
 private const val WEEK_SPEED_DIVISOR = 2f
+
 // Continuous friction between weeks. Higher values stop the fling sooner.
 private const val WEEK_FLING_FRICTION = 4.2f
+
 // Start snapping before the slow inertial tail (dp per second).
 private const val WEEK_SNAP_START_SPEED_DP_PER_SECOND = 120f
+
 // Duration of the final alignment. Lower values align faster.
 private const val WEEK_SNAP_DURATION_MS = 160
 
