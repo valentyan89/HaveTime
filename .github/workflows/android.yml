@@ -3,7 +3,7 @@ name: HaveTime Android CI
 
 on:
   push:
-    branches: [main, fixiki]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -33,11 +33,12 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android SDK 36
-        run: sdkmanager "platforms;android-36"
+        run: |
+          sdkmanager --version
+          sdkmanager --sdk_root="$ANDROID_HOME" \
+          "platforms;android-36" \
+          "build-tools;36.0.0"
 
       - name: Grant Gradle permission
         run: chmod +x gradlew
