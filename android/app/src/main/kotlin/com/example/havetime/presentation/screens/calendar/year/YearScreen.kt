@@ -23,8 +23,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
-import androidx.navigation.NavController
-import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.HaveText
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.components.YearMonthGrid

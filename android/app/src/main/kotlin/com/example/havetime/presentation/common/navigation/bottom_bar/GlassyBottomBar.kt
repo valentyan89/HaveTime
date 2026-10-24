@@ -2,7 +2,6 @@ package com.example.havetime.presentation.common.navigation.bottom_bar
 
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -26,11 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -57,8 +53,6 @@ fun GlassyBottomBar(
 ) {
     val barShape = RoundedCornerShape(32.dp)
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
 
     val actionFraction by animateFloatAsState(
         targetValue = if (
@@ -95,23 +89,14 @@ fun GlassyBottomBar(
         )
     }
 
-    val selectedTabIndex = remember(currentRoute) {
-        when (currentRoute) {
-            Screen.Day.route -> 0
-            Screen.Map.route -> 1
-            Screen.Settings.route -> 2
+    val selectedTabIndex = remember(currentScreen) {
+        when (currentScreen) {
+            Screen.Day -> 0
+            Screen.Map -> 1
+            Screen.Settings -> 2
             else -> 0
         }
     }
-    val selectedTabIndex =
-        remember(currentScreen) {
-            when (currentScreen) {
-                Screen.Day -> 0
-                Screen.Map -> 1
-                Screen.Settings -> 2
-                else -> 0
-            }
-        }
 
     val animatedSelectedTabIndex by animateFloatAsState(
         targetValue = selectedTabIndex.toFloat(),
@@ -185,14 +170,12 @@ fun GlassyBottomBar(
                     tabs = tabsList,
                     selectedTab = selectedTabIndex,
                     onTabSelected = { tab ->
-                        val index = tabsList.indexOf(tab)
-                        val route =
-                            when (index) {
-                                0 -> Screen.Day
-                                1 -> Screen.Map
-                                2 -> Screen.Settings
-                                else -> null
-                            }
+                        val route = when (tabsList.indexOf(tab)) {
+                            0 -> Screen.Day
+                            1 -> Screen.Map
+                            2 -> Screen.Settings
+                            else -> null
+                        }
 
                         route?.let { target ->
                             if (currentScreen != target) {

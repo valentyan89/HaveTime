@@ -19,8 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
-import androidx.navigation.NavController
-import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.navigationBottomPadding
 import com.example.havetime.presentation.screens.calendar.month.components.MonthDayCell
 import com.example.havetime.presentation.screens.calendar.month.components.MonthScreenHeader
@@ -36,7 +34,6 @@ import java.time.YearMonth
 
 @Composable
 fun MonthScreen(
-    navController: NavController,
     monthViewModel: MonthViewModel,
     onAvatarClick: () -> Unit = {},
     onDayClick: (LocalDate) -> Unit = {},
