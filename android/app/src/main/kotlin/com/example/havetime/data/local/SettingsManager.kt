@@ -9,10 +9,10 @@ import com.example.havetime.data.mapper.toColorMode
 import com.example.havetime.data.mapper.toLanguage
 import com.example.havetime.data.mapper.toLocation
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class SettingsManager

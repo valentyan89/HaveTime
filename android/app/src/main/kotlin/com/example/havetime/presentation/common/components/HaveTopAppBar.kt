@@ -51,7 +51,7 @@ fun HaveTopAppBar(
     isSearchActive: Boolean = false,
     searchQuery: String = "",
     onSearchActiveChanged: ((Boolean) -> Unit)? = null,
-    onSearchQueryChanged: ((String) -> Unit)? = null,
+    onSearchQueryChanged: ((String) -> Unit)? = null
 ) {
     val searchEnabled =
         onSearchActiveChanged != null && onSearchQueryChanged != null

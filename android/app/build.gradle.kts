@@ -59,7 +59,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.play.services.auth)
@@ -111,6 +110,8 @@ dependencies {
 
     implementation(libs.haze.jetpack.compose)
     implementation(libs.androidx.core.splashscreen)
+
+    implementation(libs.bundles.androidx.navigation3)
 }
 
 configurations.all {

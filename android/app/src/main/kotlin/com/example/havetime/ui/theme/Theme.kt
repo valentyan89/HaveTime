@@ -100,7 +100,7 @@ fun HaveTimeTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val darkTheme = when(colorTheme) {
+    val darkTheme = when (colorTheme) {
         ColorMode.LIGHT -> false
         ColorMode.DARK -> true
         ColorMode.SYSTEM -> isSystemInDarkTheme()

@@ -2,6 +2,7 @@ package com.example.havetime.presentation.common.navigation.bottom_bar
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -16,13 +17,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.common.components.GlassyFloatingActionButton
 import com.example.havetime.presentation.navigation.Screen
@@ -30,33 +29,33 @@ import dev.chrisbanes.haze.HazeState
 
 internal class SharedBottomBarState {
     val hazeState = HazeState()
-    val addActions = mutableStateMapOf<String, () -> Unit>()
+    val addActions = mutableStateMapOf<Screen, () -> Unit>()
 }
 
 internal val LocalSharedBottomBar = staticCompositionLocalOf<SharedBottomBarState?> { null }
 
 @Composable
-internal fun RegisterBottomBarAddAction(route: String, onAdd: () -> Unit) {
+internal fun RegisterBottomBarAddAction(screen: Screen, onAdd: () -> Unit) {
     val host = LocalSharedBottomBar.current ?: return
     val latestOnAdd by rememberUpdatedState(onAdd)
-    DisposableEffect(host, route) {
+    DisposableEffect(host, screen) {
         val action = { latestOnAdd() }
-        host.addActions[route] = action
+        host.addActions[screen] = action
         onDispose {
-            if (host.addActions[route] === action) host.addActions.remove(route)
+            if (host.addActions[screen] === action) host.addActions.remove(screen)
         }
     }
 }
 
 @Composable
 internal fun SharedBottomBarHost(
-    navController: NavController,
-    currentRoute: String,
+    currentScreen: Screen,
+    onNavigate: (Screen) -> Unit,
     content: @Composable () -> Unit
 ) {
     val state = remember { SharedBottomBarState() }
-    val showAdd = currentRoute == Screen.Day.route || currentRoute == Screen.Map.route
-    val showBar = showAdd || currentRoute == Screen.Settings.route
+    val showAdd = currentScreen == Screen.Day || currentScreen == Screen.Map
+    val showBar = currentScreen != Screen.Auth
 
     CompositionLocalProvider(LocalSharedBottomBar provides state) {
         Box(Modifier.fillMaxSize()) {
@@ -64,7 +63,8 @@ internal fun SharedBottomBarHost(
             if (showBar) {
                 GlassyBottomBar(
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    navController = navController,
+                    currentScreen = currentScreen,
+                    onNavigate = onNavigate,
                     hazeState = state.hazeState,
                     showTrailingAction = showAdd,
                     trailingAction = { visibleFraction ->
@@ -80,7 +80,7 @@ internal fun SharedBottomBarHost(
                             }
                         }
                         GlassyFloatingActionButton(
-                            onClick = { state.addActions[currentRoute]?.invoke() },
+                            onClick = { state.addActions[currentScreen]?.invoke() },
                             hazeState = state.hazeState,
                             hazeShape = hazeShape
                         ) {

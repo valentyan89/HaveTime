@@ -25,10 +25,10 @@ internal fun SettingsAppearanceSection(
 ) {
     HaveText(
         modifier =
-            Modifier.padding(
-                horizontal = 16.dp,
-                vertical = 12.dp
-            ),
+        Modifier.padding(
+            horizontal = 16.dp,
+            vertical = 12.dp
+        ),
         text = stringResource(R.string.settings_appearance),
         fontSize = 18.sp,
         fontWeight = FontWeight.SemiBold,

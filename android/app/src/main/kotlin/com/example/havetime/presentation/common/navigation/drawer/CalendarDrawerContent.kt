@@ -20,15 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.navigation.Screen
 import java.time.Year
 
 @Composable
 fun CalendarDrawerContent(
-    navController: NavController,
-    currentRoute: String,
+    currentScreen: Screen,
+    onNavigate: (Screen) -> Unit,
     onCloseDrawer: () -> Unit
 ) {
     ModalDrawerSheet(
@@ -52,12 +51,9 @@ fun CalendarDrawerContent(
             CalendarDrawerItem(
                 icon = Icons.Default.Today,
                 label = stringResource(R.string.day_screen),
-                selected = currentRoute == Screen.Day.route,
+                selected = currentScreen == Screen.Day,
                 onClick = {
-                    navController.navigate(Screen.Day.route) {
-                        popUpTo(0) { inclusive = false }
-                        launchSingleTop = true
-                    }
+                    onNavigate(Screen.Day)
                     onCloseDrawer()
                 }
             )
@@ -65,12 +61,9 @@ fun CalendarDrawerContent(
             CalendarDrawerItem(
                 icon = Icons.Default.CalendarMonth,
                 label = stringResource(R.string.month_screen),
-                selected = currentRoute == Screen.Month.route,
+                selected = currentScreen == Screen.Month,
                 onClick = {
-                    navController.navigate(Screen.Month.route) {
-                        popUpTo(0) { inclusive = false }
-                        launchSingleTop = true
-                    }
+                    onNavigate(Screen.Month)
                     onCloseDrawer()
                 }
             )
@@ -78,13 +71,10 @@ fun CalendarDrawerContent(
             CalendarDrawerItem(
                 icon = Icons.Default.CalendarViewDay,
                 label = stringResource(R.string.year_screen_title),
-                selected = currentRoute.startsWith(Screen.Year.route),
+                selected = currentScreen is Screen.Year,
                 onClick = {
                     val currentYear = Year.now().value
-                    navController.navigate("${Screen.Year.route}/$currentYear") {
-                        popUpTo(0) { inclusive = false }
-                        launchSingleTop = true
-                    }
+                    onNavigate(Screen.Year(currentYear))
                     onCloseDrawer()
                 }
             )
@@ -97,12 +87,9 @@ fun CalendarDrawerContent(
             CalendarDrawerItem(
                 icon = Icons.Default.Map,
                 label = stringResource(R.string.map),
-                selected = currentRoute == Screen.Map.route,
+                selected = currentScreen == Screen.Map,
                 onClick = {
-                    navController.navigate(Screen.Map.route) {
-                        popUpTo(0) { inclusive = false }
-                        launchSingleTop = true
-                    }
+                    onNavigate(Screen.Map)
                     onCloseDrawer()
                 }
             )
@@ -115,11 +102,9 @@ fun CalendarDrawerContent(
             CalendarDrawerItem(
                 icon = Icons.Default.Settings,
                 label = stringResource(R.string.settings),
-                selected = currentRoute == Screen.Settings.route,
+                selected = currentScreen == Screen.Settings,
                 onClick = {
-                    navController.navigate(Screen.Settings.route) {
-                        launchSingleTop = true
-                    }
+                    onNavigate(Screen.Settings)
                     onCloseDrawer()
                 }
             )
