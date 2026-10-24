@@ -1,9 +1,11 @@
 package com.example.havetime.presentation.screens.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -67,6 +69,7 @@ fun SettingsScreenContent(
             )
             HorizontalDivider()
             SettingsLocationSection(settings.location, onLocationChanged)
+            Spacer(Modifier.height(50.dp))
         }
     }
 }
