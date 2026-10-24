@@ -29,7 +29,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation.NavController
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.domain.model.Location
 import com.example.havetime.presentation.common.activity.AddActivityDialog
@@ -42,20 +41,20 @@ import com.example.havetime.presentation.screens.map.components.MapScreenHeader
 import com.example.havetime.presentation.screens.map.components.MapSearchResults
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.MapEventsOverlay
-import org.osmdroid.views.overlay.Marker
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun MapScreen(
-    navController: NavController,
+    onOpenMonth: () -> Unit,
     sharedViewModel: MonthViewModel,
     viewModel: MapViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
@@ -95,7 +94,7 @@ fun MapScreen(
     var selectedLocation by remember { mutableStateOf<Location?>(null) }
     var editingActivity by remember { mutableStateOf<Activity?>(null) }
     var showEventDialog by remember { mutableStateOf(false) }
-    RegisterBottomBarAddAction(Screen.Map.route) {
+    RegisterBottomBarAddAction(Screen.Map) {
         selectedLocation = null
         editingActivity = null
         showEventDialog = true
@@ -173,7 +172,7 @@ fun MapScreen(
                 onSearchQueryChanged = viewModel::onSearchQueryChanged,
                 onGo2Today = viewModel::go2Today,
                 onMonthClick = {
-                    navController.navigate(Screen.Month.route)
+                    onOpenMonth()
                 },
                 onMenuClick = onMenuClick,
                 onAvatarClick = onAvatarClick,

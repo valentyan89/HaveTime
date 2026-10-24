@@ -2,6 +2,7 @@ package com.example.havetime.presentation.common.navigation.bottom_bar
 
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,13 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.havetime.presentation.navigation.Screen
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeChild
@@ -46,7 +48,8 @@ private val ACTION_MERGE_TRAVEL = 32.dp
 @Composable
 fun GlassyBottomBar(
     modifier: Modifier = Modifier,
-    navController: NavController,
+    currentScreen: Screen,
+    onNavigate: (Screen) -> Unit,
     hazeState: HazeState,
     tabsList: List<BottomBarTab> = tabs,
     trailingAction: (@Composable (Float) -> Unit)? = null,
@@ -100,6 +103,15 @@ fun GlassyBottomBar(
             else -> 0
         }
     }
+    val selectedTabIndex =
+        remember(currentScreen) {
+            when (currentScreen) {
+                Screen.Day -> 0
+                Screen.Map -> 1
+                Screen.Settings -> 2
+                else -> 0
+            }
+        }
 
     val animatedSelectedTabIndex by animateFloatAsState(
         targetValue = selectedTabIndex.toFloat(),
@@ -173,25 +185,18 @@ fun GlassyBottomBar(
                     tabs = tabsList,
                     selectedTab = selectedTabIndex,
                     onTabSelected = { tab ->
-                        val route = when (tabsList.indexOf(tab)) {
-                            0 -> Screen.Day.route
-                            1 -> Screen.Map.route
-                            2 -> Screen.Settings.route
-                            else -> null
-                        }
+                        val index = tabsList.indexOf(tab)
+                        val route =
+                            when (index) {
+                                0 -> Screen.Day
+                                1 -> Screen.Map
+                                2 -> Screen.Settings
+                                else -> null
+                            }
 
                         route?.let { target ->
-                            if (currentRoute != target) {
-                                navController.navigate(target) {
-                                    popUpTo(
-                                        navController.graph.startDestinationId
-                                    ) {
-                                        saveState = true
-                                    }
-
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                            if (currentScreen != target) {
+                                onNavigate(target)
                             }
                         }
                     },

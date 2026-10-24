@@ -6,7 +6,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.havetime.presentation.screens.CalendarMode
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 
@@ -14,7 +13,7 @@ private const val INFINITE_PAGER_ITEMS = 10_000
 
 @Composable
 fun DayScreen(
-    navController: NavController,
+    onOpenMonth: () -> Unit,
     sharedViewModel: MonthViewModel,
     viewModel: WeekDayViewModel = hiltViewModel(),
     onAvatarClick: () -> Unit = {},
@@ -47,7 +46,7 @@ fun DayScreen(
         events = events,
         searchQuery = searchQuery,
         searchResults = searchResults,
-        navController = navController,
+        onOpenMonth = onOpenMonth,
         onSearchQueryChanged = viewModel::onSearchQueryChanged,
         onGo2Today = viewModel::go2Today,
         onSelectDate = viewModel::selectDate,

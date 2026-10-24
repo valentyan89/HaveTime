@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.havetime.domain.model.Activity
 import com.example.havetime.presentation.common.activity.AddActivityDialog
 import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
@@ -43,7 +42,7 @@ fun DayScreenContent(
     events: List<Activity>,
     searchQuery: String,
     searchResults: List<Activity>,
-    navController: NavController,
+    onOpenMonth: () -> Unit,
     onSearchQueryChanged: (String) -> Unit,
     onGo2Today: () -> Unit,
     onSelectDate: (LocalDate) -> Unit,
@@ -62,7 +61,7 @@ fun DayScreenContent(
     val currentLocale = LocalConfiguration.current.locales[0]
 
     val hazeState = LocalSharedBottomBar.current?.hazeState ?: remember { HazeState() }
-    RegisterBottomBarAddAction(Screen.Day.route) {
+    RegisterBottomBarAddAction(Screen.Day) {
         editingActivity = null
         draftStartTime = null
         draftEndTime = null
@@ -83,7 +82,7 @@ fun DayScreenContent(
                 onGo2Today = onGo2Today,
                 onMenuClick = onMenuClick,
                 onAvatarClick = onAvatarClick,
-                onTitleClick = { navController.navigate(Screen.Month.route) },
+                onTitleClick = { onOpenMonth() },
                 onSelectDate = onSelectDate
             )
         }
@@ -98,7 +97,7 @@ fun DayScreenContent(
                     blurRadius = 30.dp
                 ).fillMaxSize()
                 .padding(
-                    top = paddingValues.calculateTopPadding(),
+                    top = paddingValues.calculateTopPadding()
                 )
                 .navigationBottomPadding()
         ) {

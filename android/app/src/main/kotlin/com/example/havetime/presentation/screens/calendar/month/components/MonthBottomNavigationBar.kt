@@ -9,13 +9,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.common.utils.HaveText
-import com.example.havetime.presentation.navigation.Screen
 
 @Composable
-fun MonthBottomNavigationBar(navController: NavController, onCalendarClick: () -> Unit) {
+fun MonthBottomNavigationBar(onOpenMap: () -> Unit, onCalendarClick: () -> Unit) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant
     ) {
@@ -34,7 +32,7 @@ fun MonthBottomNavigationBar(navController: NavController, onCalendarClick: () -
             icon = { Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map)) },
             label = { HaveText(stringResource(R.string.map)) },
             selected = false,
-            onClick = { navController.navigate(Screen.Map.route) }
+            onClick = onOpenMap
         )
     }
 }

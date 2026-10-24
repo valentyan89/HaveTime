@@ -1,15 +1,25 @@
 package com.example.havetime.presentation.navigation
 
-sealed class Screen(val route: String) {
-    object Day : Screen("day_screen")
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-    object Month : Screen("month_screen")
+@Serializable
+sealed class Screen : NavKey {
+    @Serializable
+    data object Day : Screen()
 
-    object Year : Screen("year_screen")
+    @Serializable
+    data object Month : Screen()
 
-    object Map : Screen("map_screen")
+    @Serializable
+    data class Year(val year: Int) : Screen()
 
-    object Auth : Screen("auth_screen")
+    @Serializable
+    data object Map : Screen()
 
-    object Settings : Screen("settings_screen")
+    @Serializable
+    data object Auth : Screen()
+
+    @Serializable
+    data object Settings : Screen()
 }

@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.havetime.domain.model.settingsPrefs.AppSettings
 import com.example.havetime.domain.model.settingsPrefs.ColorMode
 import com.example.havetime.domain.model.settingsPrefs.Language
@@ -34,7 +33,6 @@ import dev.chrisbanes.haze.haze
 @Composable
 fun SettingsScreenContent(
     settings: AppSettings,
-    navController: NavController,
     onLanguageChanged: (Language) -> Unit,
     onLocationChanged: (Location) -> Unit,
     onDynamicColorChanged: (Boolean) -> Unit,

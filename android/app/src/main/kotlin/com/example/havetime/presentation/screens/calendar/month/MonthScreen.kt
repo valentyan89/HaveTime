@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import androidx.navigation.NavController
 import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.navigationBottomPadding
@@ -84,12 +85,6 @@ fun MonthScreen(
                 onYearClick = onYearClick,
                 onAvatarClick = onAvatarClick
             )
-        },
-        bottomBar = {
-//            GlassyBottomBar(
-//                navController = navController,
-//                hazeState = hazeState
-//            )
         }
     ) { paddingValues ->
         Column(
@@ -102,7 +97,7 @@ fun MonthScreen(
                 )
                 .fillMaxSize()
                 .padding(
-                    top = paddingValues.calculateTopPadding(),
+                    top = paddingValues.calculateTopPadding()
                 )
                 .navigationBottomPadding()
         ) {

@@ -23,18 +23,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.havetime.R
 import com.example.havetime.presentation.screens.auth.components.AuthAccount
 import com.example.havetime.presentation.screens.auth.components.AuthForm
-import dev.chrisbanes.haze.HazeState
 
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
     onAuthSuccess: () -> Unit,
     onBackClick: () -> Unit = { },
-    navController: NavController,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -44,8 +41,6 @@ fun AuthScreen(
     var loginInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
     val successMessage = stringResource(R.string.auth_success)
-
-    val hazeState = remember { HazeState() }
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -64,13 +59,7 @@ fun AuthScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
-        bottomBar = {
-//            GlassyBottomBar(
-//                navController = navController,
-//                hazeState = hazeState
-//            )
-        }
+        modifier = modifier.fillMaxSize()
     ) { paddingValues ->
         Box(
             modifier =

@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import androidx.navigation.NavController
 import com.example.havetime.presentation.common.navigation.bottom_bar.LocalSharedBottomBar
 import com.example.havetime.presentation.common.utils.HaveText
-import com.example.havetime.presentation.navigation.Screen
 import com.example.havetime.presentation.screens.calendar.month.MonthViewModel
 import com.example.havetime.presentation.screens.calendar.year.components.YearMonthGrid
 import com.example.havetime.presentation.screens.calendar.year.components.YearTopBar
@@ -34,8 +34,8 @@ import dev.chrisbanes.haze.haze
 
 @Composable
 fun YearScreen(
-    navController: NavController,
     sharedViewModel: MonthViewModel,
+    onOpenMonth: () -> Unit,
     onAvatarClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     viewModel: YearViewModel = hiltViewModel()
@@ -51,12 +51,6 @@ fun YearScreen(
     Scaffold(
         topBar = {
             Spacer(modifier = Modifier.statusBarsPadding())
-        },
-        bottomBar = {
-//            GlassyBottomBar(
-//                navController = navController,
-//                hazeState = hazeState
-//            )
         }
     ) { paddingValues ->
         when (val yearState = state) {
@@ -103,7 +97,7 @@ fun YearScreen(
                         currentLocale = currentLocale,
                         onMonthClick = { month ->
                             sharedViewModel.setMonth(month)
-                            navController.navigate(Screen.Month.route)
+                            onOpenMonth()
                         }
                     )
                 }
