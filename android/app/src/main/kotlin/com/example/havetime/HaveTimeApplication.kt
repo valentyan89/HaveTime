@@ -12,6 +12,7 @@ import com.example.havetime.presentation.worker.SyncDataWorker
 import com.example.havetime.presentation.worker.WidgetUpdateWorker
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import org.osmdroid.config.IConfigurationProvider
 
 @HiltAndroidApp
 class HaveTimeApplication :
@@ -19,6 +20,9 @@ class HaveTimeApplication :
     Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var osmdroidConfiguration: IConfigurationProvider
 
     override val workManagerConfiguration: Configuration
         get() =
