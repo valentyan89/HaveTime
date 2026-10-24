@@ -52,12 +52,6 @@ jobs:
 
           test -d "$ANDROID_HOME/build-tools/36.0.0" \
             || { echo "Android Build Tools 36.0.0 not found"; exit 1; }
-      - name: Install Android SDK 36
-        run: |
-          sdkmanager --version
-          sdkmanager --sdk_root="$ANDROID_HOME" \
-          "platforms;android-36" \
-          "build-tools;36.0.0"
 
       - name: Grant Gradle permission
         run: chmod +x gradlew
