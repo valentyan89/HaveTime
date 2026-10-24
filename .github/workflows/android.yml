@@ -1,0 +1,95 @@
+
+name: HaveTime Android CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        working-directory: android
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Check Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+
+          if [ -x "$SDKMANAGER" ]; then
+            "$SDKMANAGER" --version
+          else
+            echo "SDK manager not found at expected path"
+            find "$ANDROID_HOME/cmdline-tools" \
+              -name sdkmanager -type f 2>/dev/null || true
+          fi
+
+          test -d "$ANDROID_HOME/platforms/android-36" \
+            || { echo "Android SDK 36 not found"; exit 1; }
+
+          test -d "$ANDROID_HOME/build-tools/36.0.0" \
+            || { echo "Android Build Tools 36.0.0 not found"; exit 1; }
+
+      - name: Grant Gradle permission
+        run: chmod +x gradlew
+
+      - name: Check Kotlin formatting
+        run: ./gradlew :app:ktlintCheck --stacktrace
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Upload APK to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: HaveTime-Debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Send APK to Telegram CI Topic
+        if: github.event_name != 'pull_request'
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+        run: |
+          set -euo pipefail
+
+          : "${BOT_TOKEN:?Missing Telegram bot token}"
+          : "${CHAT_ID:?Missing Telegram chat ID}"
+          : "${THREAD_ID:?Missing Telegram thread ID}"
+
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK_PATH"
+
+          curl --fail-with-body --show-error --silent \
+            --request POST \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument" \
+            --form "chat_id=${CHAT_ID}" \
+            --form "message_thread_id=${THREAD_ID}" \
+            --form "document=@${APK_PATH}" \
+            --form "caption=HaveTime Debug | Branch: ${GITHUB_REF_NAME} | Commit: ${GITHUB_SHA:0:7}"
